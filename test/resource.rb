@@ -2,7 +2,7 @@ require_relative 'test_case'
 
 class RI::TestResouce < RI::TestCase
   def setup
-    @client = ResourceIndex::Base.new(adapter: "amalgalite", username: "test", password: "test")
+    @client = ResourceIndex::Base.new(adapter: "amalgalite", username: "test", password: "test", database: "")
     @client.db.drop_table :obr_resource rescue nil
     @client.db.create_table :obr_resource do
       primary_key :id
