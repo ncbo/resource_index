@@ -21,15 +21,15 @@ class RI::TestResouce < RI::TestCase
     @client.db.run(TEST_DATA)
   end
 
+  def test_resource
+    res = @client.resource("PGDR")
+    assert_equal "PGDR", res.acronym
+    assert_equal "PharmGKB [Drug]", res.name
+    res = @client.resource("AE")
+    assert_equal "AE", res.acronym
+    assert_equal "ArrayExpress", res.name
   end
 
-  def test_resource
-    ae = @client.resource("PGDR")
-    assert_equal "PGDR", ae.acronym
-    assert_equal "PharmGKB [Drug]", ae.name
-    ae = @client.resource("AE")
-    assert_equal "AE", ae.acronym
-    assert_equal "ArrayExpress", ae.name
   end
 
   def test_resources
