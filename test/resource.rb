@@ -30,6 +30,17 @@ class RI::TestResouce < RI::TestCase
     assert_equal "ArrayExpress", res.name
   end
 
+  def test_resource_fields
+    res = @client.resource("GM")
+    assert_equal ["GM_caption", "GM_title"].sort, res.fields.keys.sort
+    assert_equal ["caption", "title"].sort, res.fields.values.map {|f| f.name}
+    assert_equal [0.8, 1.0].sort, res.fields.values.map {|f| f.weight}.sort
+    assert res.fields.values.all? {|f| f.is_a?(RI::Resource::Field)}
+    res = @client.resource("AE")
+    assert_equal ["AE_name", "AE_description", "AE_species", "AE_experiment_type"].sort, res.fields.keys.sort
+    assert_equal ["name", "description", "species", "experiment_type"].sort, res.fields.values.map {|f| f.name}.sort
+    assert_equal [1.0, 0.8, 1.0, 0.9].sort, res.fields.values.map {|f| f.weight}.sort
+    assert res.fields.values.all? {|f| f.is_a?(RI::Resource::Field)}
   end
 
   def test_resources
