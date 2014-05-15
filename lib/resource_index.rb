@@ -1,9 +1,9 @@
+module ResourceIndex; end
+RI = ResourceIndex
+
 require 'sequel'
 require_relative 'resource_index/version'
 require_relative 'resource_index/resource'
-
-module ResourceIndex; end
-RI = ResourceIndex
 
 module ResourceIndex
   class Base
