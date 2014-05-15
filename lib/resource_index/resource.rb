@@ -9,6 +9,16 @@ module ResourceIndex
       end
     end
 
+    def self.all
+      res = RI.db[:obr_resource]
+      res.all.map {|r| RI::Resource.new(r.values)}
+    end
+
+    def self.find(res)
+      res = RI.db[:obr_resource].where(resource_id: res).limit(1).first
+      RI::Resource.new(res)
+    end
+
     attr_accessor :id, :name, :acronym, :main_field, :homepage, :lookup_url, :description, :logo_url, :count, :updated, :completed, :fields
     def initialize(*args)
       cols = args.first.is_a?(Hash) ? args.first.values : args.first

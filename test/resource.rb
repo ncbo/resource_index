@@ -2,8 +2,8 @@ require_relative 'test_case'
 
 class RI::TestResouce < RI::TestCase
   def setup
-    @client = ResourceIndex::Base.new(adapter: "amalgalite", username: "test", password: "test", database: "")
-    @client.db.create_table :obr_resource do
+    ResourceIndex.config(adapter: "amalgalite", username: "test", password: "test", database: "")
+    ResourceIndex.db.create_table :obr_resource do
       primary_key :id
       String :name
       String :resource_id
@@ -18,25 +18,25 @@ class RI::TestResouce < RI::TestCase
       Time :last_update_date
       Time :workflow_completed_date
     end
-    @client.db.run(TEST_DATA)
+    ResourceIndex.db.run(RESOURCES_TEST_DATA)
   end
 
   def test_resource
-    res = @client.resource("PGDR")
+    res = RI::Resource.find("PGDR")
     assert_equal "PGDR", res.acronym
     assert_equal "PharmGKB [Drug]", res.name
-    res = @client.resource("AE")
+    res = RI::Resource.find("AE")
     assert_equal "AE", res.acronym
     assert_equal "ArrayExpress", res.name
   end
 
   def test_resource_fields
-    res = @client.resource("GM")
+    res = RI::Resource.find("GM")
     assert_equal ["GM_caption", "GM_title"].sort, res.fields.keys.sort
     assert_equal ["caption", "title"].sort, res.fields.values.map {|f| f.name}
     assert_equal [0.8, 1.0].sort, res.fields.values.map {|f| f.weight}.sort
     assert res.fields.values.all? {|f| f.is_a?(RI::Resource::Field)}
-    res = @client.resource("AE")
+    res = RI::Resource.find("AE")
     assert_equal ["AE_name", "AE_description", "AE_species", "AE_experiment_type"].sort, res.fields.keys.sort
     assert_equal ["name", "description", "species", "experiment_type"].sort, res.fields.values.map {|f| f.name}.sort
     assert_equal [1.0, 0.8, 1.0, 0.9].sort, res.fields.values.map {|f| f.weight}.sort
@@ -44,7 +44,7 @@ class RI::TestResouce < RI::TestCase
   end
 
   def test_resources
-    res = @client.resources
+    res = RI::Resource.all
     assert_equal 10, res.length
     known_resource_ids = ["AE", "CT", "GM", "OMIM", "CDD", "PGDI", "PGDR", "PGGE", "REAC", "UPKB"].sort
     known_names = [
@@ -65,7 +65,7 @@ class RI::TestResouce < RI::TestCase
     assert_equal known_names, names
   end
 
-TEST_DATA = <<-EOS
+RESOURCES_TEST_DATA = <<-EOS
 INSERT INTO `obr_resource` (`id`, `name`, `resource_id`, `structure`, `main_context`, `url`, `element_url`, `description`, `logo`, `dictionary_id`, `total_element`, `last_update_date`, `workflow_completed_date`)
 VALUES
   (1, 'ArrayExpress', 'AE', '<obs.obr.populate.Structure>\n  <resourceId>AE</resourceId>\n  <contexts>\n    <entry>\n      <string>AE_name</string>\n      <null/>\n    </entry>\n    <entry>\n      <string>AE_description</string>\n      <null/>\n    </entry>\n    <entry>\n      <string>AE_species</string>\n      <null/>\n    </entry>\n    <entry>\n      <string>AE_experiment_type</string>\n      <null/>\n    </entry>\n  </contexts>\n  <itemKeys>\n    <string>name</string>\n    <string>description</string>\n    <string>species</string>\n    <string>experiment_type</string>\n  </itemKeys>\n  <weights>\n    <entry>\n      <string>AE_name</string>\n      <double>1.0</double>\n    </entry>\n    <entry>\n      <string>AE_description</string>\n      <double>0.8</double>\n    </entry>\n    <entry>\n      <string>AE_species</string>\n      <double>1.0</double>\n    </entry>\n    <entry>\n      <string>AE_experiment_type</string>\n      <double>0.9</double>\n    </entry>\n  </weights>\n  <ontoIds>\n    <entry>\n      <string>AE_name</string>\n      <string>null</string>\n    </entry>\n    <entry>\n      <string>AE_description</string>\n      <string>null</string>\n    </entry>\n    <entry>\n      <string>AE_species</string>\n      <string>1132</string>\n    </entry>\n    <entry>\n      <string>AE_experiment_type</string>\n      <string>1136</string>\n    </entry>\n  </ontoIds>\n</obs.obr.populate.Structure>', 'AE_name', 'http://www.ebi.ac.uk/arrayexpress/', 'http://www.ebi.ac.uk/arrayexpress/experiments/', 'ArrayExpress is a public repository for microarray data, which is aimed at storing MIAME-compliant data in accordance with MGED recommendations. The ArrayExpress Data Warehouse stores gene-indexed expression profiles from a curated subset of experiments in the repository.', 'http://www.ebi.ac.uk/microarray-as/aer/include/aelogo.png', 23, 35877, '2013-02-05 21:35:46', '2013-09-26 05:13:05'),
