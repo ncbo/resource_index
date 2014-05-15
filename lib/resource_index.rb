@@ -19,7 +19,7 @@ module ResourceIndex
     end
 
     def resources
-      res = client[:obr_resource]
+      res = db[:obr_resource]
       res.all.map {|r| RI::Resource.new(r.values)}
     end
 
@@ -28,18 +28,19 @@ module ResourceIndex
       RI::Resource.new(res)
     end
 
-    def client
+    def db
       @client
     end
+
+    private
 
     def setup_sql_client(opts = {})
       if RUBY_PLATFORM == "java"
         opts = opts.dup
         opts[:adapter] = "jdbc"
         opts[:uri] = "jdbc:mysql://#{opts[:host]}:#{opts[:port]}/#{opts[:database]}?user=#{opts[:username]}&password=#{opts[:password]}"
-      else
-        opts[:adapter] = "mysql2"
       end
+      opts[:adapter] ||= "mysql2"
       @client = Sequel.connect(opts)
     end
 
