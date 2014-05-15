@@ -3,7 +3,6 @@ require_relative 'test_case'
 class RI::TestResouce < RI::TestCase
   def setup
     @client = ResourceIndex::Base.new(adapter: "amalgalite", username: "test", password: "test", database: "")
-    @client.db.drop_table :obr_resource rescue nil
     @client.db.create_table :obr_resource do
       primary_key :id
       String :name
@@ -22,8 +21,6 @@ class RI::TestResouce < RI::TestCase
     @client.db.run(TEST_DATA)
   end
 
-  def teardown
-    @client.db.drop_table :obr_resource rescue nil
   end
 
   def test_resource
