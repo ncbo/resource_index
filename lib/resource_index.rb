@@ -23,7 +23,10 @@ module ResourceIndex
       res.all.map {|r| RI::Resource.new(r.values)}
     end
 
-    private
+    def resource(res)
+      res = db[:obr_resource].where(resource_id: res).limit(1).first
+      RI::Resource.new(res)
+    end
 
     def client
       @client
