@@ -4,6 +4,7 @@ RI = ResourceIndex
 require 'sequel'
 require_relative 'resource_index/version'
 require_relative 'resource_index/resource'
+require_relative 'resource_index/document'
 
 module ResourceIndex
   class Base
