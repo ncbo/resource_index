@@ -66,6 +66,7 @@ module ResourceIndex
         while docs.nil? || docs.length > 0
           docs = RI.db["obr_#{self.acronym.downcase}_element".to_sym].limit(chunk_size).offset(offset).all
           docs.each do |doc|
+            doc[:resource] = self.acronym
             yielder << cls.from_hash(doc) if doc
           end
           offset += chunk_size
