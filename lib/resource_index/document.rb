@@ -1,4 +1,5 @@
 class RI::Document
-  attr_accessor :id, :local_element_id, :dictionary_id
-  alias :doc_id :local_element_id
+  attr_accessor :id, :document_id, :dictionary_id, :resource
+  alias :local_element_id :document_id
+  alias :"local_element_id=" :"document_id="
 end
