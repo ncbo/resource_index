@@ -41,14 +41,14 @@ module ResourceIndex
     # Return a lazy enumerator that will lazily get results from the DB
     def documents(chunk_size: 5000)
       unless RI::Document.const_defined?(self.acronym)
-        fields = self.fields.keys.map {|f| f.to_sym}
+        fields = self.fields.keys.map {|f| f.downcase.to_sym}
         cls = Class.new(RI::Document) do
           fields.each do |field|
             define_method field do
-              instance_variable_get("@#{field.downcase}")
+              instance_variable_get("@#{field}")
             end
-            define_method "#{field.downcase}=".to_sym do |arg|
-              instance_variable_set("@#{field.downcase}", arg)
+            define_method "#{field}=".to_sym do |arg|
+              instance_variable_set("@#{field}", arg)
             end
           end
         end
