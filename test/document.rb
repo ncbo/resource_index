@@ -32,6 +32,7 @@ class RI::TestDocument < RI::TestCase
   end
 
   def test_documents
+    assert_raises(ArgumentError) {RI::Document.all}
     res = RI::Resource.find("AE")
     docs = res.documents(chunk_size: 10)
     assert_equal Enumerator::Lazy, docs.class
