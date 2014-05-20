@@ -40,38 +40,7 @@ module ResourceIndex
     ##
     # Return a lazy enumerator that will lazily get results from the DB
     def documents(chunk_size: 5000)
-      unless RI::Document.const_defined?(self.acronym)
-        fields = self.fields.keys.map {|f| f.downcase.to_sym}
-        cls = Class.new(RI::Document) do
-          fields.each do |field|
-            define_method field do
-              instance_variable_get("@#{field}")
-            end
-            define_method "#{field}=".to_sym do |arg|
-              instance_variable_set("@#{field}", arg)
-            end
-          end
-        end
-        cls.define_singleton_method :from_hash do |hsh|
-          inst = self.new
-          hsh.each {|k,v| inst.send("#{k}=", v)}
-          inst
-        end
-        RI::Document.const_set(self.acronym, cls)
-      end
-      cls ||= RI::Document.const_get(self.acronym)
-      return Enumerator.new { |yielder|
-        offset = 0
-        docs = nil
-        while docs.nil? || docs.length > 0
-          docs = RI.db["obr_#{self.acronym.downcase}_element".to_sym].limit(chunk_size).offset(offset).all
-          docs.each do |doc|
-            doc[:resource] = self.acronym
-            yielder << cls.from_hash(doc) if doc
-          end
-          offset += chunk_size
-        end
-      }.lazy
+      RI::Document.all(resource: self, chunk_size: chunk_size)
     end
   end
 end
