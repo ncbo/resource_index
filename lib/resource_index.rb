@@ -7,6 +7,7 @@ require 'sequel'
 require_relative 'resource_index/version'
 require_relative 'resource_index/resource'
 require_relative 'resource_index/document'
+require_relative 'resource_index/population/population'
 
 module ResourceIndex
   attr_reader :settings
