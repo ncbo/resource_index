@@ -135,7 +135,7 @@ class RI::Population::Manager
     annotations = @mgrep.annotate(doc.annotatable_text, false)
     string_ids = Set.new
     annotations.each {|a| string_ids << a.string_id.to_i}
-    classes = @label_converter.convert(string_ids)
+    @label_converter.convert(string_ids)
   end
 
   def create_index
