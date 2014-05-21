@@ -10,18 +10,14 @@ module Persisted
 
     def_delegators :@hash, *(::Hash.public_methods(false) - [:"[]=", :merge, :"merge!", :invert])
 
-    def self.finalize(object_id)
-      inst = ObjectSpace._id2ref(object_id)
-      puts "Writing #{inst.name} (id #{inst.object_id}) at #{Time.now}"
-      inst.write
-    end
-
     def initialize(name,
                    persist_write_count: 10000,
                    gzip: false,
                    hash: nil,
-                   dir: nil)
+                   dir: nil,
+                   allow_gc: false)
       @hash = hash || {}
+      @allow_gc = allow_gc
       @write_count = 0
       @dir ||= Dir.pwd
       @name = name
@@ -29,12 +25,31 @@ module Persisted
       @base_path = File.expand_path(path)
       @persist_write_count = persist_write_count
       @gzip = gzip
-      if File.exist?(path)
+
+      if File.exist?(path())
         load
       end
 
-      # Make sure object gets written when it's collected
-      ObjectSpace.define_finalizer(self, self.class.method(:finalize).to_proc)
+      # Make sure object sticks around until exit
+      # This can be overridden by passing allow_gc: true
+      @@persisted_active ||= {}
+      unless @allow_gc
+        @@persisted_active[self] = true
+        at_exit do
+          write
+        end
+      end
+    end
+
+    ##
+    # Allow the garbage collector to reap the object
+    def free
+      return false unless allow_gc
+      write
+      @@persisted_active.delete(self)
+      @freed = true
+      @hash.freeze
+      true
     end
 
     def write
@@ -70,7 +85,8 @@ module Persisted
       ret_val
     end
 
-    ## Don't allow copying
+    ##
+    # Don't allow copying
     def nodup(*args)
       raise CopyError, "#{self.class.name} cannot be copied, duplicated or cloned"
     end
@@ -90,7 +106,8 @@ module Persisted
     end
 
     def write_check
-      if @write_count >= @persist_write_count
+      Kernel.warn("WARNING: Modifying freed #{self.class.name} (#{@name}), forcing write to disk")
+      if @write_count >= @persist_write_count || @freed
         write
         @write_count = 0
       end
