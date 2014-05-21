@@ -56,7 +56,7 @@ module RI::Population::Elasticsearch
       bulk_items << {index: {_index: index_id, _type: @res.acronym, _id: doc.id, data: doc}}
     end
     @es.bulk body: bulk_items
-    @es_queue = {}
+    @es_queue = []
   end
 
   def es_mapping
