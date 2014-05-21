@@ -10,6 +10,12 @@ module Persisted
 
     def_delegators :@hash, *(::Hash.public_methods(false) - [:"[]=", :merge, :"merge!", :invert])
 
+    def self.finalize(object_id)
+      inst = ObjectSpace._id2ref(object_id)
+      puts "Writing #{inst.name} (id #{inst.object_id}) at #{Time.now}"
+      inst.write
+    end
+
     def initialize(name,
                    persist_write_count: 10000,
                    gzip: false,
@@ -18,16 +24,17 @@ module Persisted
       @hash = hash || {}
       @write_count = 0
       @dir ||= Dir.pwd
-      path = @dir + "/#{name}_persisted_hash.dump"
+      @name = name
+      path = @dir + "/#{@name}_persisted_hash.dump"
       @base_path = File.expand_path(path)
       @persist_write_count = persist_write_count
       @gzip = gzip
       if File.exist?(path)
         load
       end
-      at_exit do
-        write
-      end
+
+      # Make sure object gets written when it's collected
+      ObjectSpace.define_finalizer(self, self.class.method(:finalize).to_proc)
     end
 
     def write
@@ -43,6 +50,10 @@ module Persisted
           f.close
         end
       end
+    end
+
+    def name
+      @name
     end
 
     def []=(key, value)
