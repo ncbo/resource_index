@@ -61,6 +61,7 @@ class RI::Population::Manager
     index_documents
     @logger.debug "Aliasing index"
     alias_index
+    @logger.debug "Population complete"
   end
 
   private
