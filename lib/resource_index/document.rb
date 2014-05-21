@@ -45,6 +45,7 @@ class RI::Document
     fields = RI::Resource.find(self.resource).fields.keys.map {|f| f.downcase.to_sym}
     hash = {}
     fields.each {|f| hash[f] = self.send(f)}
+    hash[:id] = self.document_id
     hash
   end
 

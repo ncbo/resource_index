@@ -31,7 +31,7 @@ module RI::Population::Elasticsearch
 
       # Add to batch index, push to ES if we hit the chunk size limit
       @mutex.synchronize {
-        @es_queue << doc
+        @es_queue << index_doc
 
         if @es_queue.length >= settings.bulk_index_size
           @logger.debug "Indexing docs"
@@ -53,7 +53,7 @@ module RI::Population::Elasticsearch
   def store_documents
     bulk_items = []
     @es_queue.each do |doc|
-      bulk_items << {index: {_index: index_id, _type: @res.acronym, _id: doc.id, data: doc}}
+      bulk_items << {index: {_index: index_id, _type: @res.acronym, _id: doc[:id], data: doc}}
     end
     @es.bulk body: bulk_items
     @es_queue = []
