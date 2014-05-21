@@ -49,6 +49,10 @@ class RI::Population::Manager
     nil
   end
 
+  def self.mutex
+    @@mutex
+  end
+
   def settings
     @settings
   end

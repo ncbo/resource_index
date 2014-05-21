@@ -16,11 +16,11 @@ module RI::Population::Elasticsearch
         end
 
         ancestors = nil
-        @@mutex.synchronize { ancestors = ancestors_hash[cls.xxhash] }
+        RI::Population::Manager.mutex.synchronize { ancestors = ancestors_hash[cls.xxhash] }
         unless ancestors
           submission_id = "http://data.bioontology.org/ontologies/#{cls.ont_acronym}/submissions/#{latest_submissions[cls.ont_acronym]}"
           ancestors = cls.retrieve_ancestors(cls.ont_acronym, submission_id)
-          @@mutex.synchronize { ancestors_hash[cls.xxhash] = ancestors }
+          RI::Population::Manager.mutex.synchronize { ancestors_hash[cls.xxhash] = ancestors }
         end
         annotations[cls.xxhash] = {direct: cls.xxhash, ancestors: ancestors, count: 1}
       end
@@ -55,7 +55,7 @@ module RI::Population::Elasticsearch
     @es_queue.each do |doc|
       bulk_items << {index: {_index: index_id, _type: @res.acronym, _id: doc.id, data: doc}}
     end
-    es.bulk body: bulk_queue
+    @es.bulk body: bulk_items
     @es_queue = {}
   end
 
