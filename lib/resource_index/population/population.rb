@@ -31,7 +31,7 @@ class RI::Population::Manager
 
     @logger                = opts[:logger] || Logger.new(STDOUT)
     @es                    = Elasticsearch::Client.new(url: @es_url)
-    @mgrep                 = client = Annotator::Mgrep::Client.new(s.mgrep_host, s.mgrep_port)
+    @mgrep                 = Annotator::Mgrep::Client.new(s.mgrep_host, s.mgrep_port)
     @label_converter       = RI::Population::LabelConverter.new(s.annotator_redis_host, s.annotator_redis_port)
     @mutex                 = Mutex.new
     @es_queue              = []
