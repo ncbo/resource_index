@@ -1,5 +1,7 @@
+require_relative 'class'
+
 module RI::Population
-  class StringIDConverter
+  class LabelConverter
     IDPREFIX = lambda {|prefix| "#{prefix}term:"}
     KEY_STORAGE = lambda {|prefix| "#{prefix}annotator:keys"}
     CHUNK_SIZE = 500_000
@@ -12,8 +14,7 @@ module RI::Population
     def initialize(redis_host, redis_port)
       @redis = Redis.new(:host => redis_host,
                          :port => redis_port,
-                         :timeout => 30,
-                         :driver => :hiredis)
+                         :timeout => 30)
     end
 
     def redis
@@ -55,7 +56,7 @@ module RI::Population
         class_matches.each do |class_id, vals|
           ontology_id = vals.split(",")[1].split("@@").first
           acronym = ontology_id.split("/").last
-          classes << SimpleClass.new(class_id, ontology_id, acronym)
+          classes << RI::Population::Class.new(class_id, ontology_id, acronym)
         end
       end
 
