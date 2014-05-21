@@ -1,6 +1,6 @@
 require 'goo'
 
-module RI::Population::Goo
+module RI::Population::GooConfig
   def goo_setup(opts)
     # Set defaults
     @settings.goo_port          = opts[:goo_port] || 9000

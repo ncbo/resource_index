@@ -2,19 +2,18 @@ require 'logger'
 require 'ostruct'
 require 'json'
 require 'zlib'
-require_relative 'goo'
+
+module RI::Population; end
+
+require_relative 'goo_config'
 require_relative 'elasticsearch'
 require_relative 'mgrep/mgrep'
 require_relative 'label_converter'
 require_relative 'persisted_hash'
 
-module RI::Population; end
-
 class RI::Population::Manager
-  include RI::Population::Goo
+  include RI::Population::GooConfig
   include RI::Population::Elasticsearch
-
-  ALL_ANCESTORS_FILE = "ancestors.gz"
 
   def initialize(res, opts = {})
     raise ArgumentError, "Please provide a resource" unless res.is_a?(RI::Resource)
