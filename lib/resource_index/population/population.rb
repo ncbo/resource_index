@@ -56,15 +56,26 @@ class RI::Population::Manager
     @settings
   end
 
-  def populate
-    @logger.debug "Starting population"
-    @logger.debug "Creating new index"
-    create_index
-    @logger.debug "Getting documents"
-    index_documents
-    @logger.debug "Aliasing index"
-    alias_index
-    @logger.debug "Population complete"
+  def populate(opts = {})
+    delete_old = opts[:delete_old] || false
+    begin
+      @logger.debug "Starting population"
+      @logger.debug "Creating new index"
+      create_index()
+      @logger.debug "Indexing documents"
+      index_documents()
+      @logger.debug "Aliasing index"
+      alias_index()
+      if delete_old
+        @logger.debug "Removing old (unaliased) indices"
+        delete_unaliased()
+      end
+      @logger.debug "Population complete"
+    rescue => e
+      @logger.error "Error populating resource #{@res.acronym}"
+      @logger.error "#{e.message}\n#{e.backtrace.join("\n\t")}"
+      alias_error()
+    end
   end
 
   private
@@ -93,7 +104,7 @@ class RI::Population::Manager
     latest_sub
   end
 
-  def ancestors_hash
+  def ancestors_cache
     @@ancestors
   end
 
