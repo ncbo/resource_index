@@ -1,4 +1,5 @@
 require 'elasticsearch'
+require_relative 'persisted_hash'
 
 module RI::Population::Elasticsearch
   def index_id
@@ -6,6 +7,7 @@ module RI::Population::Elasticsearch
   end
 
   def index_documents
+    res_annotations = Persisted::Hash.new("ri_pop_annotations_#{@res.acronym.downcase}", dir: @settings.ancestors_dumps_dir, gzip: true)
     count = 0
     @res.documents.each do |doc|
       annotations = {}
@@ -28,6 +30,9 @@ module RI::Population::Elasticsearch
       # Switch the annotaions to an array
       index_doc = doc.indexable_hash
       index_doc[:annotations] = annotations.values
+
+      # Store direct annotations for use in update
+      res_annotations[doc.id] = annotations.values.map {|a| a[:direct]}
 
       # Add to batch index, push to ES if we hit the chunk size limit
       @mutex.synchronize {
