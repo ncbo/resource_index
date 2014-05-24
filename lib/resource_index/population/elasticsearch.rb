@@ -39,11 +39,12 @@ module RI::Population::Elasticsearch
         @es_queue << index_doc
 
         if @es_queue.length >= settings.bulk_index_size
-          @logger.debug "Indexing docs"
+          @logger.debug "Indexing docs @ #{count}"
           store_documents
         end
       }
-      @logger.debug "Doc count: #{count += 1}"
+      count += 1
+      @logger.debug "Doc count: #{count}" if count % 10 == 0
     end
   end
 
