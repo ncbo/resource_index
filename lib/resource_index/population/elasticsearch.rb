@@ -16,11 +16,11 @@ module RI::Population::Elasticsearch
         end
 
         ancestors = nil
-        RI::Population::Manager.mutex.synchronize { ancestors = ancestors_hash[cls.xxhash] }
+        RI::Population::Manager.mutex.synchronize { ancestors = ancestors_cache[cls.xxhash] }
         unless ancestors
           submission_id = "http://data.bioontology.org/ontologies/#{cls.ont_acronym}/submissions/#{latest_submissions[cls.ont_acronym]}"
           ancestors = cls.retrieve_ancestors(cls.ont_acronym, submission_id)
-          RI::Population::Manager.mutex.synchronize { ancestors_hash[cls.xxhash] = ancestors }
+          RI::Population::Manager.mutex.synchronize { ancestors_cache[cls.xxhash] = ancestors }
         end
         annotations[cls.xxhash] = {direct: cls.xxhash, ancestors: ancestors, count: 1}
       end
@@ -44,10 +44,25 @@ module RI::Population::Elasticsearch
 
   def create_index
     @es.indices.create index: index_id, type: @res.acronym, body: es_mapping
+    @es.indices.put_alias index: index_id, name: "#{@res.acronym}_populating"
   end
 
   def alias_index
-    @es.indices.put_alias index: index_id, name: @res.acronym
+    previous = (@es.indices.get_alias name: @res.acronym).keys.first # get the prior index
+    @es.indices.put_alias index: previous, name: "#{@res.acronym}_previous" # add RES_previous alias for easy rollback
+    old_aliases = @es.indices.get_aliases.select {|k,v| v["aliases"].key?(@res.acronym)} # list of anything else with the alias (safety check)
+    old_aliases.each {|k,v| @es.indices.delete_alias index: k, name: @res.acronym} # delete the old stuff
+    @es.indices.put_alias index: index_id, name: @res.acronym # name new index
+    @es.indices.delete_alias index: index_id, name: "#{@res.acronym}_populating" # remove populating
+  end
+
+  def alias_error
+    @es.indices.put_alias index: index_id, name: "error"
+  end
+
+  def delete_unaliased
+    indices = @es.indices.get_aliases index: "#{@res.acronym.downcase}*"
+    indices.each {|index_id, hsh| @es.indices.delete index: index_id if hsh["aliases"].empty? || (hsh["aliases"].key?("error"))}
   end
 
   def store_documents
