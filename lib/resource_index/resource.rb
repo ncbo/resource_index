@@ -39,8 +39,8 @@ module ResourceIndex
 
     ##
     # Return a lazy enumerator that will lazily get results from the DB
-    def documents(chunk_size: 5000)
-      RI::Document.all(resource: self, chunk_size: chunk_size)
+    def documents(opts = {})
+      RI::Document.all(self, opts)
     end
   end
 end

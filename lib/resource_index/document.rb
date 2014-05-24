@@ -5,8 +5,9 @@ class RI::Document
 
   ##
   # Return a lazy enumerator that will lazily get results from the DB
-  def self.all(resource: nil, chunk_size: 5000)
+  def self.all(resource, opts = {})
     raise ArgumentError, "Please provide a resource" unless resource.is_a?(RI::Resource)
+    chunk_size = opts[:chunk_size] || 5000
     unless RI::Document.const_defined?(resource.acronym)
       fields = resource.fields.keys.map {|f| f.downcase.to_sym}
       cls = Class.new(RI::Document) do
