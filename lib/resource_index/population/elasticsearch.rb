@@ -42,9 +42,10 @@ module RI::Population::Elasticsearch
           @logger.debug "Indexing docs @ #{count}"
           store_documents
         end
+
+        count += 1
+        @logger.debug "Doc count: #{count}" if count % 10 == 0
       }
-      count += 1
-      @logger.debug "Doc count: #{count}" if count % 10 == 0
     end
   end
 
