@@ -5,26 +5,55 @@ class RI::Document
 
   ##
   # Return a lazy enumerator that will lazily get results from the DB
-  def self.all(resource, opts = {})
+  def self.all(resource, opts = {}, mutex = nil)
     raise ArgumentError, "Please provide a resource" unless resource.is_a?(RI::Resource)
     chunk_size = opts[:chunk_size] || 5000
+    record_limit = opts[:record_limit] || Float::INFINITY
+    mutex ||= Mutex.new
+    cls = nil
+    mutex.synchronize {
+      unless RI::Document.const_defined?(resource.acronym)
         cls = create_doc_subclass(resource)
       end
-      RI::Document.const_set(resource.acronym, cls)
-    end
+    }
     cls ||= RI::Document.const_get(resource.acronym)
     return Enumerator.new { |yielder|
-      offset = 0
+      offset = opts[:offset] || 0
       docs = nil
-      while docs.nil? || docs.length > 0
+      record_count = 0
+      while (docs.nil? || docs.length > 0) && record_count <= record_limit
         docs = RI.db["obr_#{resource.acronym.downcase}_element".to_sym].limit(chunk_size).offset(offset).all
         docs.each do |doc|
           doc[:resource] = resource.acronym
           yielder << cls.from_hash(doc) if doc
         end
         offset += chunk_size
+        record_count += chunk_size
       end
     }.lazy
+  end
+
+  def self.count(resource)
+    RI.db["obr_#{resource.acronym.downcase}_element".to_sym].count
+  end
+
+  def self.threach(resource, opts = {}, mutex = nil, &block)
+    thread_count = opts[:thread_count] || 1
+    threads = []
+    chunk_size = (self.count(resource).to_f / thread_count).ceil
+    opts = opts.dup
+    opts[:record_limit] = chunk_size
+    mutex ||= Mutex.new
+    thread_count.times do |i|
+      threads << Thread.new do
+        opts = opts.dup
+        opts[:offset] = chunk_size * i
+        self.all(resource, opts, mutex).each do |doc|
+          yield doc if block_given?
+        end
+      end
+    end
+    threads.each(&:join)
   end
 
   def indexable_hash
