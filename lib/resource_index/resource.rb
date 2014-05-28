@@ -12,12 +12,11 @@ module ResourceIndex
     attr_accessor :id, :name, :acronym, :main_field, :homepage, :lookup_url, :description, :logo_url, :count, :updated, :completed, :fields
 
     def self.all
-      @@all ||= RI.db[:obr_resource].all.map {|r| RI::Resource.new(r.values)}
+      RI.db[:obr_resource].all.map {|r| RI::Resource.new(r.values)}
     end
 
     def self.find(res)
-      @@all_hash ||= Hash[self.all.map {|r| [r.acronym, r]}]
-      @@all_hash[res]
+      (Hash[self.all.map {|r| [r.acronym, r]}])[res]
     end
 
     def initialize(*args)
