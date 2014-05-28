@@ -9,6 +9,7 @@ class RI::Document
     raise ArgumentError, "Please provide a resource" unless resource.is_a?(RI::Resource)
     chunk_size = opts[:chunk_size] || 5000
     record_limit = opts[:record_limit] || Float::INFINITY
+    chunk_size = record_limit if chunk_size > record_limit
     mutex ||= Mutex.new
     cls = nil
     mutex.synchronize {
