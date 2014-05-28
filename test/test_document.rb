@@ -19,7 +19,7 @@ class RI::TestDocument < RI::TestCase
       Time :workflow_completed_date
     end
     ResourceIndex.db.run(RESOURCES_TEST_DATA)
-    ResourceIndex.db.create_table :obr_ae_element do
+    ResourceIndex.db.create_table :obr_ae_test_element do
       primary_key :id
       String :local_element_id
       Integer :dictionary_id
@@ -31,9 +31,13 @@ class RI::TestDocument < RI::TestCase
     ResourceIndex.db.run(DOCUMENTS_TEST_DATA)
   end
 
+  def teardown
+    ResourceIndex.db[:obr_resource].delete
+  end
+
   def test_documents
     assert_raises(ArgumentError) {RI::Document.all}
-    res = RI::Resource.find("AE")
+    res = RI::Resource.find("AE_test")
     docs = res.documents(chunk_size: 10)
     assert_equal Enumerator::Lazy, docs.class
     assert_equal 464, docs.to_a.length
@@ -46,10 +50,12 @@ class RI::TestDocument < RI::TestCase
   end
 
   def test_document_indexable
-    res = RI::Resource.find("AE")
+    res = RI::Resource.find("AE_test")
     doc = res.documents.to_a.first
-    hash = doc.indexable_hash rescue binding.pry
-    binding.pry
+    hash = doc.indexable_hash
+    keys = [:ae_name, :ae_description, :ae_species, :ae_experiment_type, :id]
+    assert_equal keys.sort, hash.keys.sort
+    assert_equal "CLIP-Seq of H. sapiens HeLa cells to investigate transcriptome-wide mapping of hnRNP C and U2AF65", hash[:ae_name]
   end
 
 
@@ -57,11 +63,11 @@ class RI::TestDocument < RI::TestCase
 RESOURCES_TEST_DATA = <<-EOS
 INSERT INTO `obr_resource` (`id`, `name`, `resource_id`, `structure`, `main_context`, `url`, `element_url`, `description`, `logo`, `dictionary_id`, `total_element`, `last_update_date`, `workflow_completed_date`)
 VALUES
-  (1, 'ArrayExpress', 'AE', '<obs.obr.populate.Structure>\n  <resourceId>AE</resourceId>\n  <contexts>\n    <entry>\n      <string>AE_name</string>\n      <null/>\n    </entry>\n    <entry>\n      <string>AE_description</string>\n      <null/>\n    </entry>\n    <entry>\n      <string>AE_species</string>\n      <null/>\n    </entry>\n    <entry>\n      <string>AE_experiment_type</string>\n      <null/>\n    </entry>\n  </contexts>\n  <itemKeys>\n    <string>name</string>\n    <string>description</string>\n    <string>species</string>\n    <string>experiment_type</string>\n  </itemKeys>\n  <weights>\n    <entry>\n      <string>AE_name</string>\n      <double>1.0</double>\n    </entry>\n    <entry>\n      <string>AE_description</string>\n      <double>0.8</double>\n    </entry>\n    <entry>\n      <string>AE_species</string>\n      <double>1.0</double>\n    </entry>\n    <entry>\n      <string>AE_experiment_type</string>\n      <double>0.9</double>\n    </entry>\n  </weights>\n  <ontoIds>\n    <entry>\n      <string>AE_name</string>\n      <string>null</string>\n    </entry>\n    <entry>\n      <string>AE_description</string>\n      <string>null</string>\n    </entry>\n    <entry>\n      <string>AE_species</string>\n      <string>1132</string>\n    </entry>\n    <entry>\n      <string>AE_experiment_type</string>\n      <string>1136</string>\n    </entry>\n  </ontoIds>\n</obs.obr.populate.Structure>', 'AE_name', 'http://www.ebi.ac.uk/arrayexpress/', 'http://www.ebi.ac.uk/arrayexpress/experiments/', 'ArrayExpress is a public repository for microarray data, which is aimed at storing MIAME-compliant data in accordance with MGED recommendations. The ArrayExpress Data Warehouse stores gene-indexed expression profiles from a curated subset of experiments in the repository.', 'http://www.ebi.ac.uk/microarray-as/aer/include/aelogo.png', 23, 35877, '2013-02-05 21:35:46', '2013-09-26 05:13:05')
+  (1, 'ArrayExpress', 'AE_test', '<obs.obr.populate.Structure>\n  <resourceId>AE</resourceId>\n  <contexts>\n    <entry>\n      <string>AE_name</string>\n      <null/>\n    </entry>\n    <entry>\n      <string>AE_description</string>\n      <null/>\n    </entry>\n    <entry>\n      <string>AE_species</string>\n      <null/>\n    </entry>\n    <entry>\n      <string>AE_experiment_type</string>\n      <null/>\n    </entry>\n  </contexts>\n  <itemKeys>\n    <string>name</string>\n    <string>description</string>\n    <string>species</string>\n    <string>experiment_type</string>\n  </itemKeys>\n  <weights>\n    <entry>\n      <string>AE_name</string>\n      <double>1.0</double>\n    </entry>\n    <entry>\n      <string>AE_description</string>\n      <double>0.8</double>\n    </entry>\n    <entry>\n      <string>AE_species</string>\n      <double>1.0</double>\n    </entry>\n    <entry>\n      <string>AE_experiment_type</string>\n      <double>0.9</double>\n    </entry>\n  </weights>\n  <ontoIds>\n    <entry>\n      <string>AE_name</string>\n      <string>null</string>\n    </entry>\n    <entry>\n      <string>AE_description</string>\n      <string>null</string>\n    </entry>\n    <entry>\n      <string>AE_species</string>\n      <string>1132</string>\n    </entry>\n    <entry>\n      <string>AE_experiment_type</string>\n      <string>1136</string>\n    </entry>\n  </ontoIds>\n</obs.obr.populate.Structure>', 'AE_name', 'http://www.ebi.ac.uk/arrayexpress/', 'http://www.ebi.ac.uk/arrayexpress/experiments/', 'ArrayExpress is a public repository for microarray data, which is aimed at storing MIAME-compliant data in accordance with MGED recommendations. The ArrayExpress Data Warehouse stores gene-indexed expression profiles from a curated subset of experiments in the repository.', 'http://www.ebi.ac.uk/microarray-as/aer/include/aelogo.png', 23, 35877, '2013-02-05 21:35:46', '2013-09-26 05:13:05')
 EOS
 
 DOCUMENTS_TEST_DATA = <<-EOS
-INSERT INTO `obr_ae_element` (`id`, `local_element_id`, `dictionary_id`, `ae_name`, `ae_description`, `ae_species`, `ae_experiment_type`)
+INSERT INTO `obr_ae_test_element` (`id`, `local_element_id`, `dictionary_id`, `ae_name`, `ae_description`, `ae_species`, `ae_experiment_type`)
 VALUES
   (1, 'E-MTAB-1371', 23, 'CLIP-Seq of H. sapiens HeLa cells to investigate transcriptome-wide mapping of hnRNP C and U2AF65', 'iCLIP experiment to assess the binding of the highly abundant nuclear RNA-binding protein hnRNP C and core splicing factor U2AF65 on a genomic scale. To investigate how both proteins compete for binding at a subset of sites, U2AF65 iCLIP experiments were performed from both HNRNPC knockdown and control HeLa cells.', '1132/NCBITaxon:9606', '1136/efo:EFO_0003143'),
   (2, 'E-MTAB-1289', 23, 'Transcription profiling by array of spinal cord tissue from mouse with bone cancer pain', 'The aim of our study is to identify miRNAs responsible for bone-cancer pain condition and their target mRNAs. We combined mRNA profiling with Affymetrix microarray and miRNA measurement with a qRT-PCR-based technique. Then, a cross-correlation of these data highlighted miRNA-mRNA pairs that were further characterized with functional experiments.', '1132/NCBITaxon:10090', '1136/efo:EFO_0002768'),
@@ -330,7 +336,7 @@ VALUES
   (265, 'E-GEOD-43485', 23, 'Expression profiling in miR-290 6dt1 mammary tumors', 'mRNA expression data from mammary tumors extracted 30 days after orthotopic injection of miR-290-expressing and negative control 6dt1 cells into female FVB/N mice. At 6 weeks of age, FVB/N female mice were orthotopically injected with 1.0x10E5 6dt1 cells, either expressing miR-290 or a negative control RNA construct. 4 negative control tumors and 3 miR-290 tumors were analyzed.', '1132/NCBITaxon:10090', '1136/efo:EFO_0002768'),
   (266, 'E-GEOD-43484', 23, 'Comparison study between Uremic patient with Healthy control', 'Patients with chronic kidney disease (CKD) have significantly increased morbidity and mortality resulting from infections and cardiovascular diseases. Since monocytes play an essential role in host immunity, this study was directed to explore the gene expression profile and to identify differences in activated pathways in monocytes relevant to the pathophysiology of atherosclerosis and increased susceptibility to infections. Monocytes from CKD patients (stages 4 and 5, eGFR <20 ml/min x 1.73 m2) and healthy donors were collected from peripheral blood. Microarray gene expression profile was done and data were interpreted by Genespring software and Panther tools website. Western blot was done to validate the pathway members. The results demonstrated that 487 and 258 genes were differentially up- and down regulated respectively in the patient group. Pathways involved in the inflammatory response were highly expressed and the Wnt/?- catenin signaling pathway was the most significant pathway expressed in the patient group (P=0.02). Since this pathway has been attributed to a variety of inflammatory manifestations, the current finding may contribute to dysfunctional monocytes in CKD patients. To develop strategies to interfere with this pathway may improve host immunity and prevent cardiovascular complications in CKD patients. Six gene expression Affymetrix chip were used. Three for each group', '1132/NCBITaxon:9606', '1136/efo:EFO_0002768');
 
-INSERT INTO `obr_ae_element` (`id`, `local_element_id`, `dictionary_id`, `ae_name`, `ae_description`, `ae_species`, `ae_experiment_type`)
+INSERT INTO `obr_ae_test_element` (`id`, `local_element_id`, `dictionary_id`, `ae_name`, `ae_description`, `ae_species`, `ae_experiment_type`)
 VALUES
   (267, 'E-GEOD-43482', 23, 'Cytosolic DNA stimulated gene regulation', 'This SuperSeries is composed of the SubSeries listed below. Refer to individual Series', '1132/NCBITaxon:10090', '1136/efo:EFO_0002768'),
   (268, 'E-GEOD-43481', 23, 'Gene expression profiling of dsDNA90 or ssDNA90 stimulated Mouse Embryonic Fibroblasts', 'Gene expression analysis of wild type, STING knock-out and STAT1 knock-out Mouse Embryonic Fibroblasts (MEFs) stimulated with 90-mer dsDNA or 90-mer ssDNA. Genes whose expression that are affected by cytosolic DNA in a STING dependent manner will be identified and signaling pathways regulated by STING will be elucidated. Primary MEFs were mock treated or transfected with dsDNA90 or ssDNA90 for 3 hours. Total RNA was then extracted for array analysis.', '1132/NCBITaxon:10090', '1136/efo:EFO_0002768'),
