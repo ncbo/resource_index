@@ -25,7 +25,7 @@ class RI::Document
       while (docs.nil? || docs.length > 0) && record_count < record_limit
         docs = RI.db["obr_#{resource.acronym.downcase}_element".to_sym].limit(chunk_size).offset(offset).all
         docs.each do |doc|
-          doc[:resource] = resource.acronym
+          doc[:resource] = resource
           yielder << cls.from_hash(doc) if doc
         end
         offset += chunk_size
@@ -58,7 +58,7 @@ class RI::Document
   end
 
   def indexable_hash
-    fields = RI::Resource.find(self.resource).fields.keys.map {|f| f.downcase.to_sym}
+    fields = self.resource.fields.keys.map {|f| f.downcase.to_sym}
     hash = {}
     fields.each {|f| hash[f] = self.send(f).force_encoding('UTF-8')}
     hash[:id] = self.document_id
@@ -66,7 +66,7 @@ class RI::Document
   end
 
   def annotatable_text
-    fields = RI::Resource.find(self.resource).fields.keys.map {|f| f.downcase.to_sym}
+    fields = self.resource.fields.keys.map {|f| f.downcase.to_sym}
     fields.map {|f| self.send(f)}.join("\n\n")
   end
 
