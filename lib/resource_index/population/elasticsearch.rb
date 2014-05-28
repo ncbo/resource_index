@@ -82,12 +82,12 @@ module RI::Population::Elasticsearch
   end
 
   def es_mapping
-    properties_json = Hash[@res.fields.values.map {|f| [f.name.to_sym, {type: :string}] }]
+    properties_json = Hash[@res.fields.keys.map {|f| [f.downcase.to_sym, {type: :string}] }]
     {
       mappings: {
         @res.acronym => {
           :"_source" => {
-            includes: @res.fields.values.map {|f| f.name.to_sym},
+            includes: @res.fields.keys.map {|f| f.downcase.to_sym},
             excludes: [:annotations]
           },
           properties: properties_json.merge(ANNOTATIONS_MAPPING)
