@@ -30,7 +30,7 @@ class RI::Document
   def indexable_hash
     fields = RI::Resource.find(self.resource).fields.keys.map {|f| f.downcase.to_sym}
     hash = {}
-    fields.each {|f| hash[f] = self.send(f)}
+    fields.each {|f| hash[f] = self.send(f).force_encoding('UTF-8')}
     hash[:id] = self.document_id
     hash
   end
