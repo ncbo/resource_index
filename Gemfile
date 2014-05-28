@@ -10,9 +10,6 @@ gem 'activesupport'
 gem 'ref'
 
 platform :ruby do
-  gem 'mysql2'
-end
-
-group :testing do
   gem 'amalgalite'
+  gem 'mysql2'
 end
