@@ -8,22 +8,7 @@ class RI::Document
   def self.all(resource, opts = {})
     raise ArgumentError, "Please provide a resource" unless resource.is_a?(RI::Resource)
     chunk_size = opts[:chunk_size] || 5000
-    unless RI::Document.const_defined?(resource.acronym)
-      fields = resource.fields.keys.map {|f| f.downcase.to_sym}
-      cls = Class.new(RI::Document) do
-        fields.each do |field|
-          define_method field do
-            instance_variable_get("@#{field}")
-          end
-          define_method "#{field}=".to_sym do |arg|
-            instance_variable_set("@#{field}", arg)
-          end
-        end
-      end
-      cls.define_singleton_method :from_hash do |hsh|
-        inst = self.new
-        hsh.each {|k,v| inst.send("#{k}=", v)}
-        inst
+        cls = create_doc_subclass(resource)
       end
       RI::Document.const_set(resource.acronym, cls)
     end
@@ -53,5 +38,28 @@ class RI::Document
   def annotatable_text
     fields = RI::Resource.find(self.resource).fields.keys.map {|f| f.downcase.to_sym}
     fields.map {|f| self.send(f)}.join("\n\n")
+  end
+
+  private
+
+  def self.create_doc_subclass(resource)
+    fields = resource.fields.keys.map {|f| f.downcase.to_sym}
+    cls = Class.new(RI::Document) do
+      fields.each do |field|
+        define_method field do
+          instance_variable_get("@#{field}")
+        end
+        define_method "#{field}=".to_sym do |arg|
+          instance_variable_set("@#{field}", arg)
+        end
+      end
+    end
+    cls.define_singleton_method :from_hash do |hsh|
+      inst = self.new
+      hsh.each {|k,v| inst.send("#{k}=", v)}
+      inst
+    end
+    RI::Document.const_set(resource.acronym, cls)
+    cls
   end
 end
