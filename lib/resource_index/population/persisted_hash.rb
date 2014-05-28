@@ -127,6 +127,10 @@ module Persisted
       ret_val
     end
 
+    def to_hash
+      @data
+    end
+
     ##
     # Don't allow copying
     def nodup(*args)
