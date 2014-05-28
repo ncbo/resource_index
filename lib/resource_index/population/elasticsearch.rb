@@ -9,7 +9,7 @@ module RI::Population::Elasticsearch
   def index_documents
     res_annotations = Persisted::Hash.new("ri_pop_annotations_#{@res.acronym.downcase}", dir: @settings.ancestors_dumps_dir, gzip: true)
     count = 0
-    @res.documents.each do |doc|
+    RI::Document.threach(@res, {thread_count: settings.population_threads}, @mutex) do |doc|
       annotations = {}
       annotated_classes(doc).each do |cls|
         if annotations[cls.xxhash]
