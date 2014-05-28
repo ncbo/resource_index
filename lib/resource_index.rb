@@ -10,7 +10,6 @@ require_relative 'resource_index/document'
 require_relative 'resource_index/population/population'
 
 module ResourceIndex
-  attr_reader :settings
 
   REQUIRED_OPTS = [:username, :password]
   def self.config(opts = {})
