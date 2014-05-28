@@ -21,7 +21,7 @@ class RI::Document
       offset = opts[:offset] || 0
       docs = nil
       record_count = 0
-      while (docs.nil? || docs.length > 0) && record_count <= record_limit
+      while (docs.nil? || docs.length > 0) && record_count < record_limit
         docs = RI.db["obr_#{resource.acronym.downcase}_element".to_sym].limit(chunk_size).offset(offset).all
         docs.each do |doc|
           doc[:resource] = resource.acronym
