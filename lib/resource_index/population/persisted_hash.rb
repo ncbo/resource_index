@@ -9,6 +9,8 @@ module Persisted
     class CopyError < StandardError; end
     class ExistsError < StandardError; end
 
+    @@persist_data = true
+
     def_delegators :@data, *(::Hash.public_methods(false) - [:"[]=", :merge, :"merge!", :invert])
 
     ##
@@ -94,7 +96,14 @@ module Persisted
       self.new(ref[:name], data: ref[:hash], dir: ref[:dir], gzip: ref[:gzip])
     end
 
+    def self.prevent_persist
+      puts @@persist_data
+      @@persist_data = false
+      puts @@persist_data
+    end
+
     def write
+      return unless @@persist_data
       if @gzip
         File.open(path, 'w') do |f|
           gz = Zlib::GzipWriter.new(f)
@@ -159,18 +168,22 @@ module Persisted
     end
 
     def load(data)
-      if File.exist?(path()) && data.nil?
-        if @gzip
-          Zlib::GzipReader.open(path) do |gz|
-            begin
-              data = Marshal.load(gz.read)
-            ensure
-              gz.close
+      if @@persist_data
+        if File.exist?(path()) && data.nil?
+          if @gzip
+            Zlib::GzipReader.open(path) do |gz|
+              begin
+                data = Marshal.load(gz.read)
+              ensure
+                gz.close
+              end
             end
+          else
+            data = Marshal.load(File.read(path)) rescue {}
           end
-        else
-          data = Marshal.load(File.read(path)) rescue {}
         end
+      else
+        data = {}
       end
 
       ##
