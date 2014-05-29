@@ -26,11 +26,12 @@ class RI::Population::Manager
     s.mgrep_port           = opts[:mgrep_port] || 55555
     s.population_threads   = opts[:population_threads] || 1
     s.ancestors_dumps_dir  = opts[:ancestors_dumps_dir] || Dir.pwd
-    s.es_url               = opts[:es_url] || "http://localhost:9200"
+    s.es_host              = opts[:es_host] || "localhost"
+    s.es_port              = opts[:es_port] || 9200
     s.bulk_index_size      = opts[:bulk_index_size] || 100
 
     @logger                = opts[:logger] || Logger.new(STDOUT)
-    @es                    = Elasticsearch::Client.new(url: @es_url)
+    @es                    = Elasticsearch::Client.new(host: "#{s.es_url}:#{s.es_port}")
     @mgrep                 = opts[:mgrep_client] || Annotator::Mgrep::ThreadedClient.new(s.mgrep_host, s.mgrep_port)
     @label_converter       = RI::Population::LabelConverter.new(s.annotator_redis_host, s.annotator_redis_port)
     @mutex                 = Mutex.new
