@@ -31,7 +31,7 @@ class RI::Population::Manager
     s.bulk_index_size      = opts[:bulk_index_size] || 100
 
     @logger                = opts[:logger] || Logger.new(STDOUT)
-    @es                    = Elasticsearch::Client.new(host: "#{s.es_url}:#{s.es_port}")
+    @es                    = Elasticsearch::Client.new(host: s.es_host, port: s.es_port)
     @mgrep                 = opts[:mgrep_client] || Annotator::Mgrep::ThreadedClient.new(s.mgrep_host, s.mgrep_port)
     @label_converter       = RI::Population::LabelConverter.new(s.annotator_redis_host, s.annotator_redis_port)
     @mutex                 = Mutex.new
