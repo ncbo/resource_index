@@ -22,7 +22,7 @@ module ResourceIndex
     def initialize(*args)
       cols = args.first.is_a?(Hash) ? args.first.values : args.first
       @id, @name, @acronym, @structure, @main_field, @homepage, @lookup_url, @description, @logo_url, @dict_id, @count, @updated, @completed = *cols
-      doc ||= REXML::Document.new(@structure, ignore_whitespace_nodes: :all) rescue binding.pry
+      doc ||= REXML::Document.new(@structure, ignore_whitespace_nodes: :all)
       @fields = {}
       doc.elements.to_a("//contexts/entry/string").each {|a| fields[a.text] = Field.new(a.text.split("_")[1..-1].join("_"))} # Context names, create field obj
       doc.elements.to_a("//weights/entry").map {|a| fields[a.elements["string"].text].weight = a.elements["double"].text.to_f}
