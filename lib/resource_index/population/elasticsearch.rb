@@ -47,6 +47,8 @@ module RI::Population::Elasticsearch
         @logger.debug "Doc count: #{count}" if count % 10 == 0
       }
     end
+
+    store_documents # store any remaining in the queue
   end
 
   def create_index
