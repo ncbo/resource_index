@@ -50,7 +50,7 @@ module RI::Population::Elasticsearch
   end
 
   def create_index
-    @es.indices.create index: index_id, type: @res.acronym, body: es_mapping
+    @es.indices.create index: index_id, type: "#{@res.acronym.downcase}_doc", body: es_mapping
     @es.indices.put_alias index: index_id, name: "#{@res.acronym}_populating"
   end
 
@@ -75,7 +75,7 @@ module RI::Population::Elasticsearch
   def store_documents
     bulk_items = []
     @es_queue.each do |doc|
-      bulk_items << {index: {_index: index_id, _type: @res.acronym, _id: doc[:id], data: doc}}
+      bulk_items << {index: {_index: index_id, _type: "#{@res.acronym.downcase}_doc", _id: doc[:id], data: doc}}
     end
     @es.bulk body: bulk_items
     @es_queue = []
@@ -85,7 +85,7 @@ module RI::Population::Elasticsearch
     properties_json = Hash[@res.fields.keys.map {|f| [f.downcase.to_sym, {type: :string}] }]
     {
       mappings: {
-        @res.acronym => {
+        :"#{@res.acronym.downcase}_doc" => {
           :"_source" => {
             includes: @res.fields.keys.map {|f| f.downcase.to_sym},
             excludes: [:annotations]
