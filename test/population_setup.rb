@@ -1,17 +1,9 @@
-require 'pry'
-require 'minitest/autorun'
-require_relative '../lib/resource_index'
-
-module RI
-  class TestCase < Minitest::Test
-
-  end
-end
-
 Minitest.after_run do
   # File.open(Dir.pwd + "/converted.dump", 'w') {|f| f.write(Marshal.dump($converted)) }
   # File.open(Dir.pwd + "/ancestors.dump", 'w') {|f| f.write(Marshal.dump($hierarchies)) }
   # File.open(Dir.pwd + "/annotations.dump", 'w') {|f| f.write(Marshal.dump($annotations)) }
+  # File.open(Dir.pwd + "/annotation_counts.dump", 'w') {|f| f.write(Marshal.dump($test_annotation_counts)) }
+  # File.open(Dir.pwd + "/annotation_counts_anc.dump", 'w') {|f| f.write(Marshal.dump($test_annotation_counts_anc)) }
 end
 
 ##
@@ -29,6 +21,8 @@ def gzip_read(path)
 end
 $test_converted = gzip_read(File.expand_path("../data/converted.dump.gz", __FILE__))
 $test_annotations = gzip_read(File.expand_path("../data/annotations.dump.gz", __FILE__))
+$test_annotation_counts = gzip_read(File.expand_path("../data/annotation_counts.dump.gz", __FILE__))
+$test_annotation_counts_anc = gzip_read(File.expand_path("../data/annotation_counts_anc.dump.gz", __FILE__))
 $test_ancestors = gzip_read(File.expand_path("../data/ancestors.dump.gz", __FILE__))
 $test_latest_sub = gzip_read(File.expand_path("../data/latest_sub.dump.gz", __FILE__))
 
@@ -40,13 +34,19 @@ class RI::Population::LabelConverter
   end
 end
 
-class Annotator::Mgrep::Client
+module MockMGREP
   def annotate(text,longword,wholeword=true)
     text = text.force_encoding('UTF-8').upcase.gsub("\n"," ")
-    anns = $test_annotations[text]
-    binding.pry unless anns
-    anns
+    $test_annotations[text]
   end
+end
+
+class Annotator::Mgrep::Client
+  include MockMGREP
+end
+
+class MockMGREPClient
+  include MockMGREP
 end
 
 class RI::Population::Class
