@@ -45,7 +45,7 @@ module Persisted
     # The polling thread will continuisly look for GCed objects
     # and recreate them for storage on disk
     @@poll_thread ||= Thread.new do
-      while
+      while Persisted::Hash.persist_data?
         sleep(0.5)
         poll_for_gced()
       end
@@ -56,11 +56,13 @@ module Persisted
     # the VM exits. Could prevent the VM from exiting if objects aren't freed
     # for some reason (don't think that should happen)
     at_exit do
-      @@ref_map.values.each do |ref|
-        data = @@data_refs.delete(ref.object_id)
-        inst = ref.class.new_from_data_ref(data)
-        puts "Writing #{inst.class.name} (#{inst.name}) to disk at exit"
-        inst.write
+      if Persisted::Hash.persist_data?
+        @@ref_map.values.each do |ref|
+          data = @@data_refs.delete(ref.object_id)
+          inst = ref.class.new_from_data_ref(data)
+          puts "Writing #{inst.class.name} (#{inst.name}) to disk at exit"
+          inst.write
+        end
       end
     end
 
@@ -97,9 +99,11 @@ module Persisted
     end
 
     def self.prevent_persist
-      puts @@persist_data
       @@persist_data = false
-      puts @@persist_data
+    end
+
+    def self.persist_data?
+      @@persist_data
     end
 
     def write
