@@ -40,6 +40,7 @@ module RI::Population::GooConfig
   # Configure ontologies_linked_data namespaces
   # We do this at initial runtime because goo needs namespaces for its DSL
   def goo_namespaces
+    return if defined?(@@configured) && @@configured
     Goo.configure do |conf|
       conf.add_namespace(:omv, RDF::Vocabulary.new("http://omv.ontoware.org/2005/05/ontology#"))
       conf.add_namespace(:skos, RDF::Vocabulary.new("http://www.w3.org/2004/02/skos/core#"))
@@ -55,5 +56,6 @@ module RI::Population::GooConfig
       conf.id_prefix = "http://data.bioontology.org/"
       conf.pluralize_models(true)
     end
+    @@configured = true
   end
 end
