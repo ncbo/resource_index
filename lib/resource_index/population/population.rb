@@ -76,6 +76,7 @@ class RI::Population::Manager
       @logger.error "#{e.message}\n#{e.backtrace.join("\n\t")}"
       alias_error()
     end
+    index_id()
   end
 
   private
