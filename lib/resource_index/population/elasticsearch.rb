@@ -8,53 +8,47 @@ module RI::Population::Elasticsearch
   end
 
   def index_documents
-    res_annotations = DBM.open("#{@settings.ancestors_dumps_dir}/ri_pop_annotations_#{@res.acronym.downcase}", 666, DBM::WRCREAT)
-
-    begin
-      count = 0
-      RI::Document.threach(@res, {thread_count: settings.population_threads}, @mutex) do |doc|
-        annotations = {}
-        annotated_classes(doc).each do |cls|
-          if annotations[cls.xxhash]
-            annotations[cls.xxhash][:count] += 1
-            next
-          end
-
-          ancestors = nil
-          RI::Population::Manager.mutex.synchronize { ancestors = ancestors_cache[cls.xxhash] }
-          unless ancestors
-            submission_id = "http://data.bioontology.org/ontologies/#{cls.ont_acronym}/submissions/#{latest_submissions[cls.ont_acronym]}"
-            ancestors = cls.retrieve_ancestors(cls.ont_acronym, submission_id)
-            RI::Population::Manager.mutex.synchronize { ancestors_cache[cls.xxhash] = ancestors }
-          end
-          annotations[cls.xxhash] = {direct: cls.xxhash, ancestors: ancestors, count: 1}
+    count = 0
+    RI::Document.threach(@res, {thread_count: settings.population_threads}, @mutex) do |doc|
+      annotations = {}
+      annotated_classes(doc).each do |cls|
+        if annotations[cls.xxhash]
+          annotations[cls.xxhash][:count] += 1
+          next
         end
 
-        # Switch the annotaions to an array
-        index_doc = doc.indexable_hash
-        index_doc[:annotations] = annotations.values
-
-        # Store direct annotations for use in update
-        res_annotations[doc.id] = annotations.values.map {|a| a[:direct]}
-
-        # Add to batch index, push to ES if we hit the chunk size limit
-        @mutex.synchronize {
-          @es_queue << index_doc
-
-          if @es_queue.length >= settings.bulk_index_size
-            @logger.debug "Indexing docs @ #{count}"
-            store_documents
-          end
-
-          count += 1
-          @logger.debug "Doc count: #{count}" if count % 10 == 0
-        }
+        ancestors = nil
+        RI::Population::Manager.mutex.synchronize { ancestors = ancestors_cache[cls.xxhash] }
+        unless ancestors
+          submission_id = "http://data.bioontology.org/ontologies/#{cls.ont_acronym}/submissions/#{latest_submissions[cls.ont_acronym]}"
+          ancestors = cls.retrieve_ancestors(cls.ont_acronym, submission_id)
+          RI::Population::Manager.mutex.synchronize { ancestors_cache[cls.xxhash] = ancestors }
+        end
+        annotations[cls.xxhash] = {direct: cls.xxhash, ancestors: ancestors, count: 1}
       end
 
-      store_documents # store any remaining in the queue
-    ensure
-      res_annotations.close
+      # Switch the annotaions to an array
+      index_doc = doc.indexable_hash
+      index_doc[:annotations] = annotations.values
+
+      # Store direct annotations for use in update
+      res_annotations[doc.id] = annotations.values.map {|a| a[:direct]}
+
+      # Add to batch index, push to ES if we hit the chunk size limit
+      @mutex.synchronize {
+        @es_queue << index_doc
+
+        if @es_queue.length >= settings.bulk_index_size
+          @logger.debug "Indexing docs @ #{count}"
+          store_documents
+        end
+
+        count += 1
+        @logger.debug "Doc count: #{count}" if count % 10 == 0
+      }
     end
+
+    store_documents # store any remaining in the queue
   end
 
   def create_index
