@@ -31,9 +31,6 @@ module RI::Population::Elasticsearch
       index_doc = doc.indexable_hash
       index_doc[:annotations] = annotations.values
 
-      # Store direct annotations for use in update
-      res_annotations[doc.id] = annotations.values.map {|a| a[:direct]}
-
       # Add to batch index, push to ES if we hit the chunk size limit
       @mutex.synchronize {
         @es_queue << index_doc
