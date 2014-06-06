@@ -19,22 +19,26 @@ module ResourceIndex
     opts[:host]     ||= "localhost"
     opts[:port]     ||= 3306
     opts[:database] ||= "resource_index"
-    setup_sql_client(opts)
+    @opts = opts
+    setup_sql_client
   end
 
   def self.db
     @client
   end
 
+  def self.refresh_db
+    @client = Sequel.connect(@opts)
+  end
+
   private
 
-  def self.setup_sql_client(opts = {})
+  def self.setup_sql_client
     if RUBY_PLATFORM == "java"
-      opts = opts.dup
-      opts[:adapter] = "jdbc"
-      opts[:uri] = "jdbc:mysql://#{opts[:host]}:#{opts[:port]}/#{opts[:database]}?user=#{opts[:username]}&password=#{opts[:password]}"
+      @opts[:adapter] = "jdbc"
+      @opts[:uri] = "jdbc:mysql://#{opts[:host]}:#{opts[:port]}/#{opts[:database]}?user=#{opts[:username]}&password=#{opts[:password]}"
     end
-    opts[:adapter] ||= "mysql2"
-    @client = Sequel.connect(opts)
+    @opts[:adapter] ||= "mysql2"
+    @client = Sequel.connect(@opts)
   end
 end
