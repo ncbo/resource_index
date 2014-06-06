@@ -1,13 +1,13 @@
 require_relative 'mgrep_client'
 
-module Annotator::Mgrep
+module RI::Population::Mgrep
   class ThreadedClient
     def initialize(host, port, threads = 1)
       @host = host
       @port = port
       @pool = []
       (threads * 1.5).to_i.times do
-        @pool << Annotator::Mgrep::Client.new(@host, @port)
+        @pool << RI::Population::Mgrep::Client.new(@host, @port)
       end
       @assigned = {}
     end
@@ -22,7 +22,7 @@ module Annotator::Mgrep
 
     def pooled_client
       client = @assigned[Thread.current.object_id]
-      client ||= @assigned[Thread.current.object_id] = Annotator::Mgrep::Client.new(@host, @port)
+      client ||= @assigned[Thread.current.object_id] = RI::Population::Mgrep::Client.new(@host, @port)
       client
     end
   end

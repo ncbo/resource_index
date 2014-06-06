@@ -1,4 +1,4 @@
-module Annotator
+module RI::Population
   module Mgrep
 
     @annotation_struct = Struct.new(:offset_from, :offset_to, :string_id, :value)

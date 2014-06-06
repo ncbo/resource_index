@@ -1,6 +1,6 @@
 require 'socket'
 
-module Annotator
+module RI::Population
   module Mgrep
     class Client
       def initialize(host,port)

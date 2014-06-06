@@ -41,7 +41,7 @@ module MockMGREP
   end
 end
 
-class Annotator::Mgrep::Client
+class RI::Population::Mgrep::Client
   include MockMGREP
 end
 
