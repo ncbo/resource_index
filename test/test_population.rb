@@ -77,15 +77,17 @@ class RI::TestDocument < RI::TestCase
 
   def test_population_resume
     RI::Document.fail_on_index(true)
+    @es = Elasticsearch::Client.new
     @res = RI::Resource.find("AE_test")
     mgrep = MockMGREPClient.new
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500)
     assert_raises StandardError do
-      @index_id = populator.populate()
+      populator.populate()
     end
     sleep(3)
     RI::Document.fail_on_index(false)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500)
+    assert_equal ({}), @es.indices.get_alias(index: populator.index_id, name: "error")
     @index_id = populator.populate()
     sleep(3) # wait for indexing to complete
     docs_ok?

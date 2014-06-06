@@ -79,6 +79,10 @@ module RI::Population::Elasticsearch
     indices.each {|index_id, hsh| @es.indices.delete index: index_id if hsh["aliases"].empty? || (hsh["aliases"].key?("error"))}
   end
 
+  def remove_error_alias
+    @es.indices.delete_alias index: index_id, name: "error"
+  end
+
   def store_documents
     @logger.debug "Storing #{@es_queue.length} records in #{index_id}"
     bulk_items = []
