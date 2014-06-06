@@ -5,6 +5,8 @@ require_relative 'shared_data'
 
 # Kept for test data consistency
 Annotator = RI::Population
+
+# Prevent Persisted::Hash from writing data while testing
 Persisted::Hash.prevent_persist
 
 module RI

@@ -29,6 +29,7 @@ class RI::Population::Manager
     s.es_host              = opts[:es_host] || "localhost"
     s.es_port              = opts[:es_port] || 9200
     s.bulk_index_size      = opts[:bulk_index_size] || 100
+    s.starting_offset      = opts[:starting_offset] || 0
 
     @logger                = opts[:logger] || Logger.new(STDOUT)
     @es                    = Elasticsearch::Client.new(host: s.es_host, port: s.es_port)
@@ -45,6 +46,15 @@ class RI::Population::Manager
     }
 
     goo_setup(opts)
+
+    # Resume from previous population
+    if File.exist?(resume_path)
+      resumed = Marshal.load(File.read(resume_path))
+      s.starting_offset = resumed[:count]
+      @time = resumed[:time]
+      @logger.warn "Resuming process for #{@res.acronym} at record #{s.starting_offset}"
+      File.delete(resume_path)
+    end
 
     nil
   end
@@ -64,7 +74,7 @@ class RI::Population::Manager
       @logger.debug "Creating new index"
       create_index()
       @logger.debug "Indexing documents"
-      index_documents()
+      index_documents(@settings.starting_offset)
       @logger.debug "Aliasing index"
       alias_index()
       if delete_old
@@ -76,11 +86,23 @@ class RI::Population::Manager
       @logger.error "Error populating resource #{@res.acronym}"
       @logger.error "#{e.message}\n#{e.backtrace.join("\n\t")}"
       alias_error()
+      raise e
     end
     index_id()
   end
 
   private
+
+  def save_for_resume(count)
+    File.open(resume_path, 'w') do |f|
+      f.write Marshal.dump(count: count, time: @time)
+      f.close
+    end
+  end
+
+  def resume_path
+    Dir.pwd + "/#{@res.acronym.downcase}_index_resume"
+  end
 
   def latest_submissions
     @latest_submissions ||= latest_submissions_sparql

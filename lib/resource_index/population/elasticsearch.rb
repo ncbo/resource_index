@@ -7,48 +7,56 @@ module RI::Population::Elasticsearch
     "#{@res.acronym.downcase}_#{@time.to_i}"
   end
 
-  def index_documents
-    count = 0
-    RI::Document.threach(@res, {thread_count: settings.population_threads}, @mutex) do |doc|
-      annotations = {}
-      annotated_classes(doc).each do |cls|
-        if annotations[cls.xxhash]
-          annotations[cls.xxhash][:count] += 1
-          next
+  def index_documents(offset = 0)
+    begin
+      count = offset
+      RI::Document.threach(@res, {thread_count: settings.population_threads, offset: count}, @mutex) do |doc|
+        annotations = {}
+        annotated_classes(doc).each do |cls|
+          if annotations[cls.xxhash]
+            annotations[cls.xxhash][:count] += 1
+            next
+          end
+
+          ancestors = nil
+          RI::Population::Manager.mutex.synchronize { ancestors = ancestors_cache[cls.xxhash] }
+          unless ancestors
+            submission_id = "http://data.bioontology.org/ontologies/#{cls.ont_acronym}/submissions/#{latest_submissions[cls.ont_acronym]}"
+            ancestors = cls.retrieve_ancestors(cls.ont_acronym, submission_id)
+            RI::Population::Manager.mutex.synchronize { ancestors_cache[cls.xxhash] = ancestors }
+          end
+          annotations[cls.xxhash] = {direct: cls.xxhash, ancestors: ancestors, count: 1}
         end
 
-        ancestors = nil
-        RI::Population::Manager.mutex.synchronize { ancestors = ancestors_cache[cls.xxhash] }
-        unless ancestors
-          submission_id = "http://data.bioontology.org/ontologies/#{cls.ont_acronym}/submissions/#{latest_submissions[cls.ont_acronym]}"
-          ancestors = cls.retrieve_ancestors(cls.ont_acronym, submission_id)
-          RI::Population::Manager.mutex.synchronize { ancestors_cache[cls.xxhash] = ancestors }
-        end
-        annotations[cls.xxhash] = {direct: cls.xxhash, ancestors: ancestors, count: 1}
+        # Switch the annotaions to an array
+        index_doc = doc.indexable_hash
+        index_doc[:annotations] = annotations.values
+
+        # Add to batch index, push to ES if we hit the chunk size limit
+        @mutex.synchronize {
+          @es_queue << index_doc
+
+          if @es_queue.length >= settings.bulk_index_size
+            @logger.debug "Indexing docs @ #{count}"
+            store_documents
+          end
+
+          count += 1
+          @logger.debug "Doc count: #{count}" if count % 10 == 0
+        }
       end
-
-      # Switch the annotaions to an array
-      index_doc = doc.indexable_hash
-      index_doc[:annotations] = annotations.values
-
-      # Add to batch index, push to ES if we hit the chunk size limit
-      @mutex.synchronize {
-        @es_queue << index_doc
-
-        if @es_queue.length >= settings.bulk_index_size
-          @logger.debug "Indexing docs @ #{count}"
-          store_documents
-        end
-
-        count += 1
-        @logger.debug "Doc count: #{count}" if count % 10 == 0
-      }
+    rescue => e
+      store_documents # store any remaining in the queue
+      @logger.warn "Saving place in population for later resuming at record #{count}"
+      save_for_resume(count)
+      raise e
     end
 
     store_documents # store any remaining in the queue
   end
 
   def create_index
+    return if @es.indices.exists index: index_id
     @es.indices.create index: index_id, type: "#{@res.acronym.downcase}_doc", body: es_mapping
     @es.indices.put_alias index: index_id, name: "#{@res.acronym}_populating"
   end
@@ -72,6 +80,7 @@ module RI::Population::Elasticsearch
   end
 
   def store_documents
+    @logger.debug "Storing #{@es_queue.length} records in #{index_id}"
     bulk_items = []
     @es_queue.each do |doc|
       bulk_items << {index: {_index: index_id, _type: "#{@res.acronym.downcase}_doc", _id: doc[:id], data: doc}}

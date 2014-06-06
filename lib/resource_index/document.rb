@@ -40,15 +40,16 @@ class RI::Document
 
   def self.threach(resource, opts = {}, mutex = nil, &block)
     thread_count = opts[:thread_count] || 1
+    opts[:offset] ||= 0
     threads = []
-    chunk_size = (self.count(resource).to_f / thread_count).ceil
+    chunk_size = ((self.count(resource) - opts[:offset]).to_f / thread_count).ceil
     opts = opts.dup
     opts[:record_limit] = chunk_size
     mutex ||= Mutex.new
     thread_count.times do |i|
       threads << Thread.new do
         opts = opts.dup
-        opts[:offset] = chunk_size * i
+        opts[:offset] = opts[:offset] + (chunk_size * i)
         self.all(resource, opts, mutex).each do |doc|
           yield doc if block_given?
         end
