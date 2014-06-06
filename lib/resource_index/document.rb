@@ -42,15 +42,15 @@ class RI::Document
     thread_count = opts[:thread_count] || 1
     opts[:offset] ||= 0
     threads = []
-    chunk_size = ((self.count(resource) - opts[:offset]).to_f / thread_count).ceil
+    thread_limit = ((self.count(resource) - opts[:offset]).to_f / thread_count).ceil
     opts = opts.dup
-    opts[:record_limit] = chunk_size
+    opts[:record_limit] = thread_limit
     mutex ||= Mutex.new
     thread_count.times do |i|
       threads << Thread.new do
-        opts = opts.dup
-        opts[:offset] = opts[:offset] + (chunk_size * i)
-        self.all(resource, opts, mutex).each do |doc|
+        new_opts = opts.dup
+        new_opts[:offset] = opts[:offset] + (thread_limit * i)
+        self.all(resource, new_opts, mutex).each do |doc|
           yield doc if block_given?
         end
       end
