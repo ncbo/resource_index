@@ -25,7 +25,7 @@ class RI::Population::Manager
     s.mgrep_host           = opts[:mgrep_host] || "localhost"
     s.mgrep_port           = opts[:mgrep_port] || 55555
     s.population_threads   = opts[:population_threads] || 1
-    s.ancestors_dumps_dir  = opts[:ancestors_dumps_dir] || Dir.pwd
+    s.dumps_dir            = opts[:dumps_dir] || Dir.pwd
     s.es_host              = opts[:es_host] || "localhost"
     s.es_port              = opts[:es_port] || 9200
     s.bulk_index_size      = opts[:bulk_index_size] || 100
@@ -42,7 +42,7 @@ class RI::Population::Manager
     @@mutex                = Mutex.new
 
     @@mutex.synchronize {
-      @@ancestors ||= Persisted::Hash.new("ri_pop_anc", dir: s.ancestors_dumps_dir, gzip: true)
+      @@ancestors ||= Persisted::Hash.new("ri_pop_anc", dir: s.dumps_dir, gzip: true)
     }
 
     goo_setup(opts)
@@ -85,7 +85,6 @@ class RI::Population::Manager
       @logger.debug "Population complete"
     rescue => e
       @logger.error "Error populating resource #{@res.acronym}"
-      @logger.error "#{e.message}\n#{e.backtrace.join("\n\t")}"
       alias_error()
       raise e
     end
