@@ -36,7 +36,7 @@ module ResourceIndex
   def self.setup_sql_client
     if RUBY_PLATFORM == "java"
       @opts[:adapter] = "jdbc"
-      @opts[:uri] = "jdbc:mysql://#{opts[:host]}:#{opts[:port]}/#{opts[:database]}?user=#{opts[:username]}&password=#{opts[:password]}"
+      @opts[:uri] = "jdbc:mysql://#{@opts[:host]}:#{@opts[:port]}/#{@opts[:database]}?user=#{@opts[:username]}&password=#{@opts[:password]}"
     end
     @opts[:adapter] ||= "mysql2"
     @client = Sequel.connect(@opts)
