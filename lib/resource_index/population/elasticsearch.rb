@@ -12,7 +12,8 @@ module RI::Population::Elasticsearch
       count = offset
       RI::Document.threach(@res, {thread_count: settings.population_threads, offset: count}, @mutex) do |doc|
         annotations = {}
-        annotated_classes(doc).each do |cls|
+        index_doc = doc.indexable_hash
+        (annotated_classes(doc) + index_doc.delete(:manual_annotations)).each do |cls|
           if annotations[cls.xxhash]
             annotations[cls.xxhash][:count] += 1
             next
@@ -29,7 +30,6 @@ module RI::Population::Elasticsearch
         end
 
         # Switch the annotaions to an array
-        index_doc = doc.indexable_hash
         index_doc[:annotations] = annotations.values
 
         # Add to batch index, push to ES if we hit the chunk size limit
@@ -46,8 +46,8 @@ module RI::Population::Elasticsearch
         }
       end
     rescue => e
-      store_documents # store any remaining in the queue
       @logger.warn "Saving place in population for later resuming at record #{count}"
+      store_documents # store any remaining in the queue
       save_for_resume(count)
       raise e
     end
