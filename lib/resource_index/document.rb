@@ -66,14 +66,18 @@ class RI::Document
     ont_fields = self.resource.fields.lazy.select {|f| f[1].ontology}.map {|f| f[0].to_sym}
     hash[:manual_annotations] = []
     ont_fields.each do |f|
-      ont, cls = hash[f.downcase].split("/")
+      f = f.downcase
+      next if hash[f].nil? || hash[f].empty?
+      ont, cls = hash[f].split("/")
       cls = clean_cls_id(ont, cls)
       onts = RI.db.from(:obs_ontology)
-      local_ont_id = onts[virtual_ontology_id: ont][:local_ontology_id]
+      local_ont_id = onts[virtual_ontology_id: ont][:local_ontology_id] rescue binding.pry
       concepts = RI.db.from(:obs_concept)
-      cls_uri = concepts.where(local_concept_id: "#{local_ont_id}/#{cls}").first[:full_id]
-      cls = RI::Population::Class.new(VIRT_MAP[ont.to_i].upcase, cls_uri)
-      hash[:manual_annotations] << cls.xxhash
+      cls_uri = concepts.where(local_concept_id: "#{local_ont_id}/#{cls}").first[:full_id] rescue binding.pry
+      acronym = VIRT_MAP[ont.to_i].upcase
+      cls = RI::Population::Class.new(acronym, cls_uri)
+      hash[f] = "#{acronym}\C-_#{cls_uri}"
+      hash[:manual_annotations] << cls
     end
     hash[:id] = self.document_id
     hash
