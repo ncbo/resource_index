@@ -1,21 +1,6 @@
 require_relative 'test_case'
 require_relative 'population_setup'
 
-# Monkeypatch to simulate failure when indexing
-class RI::Document
-  def self.fail_on_index(bool)
-    @@fail_count    = 0
-    @@fail_on_index = bool
-  end
-
-  alias_method :old_indexable_hash, :indexable_hash
-  def indexable_hash(*args)
-    raise StandardError if @@fail_on_index && @@fail_count > 0 && @@fail_count % 300 == 0
-    @@fail_count += 1
-    old_indexable_hash(*args)
-  end
-end
-
 class RI::TestDocument < RI::TestCase
   def setup
     RI::Document.fail_on_index(false)
