@@ -84,6 +84,7 @@ module RI::Population::Elasticsearch
   end
 
   def store_documents
+    return if @es_queue.empty?
     @logger.debug "Storing #{@es_queue.length} records in #{index_id}"
     bulk_items = []
     @es_queue.each do |doc|
