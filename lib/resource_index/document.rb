@@ -69,7 +69,6 @@ class RI::Document
       f = f.downcase
       next if hash[f].nil? || hash[f].empty?
       ont, cls = hash[f].split("/")
-      cls = clean_cls_id(ont, cls)
       onts = RI.db.from(:obs_ontology)
       local_ont_id = onts[virtual_ontology_id: ont][:local_ontology_id] rescue binding.pry
       concepts = RI.db.from(:obs_concept)
@@ -89,14 +88,6 @@ class RI::Document
   end
 
   private
-
-  def clean_cls_id(ont, cls)
-    case ont.to_i
-    when 1132
-      cls = "obo:#{cls.sub(':', '_')}"
-    end
-    cls
-  end
 
   def self.create_doc_subclass(resource)
     fields = resource.fields.keys.map {|f| f.downcase.to_sym}
