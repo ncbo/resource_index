@@ -56,7 +56,7 @@ module RI::Population
         class_matches.each do |class_id, vals|
           ontology_id = vals.split(",")[1].split("@@").first
           acronym = ontology_id.split("/").last
-          classes << RI::Population::Class.new(class_id, ontology_id, acronym)
+          classes << RI::Population::Class.new(class_id, acronym)
         end
       end
 
