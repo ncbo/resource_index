@@ -1,4 +1,3 @@
-require 'dbm'
 require 'elasticsearch'
 require_relative 'persisted_hash'
 
@@ -12,7 +11,8 @@ module RI::Population::Elasticsearch
       count = offset
       RI::Document.threach(@res, {thread_count: settings.population_threads, offset: count}, @mutex) do |doc|
         annotations = {}
-        index_doc = doc.indexable_hash
+        index_doc = nil
+        @mutex.synchronize { index_doc = doc.indexable_hash }
         (annotated_classes(doc) + index_doc.delete(:manual_annotations)).each do |cls|
           if annotations[cls.xxhash]
             annotations[cls.xxhash][:count] += 1
@@ -47,6 +47,8 @@ module RI::Population::Elasticsearch
       end
     rescue => e
       @logger.warn "Saving place in population for later resuming at record #{count}"
+      @logger.error e.message
+      @logger.error e.backtrace.join("\n\t")
       store_documents # store any remaining in the queue
       save_for_resume(count)
       raise e
