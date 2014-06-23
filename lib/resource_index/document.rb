@@ -76,14 +76,16 @@ class RI::Document
       begin
         local_ont_id = onts[virtual_ontology_id: ont][:local_ontology_id]
       rescue => e
-        puts "Problem getting ontology #{ont}: #{e.message}\n#{e.backtrace.join('\n\t')}"
+        puts "Problem getting ontology #{ont}: #{e.message}\n#{e.backtrace.join("\n\t")}"
+        next
       end
 
       concepts = RI.db.from(:obs_concept)
       begin
         cls_uri = concepts.where(local_concept_id: "#{local_ont_id}/#{cls}").first[:full_id]
       rescue => e
-        puts "Problem getting concept #{ont} | #{local_ont_id}/#{cls}: #{e.message}\n#{e.backtrace.join('\n\t')}"
+        puts "Problem getting concept #{ont} | #{local_ont_id}/#{cls}: #{e.message}\n#{e.backtrace.join("\n\t")}"
+        next
       end
 
       acronym = VIRT_MAP[ont.to_i].upcase
