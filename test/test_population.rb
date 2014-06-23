@@ -9,6 +9,7 @@ class RI::TestDocument < RI::TestCase
     sleep(2) # wait for indexing to complete
     docs_ok?
     population_ok?
+    manual_annotations_ok?
   end
 
   def test_population_threaded
@@ -19,6 +20,7 @@ class RI::TestDocument < RI::TestCase
     sleep(2) # wait for indexing to complete
     docs_ok?
     population_ok?
+    manual_annotations_ok?
   end
 
   def test_population_resume
@@ -38,7 +40,17 @@ class RI::TestDocument < RI::TestCase
     sleep(3) # wait for indexing to complete
     docs_ok?
     population_ok?
+    manual_annotations_ok?
     assert Dir.glob(Dir.pwd + "/#{@index_id}*resume").empty?
+  end
+
+  def manual_annotations_ok?
+    @es = Elasticsearch::Client.new
+    require 'pp'
+    MANUAL_ANNOTATION_XXHASH.each do |hash|
+      es_count = @es.count index: @index_id, body: direct_query(hash)
+      assert_equal MANUAL_ANNOTATION_COUNTS[hash], es_count["count"].to_i
+    end
   end
 
   def docs_ok?
@@ -55,7 +67,7 @@ class RI::TestDocument < RI::TestCase
   def population_ok?
     @es = Elasticsearch::Client.new
     stats = @es.indices.stats index: @index_id
-    assert_equal 961193, stats["_all"]["primaries"]["docs"]["count"]
+    assert_equal TOTAL_ES_RECORDS, stats["_all"]["primaries"]["docs"]["count"]
     count = @es.count index: @index_id
     assert_equal 464, count["count"]
     aliased_id = @es.indices.get_alias(name: "AE_test").keys.first

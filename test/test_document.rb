@@ -19,7 +19,7 @@ class RI::TestDocument < RI::TestCase
     res = RI::Resource.find("AE_test")
     doc = res.documents.to_a.first
     hash = doc.indexable_hash
-    keys = [:ae_name, :ae_description, :ae_species, :ae_experiment_type, :id]
+    keys = [:ae_name, :ae_description, :ae_species, :ae_experiment_type, :id, :manual_annotations]
     assert_equal keys.sort, hash.keys.sort
     assert_equal "CLIP-Seq of H. sapiens HeLa cells to investigate transcriptome-wide mapping of hnRNP C and U2AF65", hash[:ae_name]
   end
