@@ -105,11 +105,11 @@ class RI::Document
   private
 
   def clean_cls_id(ont, cls)
-    # case ont.to_i
-    # when 1132
-    #   cls = "obo:#{cls.sub(':', '_')}"
-    # end
-    # cls
+    case ont.to_i
+    when 1132
+      cls = "obo:#{cls.sub(':', '_')}" unless cls.include?("obo:")
+    end
+    cls
   end
 
   def self.create_doc_subclass(resource)
