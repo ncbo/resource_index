@@ -1,3 +1,96 @@
+ONTOLOGIES_TABLE = <<-EOS
+INSERT INTO `obs_ontology` (`id`, `local_ontology_id`, `name`, `version`, `description`, `status`, `virtual_ontology_id`, `format`, `dictionary_id`)
+VALUES
+  (1318, '47845', 'NCBI organismal classification', '1.2', '', 28, '1132', 'OWL', 21),
+  (1889, '50608', 'Experimental Factor Ontology', '2.39.1', '', 28, '1136', 'OWL', 23);
+EOS
+
+CONCEPTS_TABLE = <<-EOS
+INSERT INTO `obs_concept` (`id`, `local_concept_id`, `ontology_id`, `is_toplevel`, `full_id`)
+VALUES
+  (38776185, '47845/obo:NCBITaxon_10090', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_10090'),
+  (38778061, '47845/obo:NCBITaxon_10116', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_10116'),
+  (38869745, '47845/obo:NCBITaxon_119951', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_119951'),
+  (38878148, '47845/obo:NCBITaxon_128735', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_128735'),
+  (38906355, '47845/obo:NCBITaxon_1590', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_1590'),
+  (38941396, '47845/obo:NCBITaxon_196627', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_196627'),
+  (38950313, '47845/obo:NCBITaxon_205918', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_205918'),
+  (38967263, '47845/obo:NCBITaxon_224308', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_224308'),
+  (38977399, '47845/obo:NCBITaxon_235443', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_235443'),
+  (38985226, '47845/obo:NCBITaxon_244320', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_244320'),
+  (38987111, '47845/obo:NCBITaxon_246437', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_246437'),
+  (38992982, '47845/obo:NCBITaxon_252598', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_252598'),
+  (39001776, '47845/obo:NCBITaxon_262316', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_262316'),
+  (39022429, '47845/obo:NCBITaxon_287', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_287'),
+  (39025667, '47845/obo:NCBITaxon_2903', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_2903'),
+  (39040690, '47845/obo:NCBITaxon_3055', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_3055'),
+  (39080035, '47845/obo:NCBITaxon_34506', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_34506'),
+  (39089796, '47845/obo:NCBITaxon_35525', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_35525'),
+  (39104845, '47845/obo:NCBITaxon_3702', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_3702'),
+  (39111319, '47845/obo:NCBITaxon_3767', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_3767'),
+  (39116621, '47845/obo:NCBITaxon_382', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_382'),
+  (39122680, '47845/obo:NCBITaxon_3880', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_3880'),
+  (39123480, '47845/obo:NCBITaxon_3888', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_3888'),
+  (39132973, '47845/obo:NCBITaxon_3983', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_3983'),
+  (39134149, '47845/obo:NCBITaxon_39947', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_39947'),
+  (39140274, '47845/obo:NCBITaxon_40559', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_40559'),
+  (39142817, '47845/obo:NCBITaxon_4081', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_4081'),
+  (39144655, '47845/obo:NCBITaxon_4100', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_4100'),
+  (39190748, '47845/obo:NCBITaxon_4565', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_4565'),
+  (39191939, '47845/obo:NCBITaxon_4577', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_4577'),
+  (39223416, '47845/obo:NCBITaxon_4896', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_4896'),
+  (39227000, '47845/obo:NCBITaxon_4932', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_4932'),
+  (39249073, '47845/obo:NCBITaxon_51589', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_51589'),
+  (39250688, '47845/obo:NCBITaxon_51751', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_51751'),
+  (39265689, '47845/obo:NCBITaxon_5346', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_5346'),
+  (39277401, '47845/obo:NCBITaxon_5476', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_5476'),
+  (39291105, '47845/obo:NCBITaxon_562', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_562'),
+  (39300238, '47845/obo:NCBITaxon_573', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_573'),
+  (39307459, '47845/obo:NCBITaxon_5811', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_5811'),
+  (39325337, '47845/obo:NCBITaxon_6161', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_6161'),
+  (39328296, '47845/obo:NCBITaxon_6239', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_6239'),
+  (39331060, '47845/obo:NCBITaxon_6280', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_6280'),
+  (39331087, '47845/obo:NCBITaxon_6282', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_6282'),
+  (39362570, '47845/obo:NCBITaxon_666', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_666'),
+  (39412250, '47845/obo:NCBITaxon_7227', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_7227'),
+  (39412568, '47845/obo:NCBITaxon_7230', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_7230'),
+  (39420840, '47845/obo:NCBITaxon_7460', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_7460'),
+  (39445054, '47845/obo:NCBITaxon_7955', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_7955'),
+  (39448286, '47845/obo:NCBITaxon_8030', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_8030'),
+  (39448484, '47845/obo:NCBITaxon_8049', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_8049'),
+  (39458543, '47845/obo:NCBITaxon_82328', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_82328'),
+  (39464973, '47845/obo:NCBITaxon_82927', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_82927'),
+  (39469436, '47845/obo:NCBITaxon_83332', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_83332'),
+  (39471826, '47845/obo:NCBITaxon_8364', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_8364'),
+  (39490560, '47845/obo:NCBITaxon_85433', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_85433'),
+  (39536578, '47845/obo:NCBITaxon_9031', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_9031'),
+  (39581772, '47845/obo:NCBITaxon_9598', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_9598'),
+  (39582213, '47845/obo:NCBITaxon_9606', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_9606'),
+  (39583207, '47845/obo:NCBITaxon_9615', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_9615'),
+  (39603792, '47845/obo:NCBITaxon_9823', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_9823'),
+  (39610688, '47845/obo:NCBITaxon_9913', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_9913'),
+  (39616001, '47845/obo:NCBITaxon_9986', 1318, 0, 'http://purl.obolibrary.org/obo/NCBITaxon_9986'),
+  (46054849, '50608/efo:EFO_0000749', 1889, 0, 'http://www.ebi.ac.uk/efo/EFO_0000749'),
+  (46054853, '50608/efo:EFO_0000753', 1889, 0, 'http://www.ebi.ac.uk/efo/EFO_0000753'),
+  (46055110, '50608/efo:EFO_0001030', 1889, 0, 'http://www.ebi.ac.uk/efo/EFO_0001030'),
+  (46055113, '50608/efo:EFO_0001033', 1889, 0, 'http://www.ebi.ac.uk/efo/EFO_0001033'),
+  (46056251, '50608/efo:EFO_0002692', 1889, 0, 'http://www.ebi.ac.uk/efo/EFO_0002692'),
+  (46056298, '50608/efo:EFO_0002759', 1889, 0, 'http://www.ebi.ac.uk/efo/EFO_0002759'),
+  (46056299, '50608/efo:EFO_0002760', 1889, 0, 'http://www.ebi.ac.uk/efo/EFO_0002760'),
+  (46056300, '50608/efo:EFO_0002761', 1889, 0, 'http://www.ebi.ac.uk/efo/EFO_0002761'),
+  (46056301, '50608/efo:EFO_0002762', 1889, 0, 'http://www.ebi.ac.uk/efo/EFO_0002762'),
+  (46056304, '50608/efo:EFO_0002765', 1889, 0, 'http://www.ebi.ac.uk/efo/EFO_0002765'),
+  (46056307, '50608/efo:EFO_0002768', 1889, 0, 'http://www.ebi.ac.uk/efo/EFO_0002768'),
+  (46056308, '50608/efo:EFO_0002769', 1889, 0, 'http://www.ebi.ac.uk/efo/EFO_0002769'),
+  (46056310, '50608/efo:EFO_0002771', 1889, 0, 'http://www.ebi.ac.uk/efo/EFO_0002771'),
+  (46056666, '50608/efo:EFO_0003143', 1889, 0, 'http://www.ebi.ac.uk/efo/EFO_0003143'),
+  (46057121, '50608/efo:EFO_0003737', 1889, 0, 'http://www.ebi.ac.uk/efo/EFO_0003737'),
+  (46057122, '50608/efo:EFO_0003738', 1889, 0, 'http://www.ebi.ac.uk/efo/EFO_0003738');
+EOS
+
+MANUAL_ANNOTATION_XXHASH = [1041899727, 1116757309, 1118768622, 1132799958, 1276288551, 1278301126, 1294955310, 1367038899, 1397464604, 1429265218, 1436188383, 1457559688, 1564120855, 1648354265, 1737724267, 1775001483, 1815619048, 1845933306, 1855054362, 1891098225, 1897602846, 1900980300, 1911650997, 1941539371, 1960287610, 1968696234, 2015319689, 2158142354, 2169457277, 2172433442, 2223595865, 2265630877, 2277609132, 2342909499, 2471850823, 2492339354, 2561651131, 2588010934, 2634609409, 2659771975, 2719637631, 2979941855, 301104715, 3061354475, 3111427210, 3131668133, 3174080258, 3186034290, 3189822825, 3224726537, 33311642, 3382211325, 3478116066, 3479363986, 3578505328, 3585924929, 3605434666, 3616942866, 3666208680, 370498697, 3770678017, 3887744824, 3927646680, 3981139458, 3984609496, 4052308340, 4150125671, 4174731843, 499876719, 528574762, 638074822, 66776817, 689454552, 69952072, 744587962, 868280579, 93341366, 934852592]
+MANUAL_ANNOTATION_COUNTS = {1041899727=>1, 1116757309=>1, 1118768622=>1, 1132799958=>1, 1276288551=>1, 1278301126=>2, 1294955310=>1, 1367038899=>1, 1397464604=>21, 1429265218=>1, 1436188383=>19, 1457559688=>1, 1564120855=>6, 1648354265=>2, 1737724267=>1, 1775001483=>18, 1815619048=>1, 1845933306=>1, 1855054362=>1, 1891098225=>1, 1897602846=>7, 1900980300=>3, 1911650997=>14, 1941539371=>1, 1960287610=>1, 1968696234=>327, 2015319689=>1, 2158142354=>1, 2169457277=>1, 2172433442=>1, 2223595865=>4, 2265630877=>1, 2277609132=>1, 2342909499=>1, 2471850823=>143, 2492339354=>3, 2561651131=>1, 2588010934=>1, 2634609409=>1, 2659771975=>1, 2719637631=>2, 2979941855=>4, 301104715=>1, 3061354475=>1, 3111427210=>1, 3131668133=>47, 3174080258=>189, 3186034290=>3, 3189822825=>1, 3224726537=>1, 33311642=>1, 3382211325=>1, 3478116066=>4, 3479363986=>3, 3578505328=>1, 3585924929=>2, 3605434666=>3, 3616942866=>1, 3666208680=>1, 370498697=>1, 3770678017=>8, 3887744824=>1, 3927646680=>1, 3981139458=>1, 3984609496=>1, 4052308340=>1, 4150125671=>1, 4174731843=>19, 499876719=>1, 528574762=>1, 638074822=>2, 66776817=>3, 689454552=>1, 69952072=>1, 744587962=>1, 868280579=>1, 93341366=>2, 934852592=>1}
+
 RESOURCES_TEST_DATA = <<-EOS
 INSERT INTO `obr_resource` (`id`, `name`, `resource_id`, `structure`, `main_context`, `url`, `element_url`, `description`, `logo`, `dictionary_id`, `total_element`, `last_update_date`, `workflow_completed_date`)
 VALUES
