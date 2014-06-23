@@ -76,7 +76,7 @@ class RI::Document
       begin
         local_ont_id = onts[virtual_ontology_id: ont][:local_ontology_id]
       rescue => e
-        puts "Problem getting ontology #{ont}: #{e.message}\n#{e.backtrace.join("\n\t")}"
+        puts "Manual annotations, problem getting ontology #{ont}: #{e.message}"
         next
       end
 
@@ -84,7 +84,7 @@ class RI::Document
       begin
         cls_uri = concepts.where(local_concept_id: "#{local_ont_id}/#{cls}").first[:full_id]
       rescue => e
-        puts "Problem getting concept #{ont} | #{local_ont_id}/#{cls}: #{e.message}\n#{e.backtrace.join("\n\t")}"
+        puts "Manual annotations, problem getting concept #{ont} | #{local_ont_id}/#{cls}: #{e.message}"
         next
       end
 
