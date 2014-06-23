@@ -1,45 +1,6 @@
 require_relative 'test_case'
-require_relative 'population_setup'
 
 class RI::TestDocument < RI::TestCase
-  def setup
-    RI::Document.fail_on_index(false)
-    ResourceIndex.config(adapter: "amalgalite", username: "test", password: "test", database: "")
-    ResourceIndex.db.create_table :obr_resource do
-      primary_key :id
-      String :name
-      String :resource_id
-      String :structure
-      String :main_context
-      String :url
-      String :element_url
-      String :description
-      String :logo
-      Integer :dictionary_id
-      Integer :total_element
-      Time :last_update_date
-      Time :workflow_completed_date
-    end
-    ResourceIndex.db.run(RESOURCES_TEST_DATA)
-    ResourceIndex.db.create_table :obr_ae_test_element do
-      primary_key :id
-      String :local_element_id
-      Integer :dictionary_id
-      String :ae_name
-      String :ae_description
-      String :ae_species
-      String :ae_experiment_type
-    end
-    ResourceIndex.db.run(DOCUMENTS_TEST_DATA.force_encoding('UTF-8'))
-  end
-
-  def teardown
-    ResourceIndex.db[:obr_resource].delete
-    if @es && @index_id
-      @es.indices.delete index: @index_id
-    end
-  end
-
   def test_population
     @res = RI::Resource.find("AE_test")
     mgrep = MockMGREPClient.new

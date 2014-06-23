@@ -1,30 +1,6 @@
 require_relative 'test_case'
 
 class RI::TestResouce < RI::TestCase
-  def setup
-    ResourceIndex.config(adapter: "amalgalite", username: "test", password: "test", database: "")
-    ResourceIndex.db.create_table :obr_resource do
-      primary_key :id
-      String :name
-      String :resource_id
-      String :structure
-      String :main_context
-      String :url
-      String :element_url
-      String :description
-      String :logo
-      Integer :dictionary_id
-      Integer :total_element
-      Time :last_update_date
-      Time :workflow_completed_date
-    end
-    ResourceIndex.db.run(RESOURCES_TEST_DATA)
-  end
-
-  def teardown
-    ResourceIndex.db[:obr_resource].delete
-  end
-
   def test_resource
     res = RI::Resource.find("PGDR")
     assert_equal "PGDR", res.acronym
