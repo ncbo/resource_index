@@ -107,7 +107,7 @@ class RI::Document
   def clean_cls_id(ont, cls)
     case ont.to_i
     when 1132
-      cls = "obo:#{cls.sub(':', '_')}" unless cls.include?("obo:")
+      cls = "obo:#{cls.sub(':', '_')}" unless cls.start_with?("obo:")
     end
     cls
   end
