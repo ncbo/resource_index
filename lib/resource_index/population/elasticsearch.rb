@@ -94,6 +94,7 @@ module RI::Population::Elasticsearch
 
   def store_documents
     return if @es_queue.empty?
+    es_queue = nil
     @mutex.synchronize {
       es_queue = @es_queue.dup
       @es_queue = []
