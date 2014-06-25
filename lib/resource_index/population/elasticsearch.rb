@@ -8,6 +8,7 @@ module RI::Population::Elasticsearch
 
   def index_documents(offset = 0)
     begin
+      es_threads = []
       count = offset
       RI::Document.threach(@res, {thread_count: settings.population_threads, offset: count}, @mutex) do |doc|
         annotations = {}
@@ -35,12 +36,16 @@ module RI::Population::Elasticsearch
         # Add to batch index, push to ES if we hit the chunk size limit
         @mutex.synchronize {
           @es_queue << index_doc
+        }
 
-          if @es_queue.length >= settings.bulk_index_size
-            @logger.debug "Indexing docs @ #{count}"
+        if @es_queue.length >= settings.bulk_index_size
+          @logger.debug "Indexing docs @ #{count}"
+          es_threads << Thread.new do
             store_documents
           end
+        end
 
+        @mutex.synchronize {
           count += 1
           @logger.debug "Doc count: #{count}" if count % 10 == 0
         }
@@ -53,6 +58,8 @@ module RI::Population::Elasticsearch
       save_for_resume(count)
       raise e
     end
+
+    es_threads.each(&:join)
 
     store_documents # store any remaining in the queue
   end
@@ -87,13 +94,16 @@ module RI::Population::Elasticsearch
 
   def store_documents
     return if @es_queue.empty?
-    @logger.debug "Storing #{@es_queue.length} records in #{index_id}"
+    @mutex.synchronize {
+      es_queue = @es_queue.dup
+      @es_queue = []
+    }
+    @logger.debug "Storing #{es_queue.length} records in #{index_id}"
     bulk_items = []
-    @es_queue.each do |doc|
+    es_queue.each do |doc|
       bulk_items << {index: {_index: index_id, _type: "#{@res.acronym.downcase}_doc", _id: doc[:id], data: doc}}
     end
     @es.bulk body: bulk_items
-    @es_queue = []
   end
 
   def es_mapping
