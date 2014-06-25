@@ -55,7 +55,7 @@ module RI::Population::Elasticsearch
       @logger.error e.message
       @logger.error e.backtrace.join("\n\t")
       store_documents # store any remaining in the queue
-      save_for_resume(count)
+      save_for_resume(count) if settings.resume
       raise e
     end
 

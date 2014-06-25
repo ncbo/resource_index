@@ -30,6 +30,7 @@ class RI::Population::Manager
     s.es_port              = opts[:es_port] || 9200
     s.bulk_index_size      = opts[:bulk_index_size] || 100
     s.starting_offset      = opts[:starting_offset] || 0
+    s.resume               = opts[:resume].nil? ? true : opts[:resume]
 
     @logger                = opts[:logger] || Logger.new(STDOUT)
     @es                    = Elasticsearch::Client.new(host: s.es_host, port: s.es_port)
@@ -48,7 +49,7 @@ class RI::Population::Manager
     goo_setup(opts)
 
     # Resume from previous population
-    if File.exist?(resume_path)
+    if s.resume && File.exist?(resume_path)
       resumed = Marshal.load(File.read(resume_path))
       s.starting_offset = resumed[:count]
       @time = resumed[:time]
