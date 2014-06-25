@@ -16,6 +16,7 @@ module RI
     TOTAL_ES_RECORDS = 962104
 
     def setup
+      Dir.glob(Dir.pwd + "/ae_test*resume").each {|f| File.delete(f)}
       RI::Document.fail_on_index(false)
       ResourceIndex.config(adapter: "amalgalite", username: "test", password: "test", database: "")
       ResourceIndex.db.create_table :obr_resource do
@@ -67,6 +68,7 @@ module RI
     end
 
     def teardown
+      RI::Document.fail_on_index(false)
       ResourceIndex.db[:obr_resource].delete
       ResourceIndex.db[:obr_ae_test_element].delete
       ResourceIndex.db[:obs_ontology].delete
