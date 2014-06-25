@@ -29,10 +29,12 @@ class RI::TestDocument < RI::TestCase
     @res = RI::Resource.find("AE_test")
     mgrep = MockMGREPClient.new
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500)
-    assert_raises StandardError do
+    @index_id = populator.index_id
+    assert_raises ResourceIndex::Population::Elasticsearch::RetryError do
       populator.populate()
     end
     sleep(3)
+    assert Dir.glob(Dir.pwd + "/ae_test*resume").length > 0
     RI::Document.fail_on_index(false)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500)
     assert_equal ({}), @es.indices.get_alias(index: populator.index_id, name: "error")
