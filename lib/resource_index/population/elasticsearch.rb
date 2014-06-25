@@ -2,6 +2,8 @@ require 'elasticsearch'
 require_relative 'persisted_hash'
 
 module RI::Population::Elasticsearch
+  class RetryError < StandardError; attr_accessor :retry_count; end
+
   def index_id
     "#{@res.acronym.downcase}_#{@time.to_i}"
   end
@@ -11,44 +13,57 @@ module RI::Population::Elasticsearch
       es_threads = []
       count = offset
       RI::Document.threach(@res, {thread_count: settings.population_threads, offset: count}, @mutex) do |doc|
-        annotations = {}
-        index_doc = nil
-        @mutex.synchronize { index_doc = doc.indexable_hash }
-        (annotated_classes(doc) + index_doc.delete(:manual_annotations)).each do |cls|
-          if annotations[cls.xxhash]
-            annotations[cls.xxhash][:count] += 1
-            next
+        retry_count = 0
+        begin
+          annotations = {}
+          index_doc = nil
+          @mutex.synchronize { index_doc = doc.indexable_hash }
+          (annotated_classes(doc) + index_doc.delete(:manual_annotations)).each do |cls|
+            if annotations[cls.xxhash]
+              annotations[cls.xxhash][:count] += 1
+              next
+            end
+
+            ancestors = nil
+            RI::Population::Manager.mutex.synchronize { ancestors = ancestors_cache[cls.xxhash] }
+            unless ancestors
+              submission_id = "http://data.bioontology.org/ontologies/#{cls.ont_acronym}/submissions/#{latest_submissions[cls.ont_acronym]}"
+              ancestors = cls.retrieve_ancestors(cls.ont_acronym, submission_id)
+              RI::Population::Manager.mutex.synchronize { ancestors_cache[cls.xxhash] = ancestors }
+            end
+            annotations[cls.xxhash] = {direct: cls.xxhash, ancestors: ancestors, count: 1}
           end
 
-          ancestors = nil
-          RI::Population::Manager.mutex.synchronize { ancestors = ancestors_cache[cls.xxhash] }
-          unless ancestors
-            submission_id = "http://data.bioontology.org/ontologies/#{cls.ont_acronym}/submissions/#{latest_submissions[cls.ont_acronym]}"
-            ancestors = cls.retrieve_ancestors(cls.ont_acronym, submission_id)
-            RI::Population::Manager.mutex.synchronize { ancestors_cache[cls.xxhash] = ancestors }
+          # Switch the annotaions to an array
+          index_doc[:annotations] = annotations.values
+
+          # Add to batch index, push to ES if we hit the chunk size limit
+          @mutex.synchronize {
+            @es_queue << index_doc
+          }
+
+          if @es_queue.length >= settings.bulk_index_size
+            @logger.debug "Indexing docs @ #{count}"
+            es_threads << Thread.new do
+              store_documents
+            end
           end
-          annotations[cls.xxhash] = {direct: cls.xxhash, ancestors: ancestors, count: 1}
+
+          @mutex.synchronize {
+            count += 1
+            @logger.debug "Doc count: #{count}" if count % 10 == 0
+          }
+        rescue => e
+          retry_count += 1
+          unless retry_count >= 5
+            @logger.warn "Retrying, attempt #{retry_count} (#{e.message})"
+            retry
+          end
+          @logger.warn "Retried but failed to fix"
+          err = RetryError.new(e)
+          err.retry_count = retry_count
+          raise err
         end
-
-        # Switch the annotaions to an array
-        index_doc[:annotations] = annotations.values
-
-        # Add to batch index, push to ES if we hit the chunk size limit
-        @mutex.synchronize {
-          @es_queue << index_doc
-        }
-
-        if @es_queue.length >= settings.bulk_index_size
-          @logger.debug "Indexing docs @ #{count}"
-          es_threads << Thread.new do
-            store_documents
-          end
-        end
-
-        @mutex.synchronize {
-          count += 1
-          @logger.debug "Doc count: #{count}" if count % 10 == 0
-        }
       end
     rescue => e
       @logger.warn "Saving place in population for later resuming at record #{count}"
