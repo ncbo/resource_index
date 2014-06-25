@@ -44,6 +44,18 @@ class RI::TestDocument < RI::TestCase
     assert Dir.glob(Dir.pwd + "/#{@index_id}*resume").empty?
   end
 
+  def test_population_no_resume
+    @res = RI::Resource.find("AE_test")
+    mgrep = MockMGREPClient.new
+    RI::Document.fail_on_index(true, 1, 6)
+    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, resume: false)
+    @index_id = populator.index_id
+    assert_raises RI::Population::Elasticsearch::RetryError do
+      populator.populate()
+    end
+    assert_equal 0, Dir.glob(Dir.pwd + "/ae_test*resume").length
+  end
+
   def manual_annotations_ok?
     @es = Elasticsearch::Client.new
     require 'pp'
