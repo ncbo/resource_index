@@ -56,6 +56,35 @@ class RI::TestDocument < RI::TestCase
     assert_equal 0, Dir.glob(Dir.pwd + "/ae_test*resume").length
   end
 
+  def test_population_recover
+    @es = Elasticsearch::Client.new
+    @res = RI::Resource.find("AE_test")
+    mgrep = MockMGREPClient.new
+    RI::Document.fail_on_index(true, 5, 7)
+    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, resume: false)
+    @index_id = populator.index_id
+    retry_count = -1
+    assert_raises RI::Population::Elasticsearch::RetryError do
+      begin
+        populator.populate()
+      rescue RI::Population::Elasticsearch::RetryError => e
+        retry_count = e.retry_count
+        raise e
+      end
+    end
+    assert_equal 5, retry_count
+    sleep(3)
+    @es.indices.delete index: @index_id
+    RI::Document.fail_on_index(true, 5, 2)
+    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500)
+    @index_id = populator.populate()
+    RI::Document.fail_on_index(false)
+    sleep(3) # wait for indexing to complete
+    docs_ok?
+    population_ok?
+    manual_annotations_ok?
+  end
+
   def manual_annotations_ok?
     @es = Elasticsearch::Client.new
     require 'pp'
