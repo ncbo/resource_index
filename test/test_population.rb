@@ -115,11 +115,14 @@ class RI::TestDocument < RI::TestCase
     assert_equal 464, count["count"]
     aliased_id = @es.indices.get_alias(name: "AE_test").keys.first
     assert_equal @index_id, aliased_id
-    $test_annotation_counts.each do |direct, ann_count|
+    # We shuffle to get random counts here, doing all takes 100 seconds
+    $test_annotation_counts.keys.shuffle[0..100].each do |direct|
+      ann_count = $test_annotation_counts[direct]
       es_count = @es.count index: @index_id, body: direct_query(direct)
       assert_equal ann_count, es_count["count"]
     end
-    $test_annotation_counts_anc.each do |anc, ann_count|
+    $test_annotation_counts_anc.keys.shuffle[0..100].each do |anc|
+      ann_count = $test_annotation_counts_anc[anc]
       es_count = @es.count index: @index_id, body: ancestor_query(anc)
       assert_equal ann_count, es_count["count"]
     end
