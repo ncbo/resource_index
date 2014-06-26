@@ -38,7 +38,7 @@ class RI::Population::Manager
     @label_converter       = RI::Population::LabelConverter.new(s.annotator_redis_host, s.annotator_redis_port)
     @mutex                 = Mutex.new
     @es_queue              = []
-    @time                  = Time.at(opts[:time_int].to_i || Time.now.to_i)
+    @time                  = Time.at(opts[:time_int] || Time.now)
 
     @@mutex                = Mutex.new
 
