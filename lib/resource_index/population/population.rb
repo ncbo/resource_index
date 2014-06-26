@@ -38,7 +38,7 @@ class RI::Population::Manager
     @label_converter       = RI::Population::LabelConverter.new(s.annotator_redis_host, s.annotator_redis_port)
     @mutex                 = Mutex.new
     @es_queue              = []
-    @time                  = Time.now
+    @time                  = Time.at(opts[:time_int].to_i || Time.now)
 
     @@mutex                = Mutex.new
 
@@ -94,9 +94,10 @@ class RI::Population::Manager
 
   private
 
-  def save_for_resume(count)
+  def save_for_resume(count, time = nil)
+    time ||= @time
     File.open(resume_path, 'w') do |f|
-      f.write Marshal.dump(count: count, time: @time)
+      f.write Marshal.dump(count: count, time: time)
       f.close
     end
   end
