@@ -38,7 +38,7 @@ class RI::Population::Manager
     @label_converter       = RI::Population::LabelConverter.new(s.annotator_redis_host, s.annotator_redis_port)
     @mutex                 = Mutex.new
     @es_queue              = []
-    @time                  = Time.at(opts[:time_int].to_i || Time.now)
+    @time                  = Time.at(opts[:time_int].to_i || Time.now.to_i)
 
     @@mutex                = Mutex.new
 
@@ -47,6 +47,9 @@ class RI::Population::Manager
     }
 
     goo_setup(opts)
+
+    # Manual resume trigger
+    save_for_resume(s.starting_offset) if s.starting_offset > 0 && opts[:time_int]
 
     # Resume from previous population
     if s.resume && File.exist?(resume_path)
