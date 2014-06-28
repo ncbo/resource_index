@@ -12,57 +12,81 @@ module RI::Population::Elasticsearch
     begin
       es_threads = []
       count = offset
-      RI::Document.threach(@res, {thread_count: settings.population_threads, offset: count}, @mutex) do |doc|
-        retry_count = 0
+      documents = RI::Document.all(@res, {offset: count}, @mutex)
+
+      # We add code blocks to the lazy enumerable here
+      # the code isn't evaluated until you call .to_a or .each
+      # or otherwise force the enumerable to be eval'ed
+      threads = documents.collect do |doc|
+        Thread.new do
+          retry_count = 0
+          begin
+            annotations = {}
+            index_doc = nil
+            @mutex.synchronize { index_doc = doc.indexable_hash }
+            (annotated_classes(doc) + index_doc.delete(:manual_annotations)).each do |cls|
+              if annotations[cls.xxhash]
+                annotations[cls.xxhash][:count] += 1
+                next
+              end
+
+              ancestors = nil
+              RI::Population::Manager.mutex.synchronize { ancestors = ancestors_cache[cls.xxhash] }
+              unless ancestors
+                submission_id = "http://data.bioontology.org/ontologies/#{cls.ont_acronym}/submissions/#{latest_submissions[cls.ont_acronym]}"
+                ancestors = cls.retrieve_ancestors(cls.ont_acronym, submission_id)
+                RI::Population::Manager.mutex.synchronize { ancestors_cache[cls.xxhash] = ancestors }
+              end
+              annotations[cls.xxhash] = {direct: cls.xxhash, ancestors: ancestors, count: 1}
+            end
+
+            # Switch the annotaions to an array
+            index_doc[:annotations] = annotations.values
+
+            # Add to batch index, push to ES if we hit the chunk size limit
+            @mutex.synchronize {
+              @es_queue << index_doc
+            }
+
+            if @es_queue.length >= settings.bulk_index_size
+              @logger.debug "Indexing docs @ #{count}"
+              es_threads << Thread.new do
+                store_documents
+              end
+            end
+
+            @mutex.synchronize {
+              count += 1
+              @logger.debug "Doc count: #{count}" if count % 10 == 0
+              @last_processed_id = doc.id
+            }
+          rescue => e
+            retry_count += 1
+            unless retry_count >= 5
+              @logger.warn "Retrying, attempt #{retry_count} (#{e.message})"
+              retry
+            end
+            @logger.warn "Retried but failed to fix"
+            err = RetryError.new(e)
+            err.retry_count = retry_count
+            raise err
+          end
+        end
+      end
+
+      # This construct is used because you can't access enumerable
+      # from new threads because of the Fibers used in enum
+      # This will enumerate over the enum and run as many threads as
+      # is configured by the population process.
+      running = true
+      workers = []
+      while running || !workers.empty?
+        workers.each(&:join)
+        workers = []
         begin
-          annotations = {}
-          index_doc = nil
-          @mutex.synchronize { index_doc = doc.indexable_hash }
-          (annotated_classes(doc) + index_doc.delete(:manual_annotations)).each do |cls|
-            if annotations[cls.xxhash]
-              annotations[cls.xxhash][:count] += 1
-              next
-            end
-
-            ancestors = nil
-            RI::Population::Manager.mutex.synchronize { ancestors = ancestors_cache[cls.xxhash] }
-            unless ancestors
-              submission_id = "http://data.bioontology.org/ontologies/#{cls.ont_acronym}/submissions/#{latest_submissions[cls.ont_acronym]}"
-              ancestors = cls.retrieve_ancestors(cls.ont_acronym, submission_id)
-              RI::Population::Manager.mutex.synchronize { ancestors_cache[cls.xxhash] = ancestors }
-            end
-            annotations[cls.xxhash] = {direct: cls.xxhash, ancestors: ancestors, count: 1}
-          end
-
-          # Switch the annotaions to an array
-          index_doc[:annotations] = annotations.values
-
-          # Add to batch index, push to ES if we hit the chunk size limit
-          @mutex.synchronize {
-            @es_queue << index_doc
-          }
-
-          if @es_queue.length >= settings.bulk_index_size
-            @logger.debug "Indexing docs @ #{count}"
-            es_threads << Thread.new do
-              store_documents
-            end
-          end
-
-          @mutex.synchronize {
-            count += 1
-            @logger.debug "Doc count: #{count}" if count % 10 == 0
-          }
-        rescue => e
-          retry_count += 1
-          unless retry_count >= 5
-            @logger.warn "Retrying, attempt #{retry_count} (#{e.message})"
-            retry
-          end
-          @logger.warn "Retried but failed to fix"
-          err = RetryError.new(e)
-          err.retry_count = retry_count
-          raise err
+          settings.population_threads.times {workers << threads.next}
+        rescue StopIteration
+          running = false
         end
       end
     rescue => e
@@ -70,7 +94,7 @@ module RI::Population::Elasticsearch
       @logger.error e.message
       @logger.error e.backtrace.join("\n\t")
       store_documents # store any remaining in the queue
-      save_for_resume(count) if settings.resume
+      save_for_resume(@last_processed_id) if settings.resume
       raise e
     end
 

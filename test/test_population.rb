@@ -69,7 +69,7 @@ class RI::TestDocument < RI::TestCase
     end
     sleep(3)
     RI::Document.fail_on_index(false)
-    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, starting_offset: 300, time: @index_id.split("_").last)
+    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, starting_offset: 300, time_int: @index_id.split("_").last.to_i)
     @index_id = populator.populate()
     sleep(3) # wait for indexing to complete
     docs_ok?
