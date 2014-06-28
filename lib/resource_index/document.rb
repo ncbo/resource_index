@@ -69,30 +69,34 @@ class RI::Document
     ont_fields.each do |f|
       f = f.downcase
       next if hash[f].nil? || hash[f].empty?
-      ont, cls = hash[f].split("/")
-      cls = clean_cls_id(ont, cls)
-      ont = clean_ont_id(ont)
+      ids = hash[f].split("> ")
+      ids.each do |id|
+        ont, cls = id.split("/")
+        ont = clean_ont_id(ont)
+        cls = clean_cls_id(ont, cls)
 
-      onts = RI.db.from(:obs_ontology)
-      begin
-        local_ont_id = onts[virtual_ontology_id: ont][:local_ontology_id]
-      rescue => e
-        puts "Manual annotations, problem getting ontology #{ont}: #{e.message}"
-        next
+        onts = RI.db.from(:obs_ontology)
+        begin
+          local_ont_id = onts[virtual_ontology_id: ont][:local_ontology_id]
+        rescue => e
+          puts "Manual annotations, problem getting ontology #{ont}: #{e.message}"
+          next
+        end
+
+        concepts = RI.db.from(:obs_concept)
+        begin
+          cls_uri = concepts.where(local_concept_id: "#{local_ont_id}/#{cls}").first[:full_id]
+        rescue => e
+          binding.pry
+          puts "Manual annotations, problem getting concept #{ont} | #{local_ont_id}/#{cls}: #{e.message}"
+          next
+        end
+
+        acronym = VIRT_MAP[ont.to_i].upcase
+        cls = RI::Population::Class.new(acronym, cls_uri)
+        hash[f] = "#{acronym}\C-_#{cls_uri}"
+        hash[:manual_annotations] << cls
       end
-
-      concepts = RI.db.from(:obs_concept)
-      begin
-        cls_uri = concepts.where(local_concept_id: "#{local_ont_id}/#{cls}").first[:full_id]
-      rescue => e
-        puts "Manual annotations, problem getting concept #{ont} | #{local_ont_id}/#{cls}: #{e.message}"
-        next
-      end
-
-      acronym = VIRT_MAP[ont.to_i].upcase
-      cls = RI::Population::Class.new(acronym, cls_uri)
-      hash[f] = "#{acronym}\C-_#{cls_uri}"
-      hash[:manual_annotations] << cls
     end
     hash[:id] = self.document_id
     hash
@@ -109,6 +113,8 @@ class RI::Document
     case ont.to_i
     when 1132
       cls = "obo:#{cls.sub(':', '_')}" unless cls.start_with?("obo:")
+    when 1070
+
     end
     cls
   end
