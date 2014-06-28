@@ -87,7 +87,6 @@ class RI::Document
         begin
           cls_uri = concepts.where(local_concept_id: "#{local_ont_id}/#{cls}").first[:full_id]
         rescue => e
-          binding.pry
           puts "Manual annotations, problem getting concept #{ont} | #{local_ont_id}/#{cls}: #{e.message}"
           next
         end
