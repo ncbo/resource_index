@@ -71,6 +71,7 @@ class RI::Document
       next if hash[f].nil? || hash[f].empty?
       ont, cls = hash[f].split("/")
       cls = clean_cls_id(ont, cls)
+      ont = clean_ont_id(ont)
 
       onts = RI.db.from(:obs_ontology)
       begin
@@ -110,6 +111,14 @@ class RI::Document
       cls = "obo:#{cls.sub(':', '_')}" unless cls.start_with?("obo:")
     end
     cls
+  end
+
+  def clean_ont_id(ont)
+    case ont.to_i
+    when 46440
+      ont = 1070
+    end
+    ont
   end
 
   def self.create_doc_subclass(resource)
