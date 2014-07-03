@@ -61,6 +61,13 @@ class RI::Population::Manager
       File.delete(resume_path)
     end
 
+    # Close mgrep connections at exit
+    if @mgrep.is_a?(RI::Population::Mgrep::ThreadedClient)
+      at_exit do
+        @mgrep.close_all
+      end
+    end
+
     nil
   end
 

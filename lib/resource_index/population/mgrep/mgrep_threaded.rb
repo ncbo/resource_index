@@ -16,12 +16,18 @@ module RI::Population::Mgrep
       pooled_client.close()
     end
 
+    def close_all
+      @pool.each {|c| c.close}
+      @assigned.values.each {|c| c.close}
+    end
+
     def annotate(text, longword, wholeword = nil)
       pooled_client.annotate(text, longword, wholeword)
     end
 
     def pooled_client
       client = @assigned[Thread.current.object_id]
+      client ||= @assigned[Thread.current.object_id] = @pool.pop
       client ||= @assigned[Thread.current.object_id] = RI::Population::Mgrep::Client.new(@host, @port)
       client
     end
