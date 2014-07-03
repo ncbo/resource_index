@@ -67,6 +67,7 @@ module RI::Population::Elasticsearch
               retry
             end
             @logger.warn "Retried but failed to fix"
+            sleep(3)
             err = RetryError.new(e)
             err.retry_count = retry_count
             raise err
