@@ -28,7 +28,6 @@ module RI::Population::Mgrep
     end
 
     def pooled_client(&block)
-      puts @pool.length
       client = @pool.pop
       client ||= RI::Population::Mgrep::Client.new(@host, @port)
       yield client if block_given?
