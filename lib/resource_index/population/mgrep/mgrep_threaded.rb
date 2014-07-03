@@ -6,30 +6,33 @@ module RI::Population::Mgrep
       @host = host
       @port = port
       @pool = []
-      (threads * 1.5).to_i.times do
+      threads.times do
         @pool << RI::Population::Mgrep::Client.new(@host, @port)
       end
-      @assigned = {}
     end
 
     def close
-      pooled_client.close()
+      raise NoMethodError, "ThreadedClient uses a pool, cannot close individual connections. Use #close_all if that's really what you want."
     end
 
     def close_all
       @pool.each {|c| c.close}
-      @assigned.values.each {|c| c.close}
     end
 
     def annotate(text, longword, wholeword = nil)
-      pooled_client.annotate(text, longword, wholeword)
+      annotation = nil
+      pooled_client do |client|
+        annotation = client.annotate(text, longword, wholeword)
+      end
+      annotation
     end
 
-    def pooled_client
-      client = @assigned[Thread.current.object_id]
-      client ||= @assigned[Thread.current.object_id] = @pool.pop
-      client ||= @assigned[Thread.current.object_id] = RI::Population::Mgrep::Client.new(@host, @port)
-      client
+    def pooled_client(&block)
+      puts @pool.length
+      client = @pool.pop
+      client ||= RI::Population::Mgrep::Client.new(@host, @port)
+      yield client if block_given?
+      @pool.push(client)
     end
   end
 end
