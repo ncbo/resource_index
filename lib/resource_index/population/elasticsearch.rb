@@ -2,7 +2,7 @@ require 'elasticsearch'
 require_relative 'persisted_hash'
 
 module RI::Population::Elasticsearch
-  class RetryError < StandardError; attr_accessor :retry_count; end
+  class RetryError < StandardError; attr_accessor :retry_count, :original_error; end
 
   def index_id
     "#{@res.acronym.downcase}_#{@time.to_i}"
@@ -24,7 +24,8 @@ module RI::Population::Elasticsearch
             annotations = {}
             index_doc = nil
             @mutex.synchronize { index_doc = doc.indexable_hash }
-            (annotated_classes(doc) + index_doc.delete(:manual_annotations)).each do |cls|
+            classes = annotated_classes(doc) + index_doc.delete(:manual_annotations)
+            classes.each do |cls|
               if annotations[cls.xxhash]
                 annotations[cls.xxhash][:count] += 1
                 next
@@ -70,6 +71,7 @@ module RI::Population::Elasticsearch
             sleep(3)
             err = RetryError.new(e)
             err.retry_count = retry_count
+            err.original_error = e
             raise err
           end
         end
@@ -78,7 +80,7 @@ module RI::Population::Elasticsearch
       # This construct is used because you can't access enumerable
       # from new threads because of the Fibers used in enum
       # This will enumerate over the enum and run as many threads as
-      # is configured by the population process.
+      # is configured by the population process at a time.
       running = true
       workers = []
       while running || !workers.empty?
@@ -91,6 +93,7 @@ module RI::Population::Elasticsearch
         end
       end
     rescue => e
+      e = e.original_error if e.is_a?(RetryError)
       @logger.warn "Saving place in population for later resuming at record #{count}"
       @logger.error e.message
       @logger.error e.backtrace.join("\n\t")
