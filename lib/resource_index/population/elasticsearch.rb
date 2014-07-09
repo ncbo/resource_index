@@ -132,7 +132,11 @@ module RI::Population::Elasticsearch
   end
 
   def remove_error_alias
-    @es.indices.delete_alias index: index_id, name: "error"
+    begin
+      @es.indices.delete_alias index: index_id, name: "error"
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound
+      # Alias not found, move on
+    end
   end
 
   def store_documents
