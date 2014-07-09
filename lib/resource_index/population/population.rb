@@ -10,10 +10,12 @@ require_relative 'elasticsearch'
 require_relative 'mgrep/mgrep'
 require_relative 'label_converter'
 require_relative 'persisted_hash'
+require_relative 'notification'
 
 class RI::Population::Manager
   include RI::Population::GooConfig
   include RI::Population::Elasticsearch
+  include RI::Population::Notification
 
   def initialize(res, opts = {})
     raise ArgumentError, "Please provide a resource" unless res.is_a?(RI::Resource)
@@ -45,6 +47,15 @@ class RI::Population::Manager
     @@mutex.synchronize {
       @@ancestors ||= Persisted::Hash.new("ri_pop_anc", dir: s.dumps_dir, gzip: true)
     }
+
+    # Mail notification settings
+    @smtp_host       = opts[:smtp_host]      || "smtp-unencrypted.stanford.edu"
+    @smtp_port       = opts[:smtp_port]      || 25
+    @smtp_auth_type  = opts[:smtp_auth_type] || :none # :none, :plain, :login, :cram_md5
+    @smtp_domain     = opts[:smtp_domain]    || "localhost.localhost"
+    @smtp_user       = opts[:smtp_user]
+    @smtp_password   = opts[:smtp_password]
+    @mail_recipients = opts[:mail_recipients]
 
     goo_setup(opts)
 
@@ -94,9 +105,11 @@ class RI::Population::Manager
         delete_unaliased()
       end
       @logger.debug "Population complete"
+      success_email
     rescue => e
       @logger.error "Error populating resource #{@res.acronym}"
       alias_error()
+      error_email(e)
       raise e
     end
     index_id()
