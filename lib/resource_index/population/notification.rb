@@ -18,7 +18,7 @@ module RI::Population::Notification
 
     options = {
       subject: "[RI] error #{@res.acronym}",
-      body: "Population error at #{Time.now.to_s}\n#{error.message}\n#{error.backtrace.join("\n\t")}",
+      body: "Population error at #{Time.now.to_s}<br><br>#{error.message}<br><ul><li>#{error.backtrace.join("</li><li>")}</li></ul>",
       recipients: @mail_recipients
     }
 
