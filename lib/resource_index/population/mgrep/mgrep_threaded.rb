@@ -6,6 +6,7 @@ module RI::Population::Mgrep
       @host = host
       @port = port
       @pool = []
+      @mutex = Mutex.new
       threads.times do
         @pool << RI::Population::Mgrep::Client.new(@host, @port)
       end
@@ -28,10 +29,11 @@ module RI::Population::Mgrep
     end
 
     def pooled_client(&block)
-      client = @pool.pop
+      client = nil
+      @mutex.synchronize {client = @pool.pop}
       client ||= RI::Population::Mgrep::Client.new(@host, @port)
       yield client if block_given?
-      @pool.push(client)
+      @mutex.synchronize {@pool.push(client)}
     end
   end
 end
