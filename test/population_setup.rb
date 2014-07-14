@@ -1,7 +1,7 @@
 Minitest.after_run do
-  # File.open(Dir.pwd + "/converted.dump", 'w') {|f| f.write(Marshal.dump($converted)) }
-  # File.open(Dir.pwd + "/ancestors.dump", 'w') {|f| f.write(Marshal.dump($hierarchies)) }
-  # File.open(Dir.pwd + "/annotations.dump", 'w') {|f| f.write(Marshal.dump($annotations)) }
+  # File.open(Dir.pwd + "/converted.dump", 'w') {|f| f.write(Marshal.dump($test_converted)) }
+  # File.open(Dir.pwd + "/ancestors.dump", 'w') {|f| f.write(Marshal.dump($test_ancestors)) }
+  # File.open(Dir.pwd + "/annotations.dump", 'w') {|f| f.write(Marshal.dump($test_annotations)) }
   # File.open(Dir.pwd + "/annotation_counts.dump", 'w') {|f| f.write(Marshal.dump($test_annotation_counts)) }
   # File.open(Dir.pwd + "/annotation_counts_anc.dump", 'w') {|f| f.write(Marshal.dump($test_annotation_counts_anc)) }
 end
