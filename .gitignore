@@ -19,3 +19,5 @@ tmp
 test.rb
 *.dump.gz
 ri_test.db
+
+ri_test.db-journal
