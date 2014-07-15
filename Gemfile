@@ -9,6 +9,7 @@ gem 'cube-ruby'
 gem 'activesupport'
 gem 'ref'
 gem 'pony'
+gem 'excon'
 
 platform :ruby do
   gem 'sqlite3'
