@@ -76,7 +76,7 @@ class RI::Document
   def indexable_hash(*args)
     if fail?
       @@failures += 1
-      raise StandardError
+      raise RI::Population::Elasticsearch::RetryError
     end
     @@fail_count += 1
     old_indexable_hash(*args)
