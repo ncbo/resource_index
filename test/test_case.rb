@@ -11,6 +11,20 @@ require_relative 'population_setup'
 # Prevent Persisted::Hash from writing data while testing
 Persisted::Hash.prevent_persist
 
+module ResourceIndex
+  def self.config(opts = {})
+    setup_sql_client()
+  end
+
+  def self.setup_sql_client
+    if RUBY_PLATFORM == "java"
+      @client = Sequel.connect("jdbc:sqlite::memory:")
+    else
+      @client = Sequel.connect("sqlite::memory:")
+    end
+  end
+end
+
 module RI
   class TestCase < Minitest::Test
     TOTAL_ES_RECORDS = 962104
@@ -18,7 +32,7 @@ module RI
     def setup
       Dir.glob(Dir.pwd + "/ae_test*resume").each {|f| File.delete(f)}
       RI::Document.fail_on_index(false)
-      ResourceIndex.config(adapter: "amalgalite", username: "test", password: "test", database: "")
+      ResourceIndex.config()
       ResourceIndex.db.create_table :obr_resource do
         primary_key :id
         String :name

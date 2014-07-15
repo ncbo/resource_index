@@ -11,6 +11,10 @@ gem 'ref'
 gem 'pony'
 
 platform :ruby do
-  gem 'amalgalite'
+  gem 'sqlite3'
   gem 'mysql2'
+end
+
+platform :jruby do
+  gem 'jdbc-sqlite3'
 end
