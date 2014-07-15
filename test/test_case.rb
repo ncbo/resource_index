@@ -18,9 +18,9 @@ module ResourceIndex
 
   def self.setup_sql_client
     if RUBY_PLATFORM == "java"
-      @client = Sequel.connect("jdbc:sqlite::memory:")
+      @client = Sequel.connect("jdbc:sqlite:ri_test.db")
     else
-      @client = Sequel.connect("sqlite::memory:")
+      @client = Sequel.connect("sqlite:ri_test.db")
     end
   end
 end
@@ -90,6 +90,8 @@ module RI
       if @es && @index_id
         @es.indices.delete index: @index_id
       end
+      db_file = Dir.pwd+"/ri_test.db"
+      File.delete(db_file) if File.exist?(db_file)
     end
   end
 end
