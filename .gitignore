@@ -18,3 +18,4 @@ tmp
 .ruby-version
 test.rb
 *.dump.gz
+ri_test.db
