@@ -32,8 +32,8 @@ module RI
     def setup
       Dir.glob(Dir.pwd + "/ae_test*resume").each {|f| File.delete(f)}
       RI::Document.fail_on_index(false)
-      ResourceIndex.config()
-      ResourceIndex.db.create_table :obr_resource do
+      RI.config()
+      RI.db.create_table :obr_resource do
         primary_key :id
         String :name
         String :resource_id
@@ -48,8 +48,8 @@ module RI
         Time :last_update_date
         Time :workflow_completed_date
       end
-      ResourceIndex.db.run(RESOURCES_TEST_DATA)
-      ResourceIndex.db.create_table :obr_ae_test_element do
+      RI.db.run(RESOURCES_TEST_DATA)
+      RI.db.create_table :obr_ae_test_element do
         primary_key :id
         String :local_element_id
         Integer :dictionary_id
@@ -58,8 +58,8 @@ module RI
         String :ae_species
         String :ae_experiment_type
       end
-      ResourceIndex.db.run(DOCUMENTS_TEST_DATA.force_encoding('UTF-8'))
-      ResourceIndex.db.create_table :obs_ontology do
+      RI.db.run(DOCUMENTS_TEST_DATA.force_encoding('UTF-8'))
+      RI.db.create_table :obs_ontology do
         primary_key :id
         String :local_ontology_id
         String :name
@@ -70,23 +70,23 @@ module RI
         String :format
         Integer :dictionary_id
       end
-      ResourceIndex.db.run(ONTOLOGIES_TABLE)
-      ResourceIndex.db.create_table :obs_concept do
+      RI.db.run(ONTOLOGIES_TABLE)
+      RI.db.create_table :obs_concept do
         primary_key :id
         String :local_concept_id
         Integer :ontology_id
         Integer :is_toplevel
         String :full_id
       end
-      ResourceIndex.db.run(CONCEPTS_TABLE)
+      RI.db.run(CONCEPTS_TABLE)
     end
 
     def teardown
       RI::Document.fail_on_index(false)
-      ResourceIndex.db[:obr_resource].delete
-      ResourceIndex.db[:obr_ae_test_element].delete
-      ResourceIndex.db[:obs_ontology].delete
-      ResourceIndex.db[:obs_concept].delete
+      RI.db[:obr_resource].delete
+      RI.db[:obr_ae_test_element].delete
+      RI.db[:obs_ontology].delete
+      RI.db[:obs_concept].delete
       if @es && @index_id
         @es.indices.delete index: @index_id
       end
