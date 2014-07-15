@@ -2,7 +2,14 @@ require 'elasticsearch'
 require_relative 'persisted_hash'
 
 module RI::Population::Elasticsearch
-  class RetryError < StandardError; attr_accessor :retry_count, :original_error; end
+  class RetryError < StandardError
+    attr_accessor :retry_count, :original_error
+
+    def initialize(*args)
+      @original_error = self
+      super
+    end
+  end
 
   def index_id
     "#{@res.acronym.downcase}_#{@time.to_i}"
@@ -71,7 +78,7 @@ module RI::Population::Elasticsearch
             sleep(3)
             err = RetryError.new(e)
             err.retry_count = retry_count
-            err.original_error = e
+            err.original_error = e unless e.is_a?(RetryError)
             raise err
           end
         end
