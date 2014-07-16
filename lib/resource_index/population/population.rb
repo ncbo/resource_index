@@ -2,6 +2,7 @@ require 'logger'
 require 'ostruct'
 require 'json'
 require 'zlib'
+require 'excon'
 
 module RI::Population; end
 
