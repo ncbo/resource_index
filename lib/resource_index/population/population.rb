@@ -2,7 +2,7 @@ require 'logger'
 require 'ostruct'
 require 'json'
 require 'zlib'
-require 'excon'
+require 'typhoeus/adapters/faraday'
 
 module RI::Population; end
 
@@ -36,7 +36,7 @@ class RI::Population::Manager
     s.resume               = opts[:resume].nil? ? true : opts[:resume]
 
     @logger                = opts[:logger] || Logger.new(STDOUT)
-    @es                    = Elasticsearch::Client.new(host: s.es_host, port: s.es_port, adapter: :excon)
+    @es                    = Elasticsearch::Client.new(host: s.es_host, port: s.es_port, adapter: :typhoeus)
     @mgrep                 = opts[:mgrep_client] || RI::Population::Mgrep::ThreadedClient.new(s.mgrep_host, s.mgrep_port)
     @label_converter       = RI::Population::LabelConverter.new(s.annotator_redis_host, s.annotator_redis_port)
     @mutex                 = Mutex.new

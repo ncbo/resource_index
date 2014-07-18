@@ -9,7 +9,7 @@ gem 'cube-ruby'
 gem 'activesupport'
 gem 'ref'
 gem 'pony'
-gem 'excon'
+gem 'typhoeus'
 
 platform :ruby do
   gem 'sqlite3'
