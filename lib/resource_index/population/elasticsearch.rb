@@ -147,17 +147,18 @@ module RI::Population::Elasticsearch
   end
 
   def store_documents
-    return if @es_queue.empty?
     es_queue = nil
     @mutex.synchronize {
       es_queue = @es_queue.dup
       @es_queue = []
     }
+    return if es_queue.empty?
     @logger.debug "Storing #{es_queue.length} records in #{index_id}"
     bulk_items = []
     es_queue.each do |doc|
       bulk_items << {index: {_index: index_id, _type: "#{@res.acronym.downcase}_doc", _id: doc[:id], data: doc}}
     end
+    return if bulk_items.empty?
     @es.bulk body: bulk_items
   end
 
