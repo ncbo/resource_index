@@ -54,16 +54,14 @@ module RI::Population::Elasticsearch
             # Add to batch index, push to ES if we hit the chunk size limit
             @mutex.synchronize {
               @es_queue << index_doc
-            }
 
-            if @es_queue.length >= settings.bulk_index_size
-              @logger.debug "Indexing docs @ #{count}"
-              es_threads << Thread.new do
-                store_documents
+              if @es_queue.length >= settings.bulk_index_size
+                @logger.debug "Indexing docs @ #{count}"
+                es_threads << Thread.new do
+                  store_documents
+                end
               end
-            end
 
-            @mutex.synchronize {
               count += 1
               @logger.debug "Doc count: #{count}" if count % 10 == 0
               @last_processed_id = doc.id
