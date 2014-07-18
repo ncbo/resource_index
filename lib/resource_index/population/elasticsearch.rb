@@ -164,6 +164,7 @@ module RI::Population::Elasticsearch
       @es.bulk body: bulk_items
     rescue => e
       sleep(3)
+      retries += 1
       retry if retries < 5
       raise e
     end
