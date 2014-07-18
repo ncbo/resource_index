@@ -159,7 +159,14 @@ module RI::Population::Elasticsearch
       bulk_items << {index: {_index: index_id, _type: "#{@res.acronym.downcase}_doc", _id: doc[:id], data: doc}}
     end
     return if bulk_items.empty?
-    @es.bulk body: bulk_items
+    retries = 0
+    begin
+      @es.bulk body: bulk_items
+    rescue => e
+      sleep(3)
+      retry if retries < 5
+      raise e
+    end
   end
 
   def es_mapping
