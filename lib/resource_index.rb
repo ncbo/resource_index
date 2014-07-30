@@ -4,6 +4,7 @@ RI = ResourceIndex
 require 'goo'
 require 'ostruct'
 require 'sequel'
+require 'typhoeus/adapters/faraday'
 require_relative 'resource_index/version'
 require_relative 'resource_index/resource'
 require_relative 'resource_index/document'
@@ -21,6 +22,15 @@ module ResourceIndex
     opts[:database] ||= "resource_index"
     @opts = opts
     setup_sql_client
+
+    # Elasticsearch
+    es_host = opts[:es_host] || "localhost"
+    es_port = opts[:es_port] || 9200
+    @es     = ::Elasticsearch::Client.new(host: es_host, port: es_port, adapter: :typhoeus)
+  end
+
+  def self.es
+    @es
   end
 
   def self.db
