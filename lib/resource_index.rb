@@ -11,6 +11,7 @@ require_relative 'resource_index/document'
 require_relative 'resource_index/population/population'
 
 module ResourceIndex
+  HASH_SEED = 112233
 
   REQUIRED_OPTS = [:username, :password]
   def self.config(opts = {})

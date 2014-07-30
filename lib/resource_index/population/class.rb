@@ -14,11 +14,11 @@ module RI::Population
       if ids.length == 0
         return []
       end
-      ids.lazy.select { |x| !x["owl#Thing"] }.map {|id| XXhash.xxh32(acronym + id, 112233)}.force
+      ids.lazy.select { |x| !x["owl#Thing"] }.map {|id| XXhash.xxh32(acronym + id, RI::HASH_SEED)}.force
     end
 
     def xxhash
-      @xxhash ||= XXhash.xxh32(self.ont_acronym + self.id, 112233)
+      @xxhash ||= XXhash.xxh32(self.ont_acronym + self.id, RI::HASH_SEED)
     end
 
     private
