@@ -163,7 +163,8 @@ module RI::Population::Elasticsearch
     rescue => e
       sleep(3)
       retries += 1
-      retry if retries < 5
+      retry if retries <= 5
+      store_documents
       raise e
     end
   end
