@@ -1,4 +1,5 @@
 require 'rexml/document'
+require 'resource_index/elasticsearch'
 
 module ResourceIndex
   class Resource
@@ -8,6 +9,8 @@ module ResourceIndex
         @name = name
       end
     end
+
+    include ResourceIndex::Elasticsearch
 
     attr_accessor :id, :name, :acronym, :main_field, :homepage, :lookup_url, :description, :logo_url, :count, :updated, :completed, :fields
 
