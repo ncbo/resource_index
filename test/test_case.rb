@@ -12,10 +12,6 @@ require_relative 'population_setup'
 Persisted::Hash.prevent_persist
 
 module ResourceIndex
-  def self.config(opts = {})
-    setup_sql_client()
-  end
-
   def self.setup_sql_client
     if RUBY_PLATFORM == "java"
       @client = Sequel.connect("jdbc:sqlite:ri_test.db")
@@ -32,7 +28,7 @@ module RI
     def setup
       Dir.glob(Dir.pwd + "/ae_test*resume").each {|f| File.delete(f)}
       RI::Document.fail_on_index(false)
-      RI.config()
+      RI.config(sqlite: true)
       RI.db.create_table :obr_resource do
         primary_key :id
         String :name

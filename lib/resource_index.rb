@@ -17,7 +17,7 @@ module ResourceIndex
   def self.config(opts = {})
     raise ArgumentError, "You need to pass db_opts for #{self.class.name}" unless opts && opts.is_a?(Hash)
     missing_opts = REQUIRED_OPTS - opts.keys
-    raise ArgumentError, "Missing #{missing_opts.join(', ')} from db options" unless missing_opts.empty?
+    raise ArgumentError, "Missing #{missing_opts.join(', ')} from db options" unless missing_opts.empty? || opts[:sqlite]
     opts[:host]     ||= "localhost"
     opts[:port]     ||= 3306
     opts[:database] ||= "resource_index"
