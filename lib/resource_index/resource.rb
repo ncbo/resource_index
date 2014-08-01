@@ -45,6 +45,12 @@ module ResourceIndex
       RI::Document.all(self, opts)
     end
 
+    ##
+    # Returns whether or not this resource is populated in the index
+    def populated?
+      RI.es.indices.exists_alias name: @acronym
+    end
+
     private
 
     def contain_ont?(a)
