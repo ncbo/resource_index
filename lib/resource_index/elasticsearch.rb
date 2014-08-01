@@ -2,43 +2,35 @@ module ResourceIndex
   module Elasticsearch
     def concept_count(hash, opts = {})
       expand = opts[:expand] == true ? true : false
-      return expand ? ancestor_count(hash) : direct_count(hash)
+      return expand ? es_count(hash, [:direct, :ancestors]) : es_count(hash)
     end
 
     def concept_docs(hash, opts = {})
       expand = opts[:expand] == true ? true : false
       size   = opts[:size] || 10
-      return expand ? ancestor_doc(hash, size) : direct_doc(hash, size)
+      return expand ? es_doc(hash, size, [:direct, :ancestors]) : es_doc(hash, size)
     end
 
     private
 
-    def direct_doc(hash, size)
-      (RI.es.search index: self.acronym, body: query(hash, :direct, size))["hits"]["hits"]
+    def es_doc(hash, size, types = [:direct])
+      (RI.es.search index: self.acronym, body: query(hash, types, size))["hits"]["hits"]
     end
 
-    def ancestor_doc(hash, size)
-      (RI.es.search index: self.acronym, body: query(hash, :ancestors, size))["hits"]["hits"]
-    end
-
-    def direct_count(hash)
-      count = RI.es.count index: self.acronym, body: query(hash) rescue binding.pry
+    def es_count(hash, types = [:direct])
+      count = RI.es.count index: self.acronym, body: query(hash, types)
       count["count"] || 0
     end
 
-    def ancestor_count(hash)
-      count = RI.es.count index: self.acronym, body: query(hash, :ancestors)
-      count["count"] || 0
-    end
-
-    def query(hash, type = :direct, size = nil)
+    def query(hash, types = [:direct], size = nil)
       query = {
         query: {
           nested: {
             path: "annotations",
             query: {
-              match: {
-                :"annotations.#{type}" => hash
+              multi_match: {
+                query: hash,
+                fields: types.map {|type| "annotations.#{type}"}
               }
             }
           }
