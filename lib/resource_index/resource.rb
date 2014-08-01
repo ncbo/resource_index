@@ -15,7 +15,7 @@ module ResourceIndex
     attr_accessor :id, :name, :acronym, :main_field, :homepage, :lookup_url, :description, :logo_url, :count, :updated, :completed, :fields
 
     def self.all
-      RI.db[:obr_resource].all.map {|r| RI::Resource.new(r.values)}
+      @resources ||= RI.db[:obr_resource].all.map {|r| RI::Resource.new(r.values)}
     end
 
     def self.find(res)
