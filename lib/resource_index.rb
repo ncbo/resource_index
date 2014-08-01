@@ -26,9 +26,10 @@ module ResourceIndex
     setup_sql_client
 
     # Elasticsearch
-    es_host = opts[:es_host] || "localhost"
+    es_hosts = opts[:es_hosts] || ["localhost"]
     es_port = opts[:es_port] || 9200
-    @es     = ::Elasticsearch::Client.new(host: es_host, port: es_port, adapter: :typhoeus)
+    es_hosts = es_hosts.is_a?(Array) ? es_hosts : [es_hosts]
+    @es     = ::Elasticsearch::Client.new(hosts: es_hosts, port: es_port, adapter: :typhoeus)
   end
 
   def self.es
