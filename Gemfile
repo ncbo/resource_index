@@ -7,9 +7,6 @@ gem 'goo', github: 'ncbo/goo'
 gem 'sparql-client', github: 'ncbo/sparql-client'
 gem 'cube-ruby'
 gem 'activesupport'
-gem 'ref'
-gem 'pony'
-gem 'typhoeus'
 
 platform :ruby do
   gem 'sqlite3'
