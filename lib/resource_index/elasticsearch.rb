@@ -1,42 +1,51 @@
 module ResourceIndex
   module Elasticsearch
     def concept_count(hash, opts = {})
-      expand = opts[:expand] == true ? true : false
-      return expand ? es_count(hash, [:direct, :ancestors]) : es_count(hash)
+      es_count(hash, opts)
     end
 
     def concept_docs(hash, opts = {})
-      expand = opts[:expand] == true ? true : false
-      size   = opts[:size] || 10
-      return expand ? es_doc(hash, size, [:direct, :ancestors]) : es_doc(hash, size)
+      es_doc(hash, opts)
     end
 
     private
 
-    def es_doc(hash, size, types = [:direct])
-      (RI.es.search index: self.acronym, body: query(hash, types, size))["hits"]["hits"]
+    def es_doc(hash, opts = {})
+      opts[:size] ||= 10
+      opts[:from] ||= 0
+      (RI.es.search index: self.acronym, body: query(hash, opts))["hits"]["hits"]
     end
 
-    def es_count(hash, types = [:direct])
-      count = RI.es.count index: self.acronym, body: query(hash, types)
+    def es_count(hash, opts = {})
+      count = RI.es.count index: self.acronym, body: query(hash, opts)
       count["count"] || 0
     end
 
-    def query(hash, types = [:direct], size = nil)
+    def query(hashes, opts = {})
+      hashes = hashes.is_a?(Array) ? hashes : [hashes]
+      expand = opts[:expand] == true ? true : false
+      types  = expand ? [:direct, :ancestors] : [:direct]
+      bool   = opts[:bool] || :must # passing :should finds documents with any class, :must finds documents with all classes
+      size   = opts[:size]
+      from   = opts[:from]
+
+      bool_query = {
+        bool => hashes.map {|hash| {:bool => {:should => types.map {|t| {match: {"annotations.#{t}" => hash}} } } } }
+      }
+
+
       query = {
         query: {
           nested: {
             path: "annotations",
             query: {
-              multi_match: {
-                query: hash,
-                fields: types.map {|type| "annotations.#{type}"}
-              }
+              bool: bool_query
             }
           }
         }
       }
       query[:size] = size if size
+      query[:from] = from if from
       query
     end
   end
