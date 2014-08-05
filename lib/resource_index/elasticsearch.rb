@@ -33,7 +33,6 @@ module ResourceIndex
         bool => hashes.map {|hash| {:bool => {:should => types.map {|t| {match: {"annotations.#{t}" => hash}} } } } }
       }
 
-
       query = {
         query: {
           nested: {
