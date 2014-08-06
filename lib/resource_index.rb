@@ -9,6 +9,7 @@ require_relative 'resource_index/version'
 require_relative 'resource_index/resource'
 require_relative 'resource_index/class'
 require_relative 'resource_index/enumerable'
+require_relative 'resource_index/document'
 require_relative 'resource_index/population/population'
 require_relative 'resource_index/population/document'
 
