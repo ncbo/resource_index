@@ -1,6 +1,6 @@
 module ResourceIndex
   class Document
-    attr_accessor :id, :resource
+    attr_accessor :id
 
     def self.fields
       @fields
@@ -8,7 +8,6 @@ module ResourceIndex
 
     def self.from_elasticsearch(record, resource)
       record = record.dup
-      record["resource"] = resource.acronym
       record["id"] = record.delete("_id")
       ["_index", "_type", "_score"].each {|i| record.delete(i)}
       record.merge!(record.delete("_source") || {})
