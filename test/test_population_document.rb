@@ -2,7 +2,7 @@ require_relative 'test_case'
 
 class RI::TestDocument < RI::TestCase
   def test_documents
-    assert_raises(ArgumentError) {RI::Document.all}
+    assert_raises(ArgumentError) {RI::Population::Document.all}
     res = RI::Resource.find("AE_test")
     docs = res.documents(chunk_size: 10)
     assert_equal Enumerator::Lazy, docs.class

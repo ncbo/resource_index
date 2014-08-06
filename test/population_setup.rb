@@ -63,7 +63,7 @@ end
 
 ##
 # Monkeypatch to simulate failure when indexing
-class RI::Document
+class RI::Population::Document
   def self.fail_on_index(bool, fail_on_count = 300, max_fails = Float::INFINITY)
     @@fail_count     = 0
     @@failures       = 0

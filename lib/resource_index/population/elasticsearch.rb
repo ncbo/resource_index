@@ -19,7 +19,7 @@ module RI::Population::Elasticsearch
     begin
       es_threads = []
       count = offset
-      documents = RI::Document.all(@res, {offset: count}, @mutex)
+      documents = RI::Population::Document.all(@res, {offset: count}, @mutex)
 
       # We add code blocks to the lazy enumerable here
       # the code isn't evaluated until you call .to_a or .each

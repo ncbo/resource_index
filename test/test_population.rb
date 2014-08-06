@@ -24,7 +24,7 @@ class RI::TestDocument < RI::TestCase
   end
 
   def test_population_resume
-    RI::Document.fail_on_index(true)
+    RI::Population::Document.fail_on_index(true)
     @es = Elasticsearch::Client.new
     @res = RI::Resource.find("AE_test")
     mgrep = MockMGREPClient.new
@@ -35,7 +35,7 @@ class RI::TestDocument < RI::TestCase
     end
     sleep(3)
     assert Dir.glob(Dir.pwd + "/ae_test*resume").length > 0
-    RI::Document.fail_on_index(false)
+    RI::Population::Document.fail_on_index(false)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500)
     assert_equal ({}), @es.indices.get_alias(index: populator.index_id, name: "error")
     @index_id = populator.populate()
@@ -47,7 +47,7 @@ class RI::TestDocument < RI::TestCase
   end
 
   def test_population_resume_threaded
-    RI::Document.fail_on_index(true)
+    RI::Population::Document.fail_on_index(true)
     @es = Elasticsearch::Client.new
     @res = RI::Resource.find("AE_test")
     mgrep = MockMGREPClient.new
@@ -58,7 +58,7 @@ class RI::TestDocument < RI::TestCase
     end
     sleep(3)
     assert Dir.glob(Dir.pwd + "/ae_test*resume").length > 0
-    RI::Document.fail_on_index(false)
+    RI::Population::Document.fail_on_index(false)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, population_threads: 2)
     assert_equal ({}), @es.indices.get_alias(index: populator.index_id, name: "error")
     @index_id = populator.populate()
@@ -72,7 +72,7 @@ class RI::TestDocument < RI::TestCase
   def test_population_no_resume
     @res = RI::Resource.find("AE_test")
     mgrep = MockMGREPClient.new
-    RI::Document.fail_on_index(true, 1, 6)
+    RI::Population::Document.fail_on_index(true, 1, 6)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, resume: false)
     @index_id = populator.index_id
     assert_raises RI::Population::Elasticsearch::RetryError do
@@ -84,14 +84,14 @@ class RI::TestDocument < RI::TestCase
   def test_population_manual_resume
     @res = RI::Resource.find("AE_test")
     mgrep = MockMGREPClient.new
-    RI::Document.fail_on_index(true)
+    RI::Population::Document.fail_on_index(true)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, resume: false)
     @index_id = populator.index_id
     assert_raises RI::Population::Elasticsearch::RetryError do
       populator.populate()
     end
     sleep(3)
-    RI::Document.fail_on_index(false)
+    RI::Population::Document.fail_on_index(false)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, starting_offset: 300, time_int: @index_id.split("_").last.to_i)
     @index_id = populator.populate()
     sleep(3) # wait for indexing to complete
@@ -104,7 +104,7 @@ class RI::TestDocument < RI::TestCase
     @es = Elasticsearch::Client.new
     @res = RI::Resource.find("AE_test")
     mgrep = MockMGREPClient.new
-    RI::Document.fail_on_index(true, 5, 7)
+    RI::Population::Document.fail_on_index(true, 5, 7)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, resume: false)
     @index_id = populator.index_id
     retry_count = -1
@@ -119,10 +119,10 @@ class RI::TestDocument < RI::TestCase
     assert_equal 5, retry_count
     sleep(3)
     @es.indices.delete index: @index_id
-    RI::Document.fail_on_index(true, 5, 2)
+    RI::Population::Document.fail_on_index(true, 5, 2)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500)
     @index_id = populator.populate()
-    RI::Document.fail_on_index(false)
+    RI::Population::Document.fail_on_index(false)
     sleep(3) # wait for indexing to complete
     docs_ok?
     population_ok?

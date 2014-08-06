@@ -42,7 +42,7 @@ module ResourceIndex
     ##
     # Return a lazy enumerator that will lazily get results from the DB
     def documents(opts = {})
-      RI::Document.all(self, opts)
+      RI::Population::Document.all(self, opts)
     end
 
     ##

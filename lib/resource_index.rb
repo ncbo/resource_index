@@ -10,6 +10,7 @@ require_relative 'resource_index/resource'
 require_relative 'resource_index/document'
 require_relative 'resource_index/class'
 require_relative 'resource_index/population/population'
+require_relative 'resource_index/population/document'
 
 module ResourceIndex
   HASH_SEED = 112233

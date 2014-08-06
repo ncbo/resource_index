@@ -27,7 +27,7 @@ module RI
 
     def setup
       Dir.glob(Dir.pwd + "/ae_test*resume").each {|f| File.delete(f)}
-      RI::Document.fail_on_index(false)
+      RI::Population::Document.fail_on_index(false)
       RI.config(sqlite: true)
       RI.db.create_table :obr_resource do
         primary_key :id
@@ -78,7 +78,7 @@ module RI
     end
 
     def teardown
-      RI::Document.fail_on_index(false)
+      RI::Population::Document.fail_on_index(false)
       RI.db[:obr_resource].delete
       RI.db[:obr_ae_test_element].delete
       RI.db[:obs_ontology].delete
