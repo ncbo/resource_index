@@ -16,7 +16,13 @@ module ResourceIndex
 
     include ResourceIndex::Elasticsearch
 
-    attr_accessor :id, :name, :acronym, :main_field, :homepage, :lookup_url, :description, :logo_url, :count, :updated, :completed, :fields
+    attr_accessor :id, :name, :acronym, :mainField, :homepage, :lookupURL, :description, :logo, :count, :updated, :completed, :fields
+    alias :logo_url :logo
+    alias :logo_url= :logo=
+    alias :lookup_url :lookupURL
+    alias :lookup_url= :lookupURL=
+    alias :main_field :mainField
+    alias :main_field= :mainField=
 
     def self.all
       @resources ||= RI.db[:obr_resource].all.map {|r| RI::Resource.new(r.values)}
@@ -28,7 +34,7 @@ module ResourceIndex
 
     def initialize(*args)
       cols = args.first.is_a?(Hash) ? args.first.values : args.first
-      @id, @name, @acronym, @structure, @main_field, @homepage, @lookup_url, @description, @logo_url, @dict_id, @count, @updated, @completed = *cols
+      @id, @name, @acronym, @structure, @mainField, @homepage, @lookupURL, @description, @logo, @dict_id, @count, @updated, @completed = *cols
       doc ||= REXML::Document.new(@structure, ignore_whitespace_nodes: :all)
       @fields = {}
       doc.elements.to_a("//contexts/entry/string").each {|a| fields[a.text] = Field.new(a.text.split("_")[1..-1].join("_"))} # Context names, create field obj
