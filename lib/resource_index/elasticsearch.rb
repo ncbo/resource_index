@@ -1,10 +1,20 @@
+require_relative 'document'
+
 module ResourceIndex
   module Elasticsearch
     def concept_count(hash, opts = {})
-      es_count(hash, opts)
+      es_concept_count(hash, opts).map {|doc| RI::Document.from_elasticsearch(doc, self)}
     end
 
     def concept_docs(hash, opts = {})
+      es_concept_docs(hash, opts).map {|doc| RI::Document.from_elasticsearch(doc, self)}
+    end
+
+    def es_concept_count(hash, opts = {})
+      es_count(hash, opts)
+    end
+
+    def es_concept_docs(hash, opts = {})
       es_doc(hash, opts)
     end
 
