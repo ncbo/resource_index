@@ -25,7 +25,8 @@ module ResourceIndex
     alias :main_field= :mainField=
 
     def self.all
-      @resources ||= RI.db[:obr_resource].all.map {|r| RI::Resource.new(r.values)}
+      @resources ||= RI.db[:obr_resource].all.map {|r| RI::Resource.new(r.values)}.sort {|a,b| a.name.downcase <=> b.name.downcase}
+    end
 
     def self.populated
       self.all.select {|r| r.populated?}
