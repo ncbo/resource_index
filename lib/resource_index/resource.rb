@@ -26,6 +26,9 @@ module ResourceIndex
 
     def self.all
       @resources ||= RI.db[:obr_resource].all.map {|r| RI::Resource.new(r.values)}
+
+    def self.populated
+      self.all.select {|r| r.populated?}
     end
 
     def self.find(res)
