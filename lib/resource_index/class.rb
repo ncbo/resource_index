@@ -19,7 +19,7 @@ module ResourceIndex
       resources.each do |res|
         next unless res.populated?
         threads << Thread.new do
-          counts[res.acronym] = res.concept_count(self.xxhash, expand: opts[:expand])
+          counts[res.acronym] = res.concept_count(self.xxhash, opts)
         end
       end
       threads.each(&:join)
@@ -32,6 +32,7 @@ module ResourceIndex
     # @opts [Hash] Hash holding options
     #   @opts[:expand] TrueClass|FalseClass
     #   @opts[:size] Integer Size of the result set
+    #   @opts[:from] Integer Start at this result
     def ri_docs(*args)
       resources, opts = ri_opts(args)
       docs = {}
@@ -39,7 +40,7 @@ module ResourceIndex
       resources.each do |res|
         next unless res.populated?
         threads << Thread.new do
-          docs[res.acronym] = res.concept_docs(self.xxhash, expand: opts[:expand], size: opts[:size])
+          docs[res.acronym] = res.concept_docs(self.xxhash, opts)
         end
       end
       threads.each(&:join)
