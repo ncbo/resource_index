@@ -1,4 +1,4 @@
-class RI::Document
+class RI::Population::Document
   attr_accessor :id, :document_id, :dictionary_id, :resource
   alias :local_element_id :document_id
   alias :"local_element_id=" :"document_id="
@@ -13,11 +13,11 @@ class RI::Document
     mutex ||= Mutex.new
     cls = nil
     mutex.synchronize {
-      unless RI::Document.const_defined?(resource.acronym)
+      unless RI::Population::Document.const_defined?(resource.acronym)
         cls = create_doc_subclass(resource)
       end
     }
-    cls ||= RI::Document.const_get(resource.acronym)
+    cls ||= RI::Population::Document.const_get(resource.acronym)
     return Enumerator.new { |yielder|
       offset = opts[:offset] || 0
       docs = nil
@@ -127,8 +127,9 @@ class RI::Document
   end
 
   def self.create_doc_subclass(resource)
+    # TODO: would be good to change this to not downcase (would mess with existing index, only do when reindexing everything)
     fields = resource.fields.keys.map {|f| f.downcase.to_sym}
-    cls = Class.new(RI::Document) do
+    cls = Class.new(RI::Population::Document) do
       fields.each do |field|
         define_method field do
           instance_variable_get("@#{field}")
@@ -143,7 +144,7 @@ class RI::Document
       hsh.each {|k,v| inst.send("#{k}=", v)}
       inst
     end
-    RI::Document.const_set(resource.acronym, cls)
+    RI::Population::Document.const_set(resource.acronym, cls)
     cls
   end
 end
