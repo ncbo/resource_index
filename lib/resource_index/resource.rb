@@ -8,6 +8,10 @@ module ResourceIndex
       def initialize(name)
         @name = name
       end
+
+      def to_hash
+        {name: @name, ontology: @ontology, weight: @weight}
+      end
     end
 
     include ResourceIndex::Elasticsearch
