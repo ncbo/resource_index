@@ -4,7 +4,7 @@ require_relative 'page'
 module ResourceIndex
   module Elasticsearch
     def concept_count(hash, opts = {})
-      es_concept_count(hash, opts).map {|doc| RI::Document.from_elasticsearch(doc, self)}
+      es_concept_count(hash, opts)
     end
 
     def concept_docs(hash, opts = {})
