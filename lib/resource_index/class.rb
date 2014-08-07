@@ -35,16 +35,9 @@ module ResourceIndex
     #   @opts[:from] Integer Start at this result
     def ri_docs(*args)
       resources, opts = ri_opts(args)
-      docs = {}
-      threads = []
-      resources.each do |res|
-        next unless res.populated?
-        threads << Thread.new do
-          docs[res.acronym] = res.concept_docs(self.xxhash, opts)
-        end
-      end
-      threads.each(&:join)
-      docs
+      raise ArgumentError, "Only one resource allowed" if resources.length > 1
+      res = resources.first
+      res.concept_docs(self.xxhash, opts)
     end
 
     private
