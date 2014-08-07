@@ -18,7 +18,6 @@ class RI::TestDocument < RI::TestCase
       docs = es_docs.map {|doc| RI::Document.from_elasticsearch(doc, res)}
       docs.each_with_index do |doc, i|
         assert_equal es_docs[i]["_id"], doc.id
-        assert_equal res.acronym, doc.resource
         fields = es_docs[i]["_source"]
         fields.each do |k, v|
           assert doc.respond_to?(k)
