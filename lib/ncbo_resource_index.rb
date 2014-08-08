@@ -5,13 +5,13 @@ require 'goo'
 require 'ostruct'
 require 'sequel'
 require 'typhoeus/adapters/faraday'
-require_relative 'resource_index/version'
-require_relative 'resource_index/resource'
-require_relative 'resource_index/class'
-require_relative 'resource_index/enumerable'
-require_relative 'resource_index/document'
-require_relative 'resource_index/population/population'
-require_relative 'resource_index/population/document'
+require 'ncbo_resource_index/version'
+require 'ncbo_resource_index/resource'
+require 'ncbo_resource_index/class'
+require 'ncbo_resource_index/enumerable'
+require 'ncbo_resource_index/document'
+require 'ncbo_resource_index/population/population'
+require 'ncbo_resource_index/population/document'
 
 module ResourceIndex
   HASH_SEED = 112233
@@ -24,6 +24,7 @@ module ResourceIndex
     opts[:host]     ||= "localhost"
     opts[:port]     ||= 3306
     opts[:database] ||= "resource_index"
+
     @opts = opts
     setup_sql_client
 

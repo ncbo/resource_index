@@ -1,5 +1,5 @@
 require 'rexml/document'
-require 'resource_index/elasticsearch'
+require 'ncbo_resource_index/elasticsearch'
 
 module ResourceIndex
   class Resource

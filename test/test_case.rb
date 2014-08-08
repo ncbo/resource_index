@@ -1,6 +1,6 @@
 require 'pry'
 require 'minitest/autorun'
-require_relative '../lib/resource_index'
+require_relative '../lib/ncbo_resource_index'
 
 # Kept for test data consistency
 Annotator = RI::Population
