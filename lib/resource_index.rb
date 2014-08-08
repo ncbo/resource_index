@@ -29,9 +29,9 @@ module ResourceIndex
 
     # Elasticsearch
     es_hosts = opts[:es_hosts] || ["localhost"]
-    es_port = opts[:es_port] || 9200
+    es_port  = opts[:es_port] || 9200
     es_hosts = es_hosts.is_a?(Array) ? es_hosts : [es_hosts]
-    @es     = ::Elasticsearch::Client.new(hosts: es_hosts, port: es_port, adapter: :typhoeus)
+    @es      = ::Elasticsearch::Client.new(hosts: es_hosts, port: es_port, adapter: :typhoeus)
   end
 
   def self.es
