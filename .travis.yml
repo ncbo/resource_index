@@ -1,0 +1,11 @@
+language: ruby
+rvm:
+  - 2.1
+services:
+  - elasticsearch
+install:
+  - bundle install --path vendor/bundle
+cache:
+  directories:
+  - vendor/bundle
+script: bundle exec rake test
