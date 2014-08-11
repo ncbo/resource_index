@@ -69,7 +69,7 @@ class RI::TestQueries < RI::TestCase
       count = cls.ri_counts("AE_test")
       docs = cls.ri_docs("AE_test", size: 500)
       assert_equal DIRECT_COUNT[cls.xxhash], count["AE_test"]
-      assert_equal DIRECT_DOCS[cls.xxhash].sort, docs["AE_test"].map {|d| d["_id"]}.sort, "Docs don't match for #{ids.join(' | ')} | #{hash}"
+      assert_equal DIRECT_DOCS[cls.xxhash].sort, docs.map {|d| d.id}.sort, "Docs don't match for #{ids.join(' | ')} | #{hash}"
     end
   end
 

@@ -29,12 +29,12 @@ class RI::TestQueries < RI::TestCase
     ##
     # Test returned documents
     DIRECT.each do |id|
-      docs = res.concept_docs(id, size: 500).map {|d| d["_id"]}.sort
+      docs = res.concept_docs(id, size: 500).map {|d| d.id}.sort
       assert_equal DIRECT_DOCS[id].sort, docs
     end
 
     ANCESTOR.each do |id|
-      docs = res.concept_docs(id, expand: true, size: 500).map {|d| d["_id"]}.sort
+      docs = res.concept_docs(id, expand: true, size: 500).map {|d| d.id}.sort
       assert_equal ANCESTOR_DOCS[id].sort, docs
     end
   end
