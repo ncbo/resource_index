@@ -26,6 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "ref"
 
   spec.add_dependency "mysql2" if RUBY_PLATFORM != "java"
+  spec.add_dependency "sqlite3" if RUBY_PLATFORM != "java"
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"
