@@ -43,7 +43,7 @@ module ResourceIndex
       @fields = {}
       doc.elements.to_a("//contexts/entry/string").each {|a| fields[a.text] = Field.new(a.text.split("_")[1..-1].join("_"))} # Context names, create field obj
       doc.elements.to_a("//weights/entry").map {|a| fields[a.elements["string"].text].weight = a.elements["double"].text.to_f}
-      doc.elements.to_a("//ontoIds/entry").select {|a| contain_ont?(a)}.map {|a| fields[a.elements["string[position() = 1]"].text].ontology = a.elements["string[position() = 2]"].text.to_i}
+      doc.elements.to_a("//ontoIds/entry").select {|a| contain_ont?(a)}.map {|a| fields[a.elements["string[position() = 1]"].text].ontology = RI::VIRT_MAP[a.elements["string[position() = 2]"].text.to_i]}
     end
 
     ##
