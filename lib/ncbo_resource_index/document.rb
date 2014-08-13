@@ -1,6 +1,8 @@
 module ResourceIndex
   class Document
-    attr_accessor :id
+    attr_accessor :documentId
+    alias :id :documentId
+    alias :id= :documentId=
 
     def self.find(resource, doc_id)
       resource = resource.is_a?(String) ? Resource.find(resource) : resource
@@ -50,7 +52,7 @@ module ResourceIndex
       end
       cls.define_singleton_method :from_hash do |hsh|
         inst = self.new
-        hsh.each {|k,v| inst.send("#{k}=", v) rescue binding.pry}
+        hsh.each {|k,v| inst.send("#{k}=", v)}
         inst
       end
       RI::Document.const_set(resource.acronym, cls)
