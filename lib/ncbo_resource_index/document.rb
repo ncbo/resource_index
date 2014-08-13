@@ -2,14 +2,23 @@ module ResourceIndex
   class Document
     attr_accessor :id
 
+    def self.find(resource, doc_id)
+      resource = resource.is_a?(String) ? Resource.find(resource) : resource
+      raise ArgumentError, "Must provide ResourceIndex::Resource object, not #{resource.class.name}" unless resource.is_a?(ResourceIndex::Resource)
+      raise ArgumentError, "Invalid resource #{res_id}" unless resource
+      record = ResourceIndex.es.get(index: resource.current_index_id, id: doc_id)
+      from_elasticsearch(record, resource)
+    end
+
     def self.fields
       @fields
     end
 
     def self.from_elasticsearch(record, resource)
+      raise ArgumentError, "Must provide resource object, not #{resource.class}" unless resource.is_a?(ResourceIndex::Resource)
       record = record.dup
       record["id"] = record.delete("_id")
-      ["_index", "_type", "_score"].each {|i| record.delete(i)}
+      ["_index", "_type", "_score", "_version", "found"].each {|i| record.delete(i)}
       record.merge!(record.delete("_source") || {})
       doc_subclass(resource).from_hash(record)
     end
@@ -41,7 +50,7 @@ module ResourceIndex
       end
       cls.define_singleton_method :from_hash do |hsh|
         inst = self.new
-        hsh.each {|k,v| inst.send("#{k}=", v)}
+        hsh.each {|k,v| inst.send("#{k}=", v) rescue binding.pry}
         inst
       end
       RI::Document.const_set(resource.acronym, cls)
