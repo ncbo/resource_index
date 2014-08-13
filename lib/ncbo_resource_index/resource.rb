@@ -75,12 +75,6 @@ module ResourceIndex
       RI.es.indices.exists_alias name: @acronym
     end
 
-    ##
-    # For compatability with ontologies_api security
-    def read_restricted?
-      false
-    end
-
     private
 
     def contain_ont?(a)
