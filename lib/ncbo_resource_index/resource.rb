@@ -87,12 +87,16 @@ module ResourceIndex
     # If the resources in ES are older than a week, update them.
     def self.lazy_resources_in_es
       resources = RI.es.get index: "resource_store", id: "resources" rescue nil
-      if resources.nil? || (resources && (Time.at(resources[:time]).to_date < Time.now.to_date - 7))
+      if resources.nil? || old?(resources)
         resources = RI.db[:obr_resource].all.map {|r| RI::Resource.new(r.values)}.sort {|a,b| a.name.downcase <=> b.name.downcase}
         resources = {time: Time.now.to_f, resources: resources}
         RI.es.index index: "resource_store", type: "resources", id: "resources", body: resources
       end
       resources[:resources]
+    end
+
+    def self.old?(resources)
+      resources && resources[:time] && (Time.at(resources[:time]).to_date < Time.now.to_date - 7)
     end
 
   end
