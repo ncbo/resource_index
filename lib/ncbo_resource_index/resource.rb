@@ -25,7 +25,7 @@ module ResourceIndex
     alias :main_field= :mainField=
 
     def self.all
-      @resources ||= RI.db[:obr_resource].all.map {|r| RI::Resource.new(r.values)}.sort {|a,b| a.name.downcase <=> b.name.downcase}
+      @resources ||= lazy_resources_in_es
     end
 
     def self.populated
@@ -79,6 +79,20 @@ module ResourceIndex
 
     def contain_ont?(a)
       !a.elements["string[position() = 2]"].text.eql?("null") && !a.elements["string[position() = 2]"].text.eql?("-1")
+    end
+
+    ##
+    # Get the resources from ES if they are available.
+    # If not, get them from the configured database and store them.
+    # If the resources in ES are older than a week, update them.
+    def self.lazy_resources_in_es
+      resources = RI.es.get index: "resource_store", id: "resources" rescue nil
+      if resources.nil? || (resources && (Time.at(resources[:time]).to_date < Time.now.to_date - 7))
+        resources = RI.db[:obr_resource].all.map {|r| RI::Resource.new(r.values)}.sort {|a,b| a.name.downcase <=> b.name.downcase}
+        resources = {time: Time.now.to_f, resources: resources}
+        RI.es.index index: "resource_store", type: "resources", id: "resources", body: resources
+      end
+      resources[:resources]
     end
 
   end
