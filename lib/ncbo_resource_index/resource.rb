@@ -37,6 +37,7 @@ module ResourceIndex
     end
 
     def initialize(*args)
+      return args.first if args.first.is_a?(Resource)
       cols = args.first.is_a?(Hash) ? args.first.values : args.first
       @id, @name, @acronym, @structure, @mainField, @homepage, @lookupURL, @description, @logo, @dict_id, @count, @updated, @completed = *cols
       doc ||= REXML::Document.new(@structure, ignore_whitespace_nodes: :all)
@@ -75,6 +76,10 @@ module ResourceIndex
       RI.es.indices.exists_alias name: @acronym
     end
 
+    def to_hash
+      Hash[self.instance_variables.map {|var| [var[1..-1], self.instance_variable_get(var)] }]
+    end
+
     private
 
     def contain_ont?(a)
@@ -86,13 +91,18 @@ module ResourceIndex
     # If not, get them from the configured database and store them.
     # If the resources in ES are older than a week, update them.
     def self.lazy_resources_in_es
-      resources = RI.es.get index: "resource_store", id: "resources" rescue nil
+      resources = RI.es.get(index: "resource_store", id: "resources")["_source"] rescue nil
       if resources.nil? || old?(resources)
         resources = RI.db[:obr_resource].all.map {|r| RI::Resource.new(r.values)}.sort {|a,b| a.name.downcase <=> b.name.downcase}
-        resources = {time: Time.now.to_f, resources: resources}
-        RI.es.index index: "resource_store", type: "resources", id: "resources", body: resources
+        if !resources.nil? || !resources.empty?
+          resources = {"time" => Time.now.to_f, "resources" => resources.map {|r| r.to_hash}}
+          RI.es.index index: "resource_store", type: "resources", id: "resources", body: resources
+        else
+          raise StandardError, "No resources found in SQL DB"
+        end
       end
-      resources[:resources]
+      raise StandardError, "No resources found" if resources["resources"].nil?
+      resources["resources"].map {|r| Resource.new(r)}
     end
 
     def self.old?(resources)
