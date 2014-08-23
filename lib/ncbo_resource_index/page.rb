@@ -2,8 +2,8 @@ require 'goo'
 
 class ResourceIndex::Page < Goo::Base::Page
   def initialize(docs, resource, opts)
-    total = docs["hits"]["total"] rescue binding.pry
-    return super(0, 0, 0, []) if total == 0
+    total = docs["hits"]["total"]
+    return super(1, opts[:size], 0, []) if total == 0
     limit = opts[:size]
     offset = opts[:from]
     current_page = (total / limit) - ((total - offset) / limit) + 1
