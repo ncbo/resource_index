@@ -29,14 +29,16 @@ class RI::Population::Manager
     s.mgrep_port           = opts[:mgrep_port] || 55555
     s.population_threads   = opts[:population_threads] || 1
     s.dumps_dir            = opts[:dumps_dir] || Dir.pwd
-    s.es_host              = opts[:es_host] || "localhost"
+    s.es_hosts             = opts[:es_hosts] || ["localhost"]
     s.es_port              = opts[:es_port] || 9200
     s.bulk_index_size      = opts[:bulk_index_size] || 100
     s.starting_offset      = opts[:starting_offset] || 0
     s.resume               = opts[:resume].nil? ? true : opts[:resume]
 
+    es_hosts = es_hosts.is_a?(Array) ? es_hosts : [es_hosts]
+
     @logger                = opts[:logger] || Logger.new(STDOUT)
-    @es                    = Elasticsearch::Client.new(host: s.es_host, port: s.es_port, adapter: :typhoeus)
+    @es                    = Elasticsearch::Client.new(hosts: es_hosts, port: s.es_port, adapter: :typhoeus)
     @mgrep                 = opts[:mgrep_client] || RI::Population::Mgrep::ThreadedClient.new(s.mgrep_host, s.mgrep_port)
     @label_converter       = RI::Population::LabelConverter.new(s.annotator_redis_host, s.annotator_redis_port)
     @mutex                 = Mutex.new
