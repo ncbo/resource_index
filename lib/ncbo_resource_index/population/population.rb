@@ -35,10 +35,10 @@ class RI::Population::Manager
     s.starting_offset      = opts[:starting_offset] || 0
     s.resume               = opts[:resume].nil? ? true : opts[:resume]
 
-    es_hosts = es_hosts.is_a?(Array) ? es_hosts : [es_hosts]
+    s.es_hosts = s.es_hosts.is_a?(Array) ? s.es_hosts : [s.es_hosts]
 
     @logger                = opts[:logger] || Logger.new(STDOUT)
-    @es                    = Elasticsearch::Client.new(hosts: es_hosts, port: s.es_port, adapter: :typhoeus)
+    @es                    = ::Elasticsearch::Client.new(hosts: s.es_hosts, port: s.es_port, adapter: :typhoeus)
     @mgrep                 = opts[:mgrep_client] || RI::Population::Mgrep::ThreadedClient.new(s.mgrep_host, s.mgrep_port)
     @label_converter       = RI::Population::LabelConverter.new(s.annotator_redis_host, s.annotator_redis_port)
     @mutex                 = Mutex.new
