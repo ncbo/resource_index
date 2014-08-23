@@ -1,3 +1,4 @@
+require 'set'
 require 'elasticsearch'
 require_relative 'persisted_hash'
 
@@ -28,15 +29,13 @@ module RI::Population::Elasticsearch
         Thread.new do
           retry_count = 0
           begin
-            annotations = {}
+            annotations = {direct: Set.new, ancestors: Set.new}
             index_doc = nil
             @mutex.synchronize { index_doc = doc.indexable_hash }
             classes = annotated_classes(doc) + index_doc.delete(:manual_annotations)
+            seen_classes = Set.new
             classes.each do |cls|
-              if annotations[cls.xxhash]
-                annotations[cls.xxhash][:count] += 1
-                next
-              end
+              next if seen_classes.include?(cls.xxhash)
 
               ancestors = nil
               RI::Population::Manager.mutex.synchronize { ancestors = ancestors_cache[cls.xxhash] }
@@ -45,11 +44,12 @@ module RI::Population::Elasticsearch
                 ancestors = cls.retrieve_ancestors(cls.ont_acronym, submission_id)
                 RI::Population::Manager.mutex.synchronize { ancestors_cache[cls.xxhash] = ancestors }
               end
-              annotations[cls.xxhash] = {direct: cls.xxhash, ancestors: ancestors, count: 1}
+              annotations[:direct].add(cls.xxhash)
+              annotations[:ancestors].merge(ancestors) if ancestors
             end
 
             # Switch the annotaions to an array
-            index_doc[:annotations] = annotations.values
+            index_doc[:annotations] = annotations
 
             # Add to batch index, push to ES if we hit the chunk size limit
             @mutex.synchronize {
@@ -154,6 +154,8 @@ module RI::Population::Elasticsearch
     @logger.debug "Storing #{es_queue.length} records in #{index_id}"
     bulk_items = []
     es_queue.each do |doc|
+      doc[:annotations][:direct] = doc[:annotations][:direct].to_a
+      doc[:annotations][:ancestors] = doc[:annotations][:ancestors].to_a
       bulk_items << {index: {_index: index_id, _type: "#{@res.acronym.downcase}_doc", _id: doc[:id], data: doc}}
     end
     return if bulk_items.empty?
