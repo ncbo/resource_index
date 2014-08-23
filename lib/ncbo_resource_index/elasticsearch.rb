@@ -46,15 +46,20 @@ module ResourceIndex
       from   = opts[:from]
 
       bool_query = {
-        bool => hashes.map {|hash| {:bool => {:should => types.map {|t| {match: {"annotations.#{t}" => hash}} } } } }
+        bool => hashes.map {|hash| {:bool => {:should => types.map {|t| {term: {"annotations.#{t}" => hash}} } } } }
       }
 
       query = {
         query: {
-          nested: {
-            path: "annotations",
-            query: {
-              bool: bool_query
+          filtered: {
+            filter: {
+              nested: {
+                _cache: true,
+                path: "annotations",
+                filter: {
+                  bool: bool_query
+                }
+              }
             }
           }
         }
