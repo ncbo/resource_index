@@ -23,7 +23,7 @@ end
 
 module RI
   class TestCase < Minitest::Test
-    TOTAL_ES_RECORDS = 962104
+    TOTAL_ES_RECORDS = 928
 
     def setup
       Dir.glob(Dir.pwd + "/ae_test*resume").each {|f| File.delete(f)}

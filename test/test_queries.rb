@@ -37,5 +37,29 @@ class RI::TestQueries < RI::TestCase
       docs = res.concept_docs(id, expand: true, size: 500).map {|d| d.id}.sort
       assert_equal ANCESTOR_DOCS[id].sort, docs
     end
+
+    ##
+    # Test multiple classes in a single doc (via AND)
+    hashes = [1514996459, 2466199616]
+    docs = res.es_concept_docs(hashes)
+    assert_equal 1, docs.length
+    assert_equal "E-GEOD-32422", docs.first["_id"]
+
+    hashes = [1514996459, 2466199616, 2604095094]
+    docs = res.es_concept_docs(hashes)
+    assert_equal 1, docs.length
+    assert_equal "E-GEOD-32422", docs.first["_id"]
+
+    hashes = [2588657372, 4218785817, 2734229646]
+    docs = res.es_concept_docs(hashes, expand: true)
+    assert_equal 2, docs.length
+    assert_equal ["E-GEOD-41336", "E-GEOD-41331"].sort, docs.map {|d| d["_id"]}.sort
+
+    ##
+    # Test multiple classes in a single doc (via OR)
+    hashes = [2466199616, 2631822857]
+    docs = res.es_concept_docs(hashes, bool: :should)
+    assert_equal 3, docs.length
+    assert_equal ["E-GEOD-32422", "E-GEOD-40205", "E-BAIR-1"].sort, docs.map {|d| d["_id"]}.sort
   end
 end
