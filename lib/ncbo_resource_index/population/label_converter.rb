@@ -55,7 +55,9 @@ module RI::Population
 
         class_matches.each do |class_id, vals|
           ontology_id = vals.split(",")[1].split("@@").first
-          acronym = ontology_id.split("/").last
+          # ID comes back like this: http://data.bioontology.org/ontologies/NCIT|SYN
+          # OR http://data.bioontology.org/ontologies/NCIT|PREF
+          acronym = ontology_id.split("/").last.split("|").first
           classes << RI::Population::Class.new(class_id, acronym)
         end
       end
