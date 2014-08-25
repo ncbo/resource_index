@@ -94,11 +94,11 @@ module ResourceIndex
       resources = RI.es.get(index: "resource_store", id: "resources")["_source"] rescue nil
       if resources.nil? || old?(resources)
         resources = RI.db[:obr_resource].all.map {|r| RI::Resource.new(r.values)}.sort {|a,b| a.name.downcase <=> b.name.downcase}
-        if !resources.nil? || !resources.empty?
+        if resources.nil? || resources.empty?
+          raise StandardError, "No resources found in SQL DB"
+        else
           resources = {"time" => Time.now.to_f, "resources" => resources.map {|r| r.to_hash}}
           RI.es.index index: "resource_store", type: "resources", id: "resources", body: resources
-        else
-          raise StandardError, "No resources found in SQL DB"
         end
       end
       raise StandardError, "No resources found" if resources["resources"].nil?
