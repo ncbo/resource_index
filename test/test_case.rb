@@ -28,7 +28,7 @@ module RI
     def setup
       Dir.glob(Dir.pwd + "/ae_test*resume").each {|f| File.delete(f)}
       RI::Population::Document.fail_on_index(false)
-      RI.config(sqlite: true)
+      RI.config(sqlite: true, resource_store: "test_resource_store")
       RI.db.create_table :obr_resource do
         primary_key :id
         String :name

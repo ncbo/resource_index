@@ -22,9 +22,10 @@ module ResourceIndex
     raise ArgumentError, "You need to pass db_opts for #{self.class.name}" unless opts && opts.is_a?(Hash)
     missing_opts = REQUIRED_OPTS - opts.keys
     raise ArgumentError, "Missing #{missing_opts.join(', ')} from db options" unless missing_opts.empty? || opts[:sqlite]
-    opts[:host]     ||= "localhost"
-    opts[:port]     ||= 3306
-    opts[:database] ||= "resource_index"
+    opts[:host]           ||= "localhost"
+    opts[:port]           ||= 3306
+    opts[:database]       ||= "resource_index"
+    opts[:resource_store] ||= "resource_store"
 
     @opts = opts
     setup_sql_client
@@ -44,8 +45,8 @@ module ResourceIndex
     @client
   end
 
-  def self.refresh_db
-    @client = Sequel.connect(@opts)
+  def self.settings
+    @opts
   end
 
   private
