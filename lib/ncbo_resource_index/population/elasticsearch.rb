@@ -36,6 +36,7 @@ module RI::Population::Elasticsearch
             seen_classes = Set.new
             classes.each do |cls|
               next if seen_classes.include?(cls.xxhash)
+              seen_classes << cls.xxhash
 
               ancestors = nil
               RI::Population::Manager.mutex.synchronize { ancestors = ancestors_cache[cls.xxhash] }
