@@ -10,6 +10,7 @@ require 'ncbo_resource_index/resource'
 require 'ncbo_resource_index/class'
 require 'ncbo_resource_index/enumerable'
 require 'ncbo_resource_index/document'
+require 'ncbo_resource_index/multi_search'
 require 'ncbo_resource_index/population/population'
 require 'ncbo_resource_index/population/document'
 
@@ -47,6 +48,15 @@ module ResourceIndex
 
   def self.settings
     @opts
+  end
+
+  def self.concept_docs(hashes, opts)
+    MultiSearch.new.concept_docs(hashes, opts)
+  end
+
+  def self.concept_docs_page(hashes, opts)
+    opts[:page] = true
+    MultiSearch.new.concept_docs(hashes, opts)
   end
 
   private

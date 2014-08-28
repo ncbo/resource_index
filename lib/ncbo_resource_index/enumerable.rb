@@ -23,7 +23,7 @@ module Enumerable
   end
 
   ##
-  # Get back counts for a class per resource
+  # Get back docs for a class per resource
   # @resources [Array] Array of strings corresponding to requested resources
   # @opts [Hash] Hash holding options
   #   @opts[:expand] TrueClass|FalseClass
@@ -52,6 +52,34 @@ module Enumerable
     raise ArgumentError, "Only one resource allowed" if resources.length > 1
     res = resources.first
     res.concept_docs_page(hashes, opts)
+  end
+
+  ##
+  # Get back counts for a class per resource
+  # @resources [Array] Array of strings corresponding to requested resources
+  # @opts [Hash] Hash holding options
+  #   @opts[:expand] TrueClass|FalseClass
+  #   @opts[:size] Integer Size of the result set
+  #   @opts[:from] Integer Start at this result
+  def ri_docs_all_resources(*args)
+    raise ArgumentError, WRONG_TYPE_ERROR unless self.all? {|e| e.is_a?(ResourceIndex::Class)}
+    hashes = self.map {|c| c.xxhash}
+    opts = ri_opts(args)[1]
+    ResourceIndex.concept_docs(hashes, opts)
+  end
+
+  ##
+  # Get back counts for a class per resource
+  # @resources [Array] Array of strings corresponding to requested resources
+  # @opts [Hash] Hash holding options
+  #   @opts[:expand] TrueClass|FalseClass
+  #   @opts[:size] Integer Size of the result set
+  #   @opts[:from] Integer Start at this result
+  def ri_docs_all_resources_page(*args)
+    raise ArgumentError, WRONG_TYPE_ERROR unless self.all? {|e| e.is_a?(ResourceIndex::Class)}
+    hashes = self.map {|c| c.xxhash}
+    opts = ri_opts(args)[1]
+    ResourceIndex.concept_docs_page(hashes, opts)
   end
 
   private
