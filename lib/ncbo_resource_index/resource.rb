@@ -1,5 +1,6 @@
 require 'rexml/document'
 require 'ncbo_resource_index/elasticsearch'
+require 'ncbo_resource_index/images'
 
 module ResourceIndex
   class Resource
@@ -40,6 +41,9 @@ module ResourceIndex
       return args.first if args.first.is_a?(Resource)
       cols = args.first.is_a?(Hash) ? args.first.values : args.first
       @id, @name, @acronym, @structure, @mainField, @homepage, @lookupURL, @description, @logo, @dict_id, @count, @updated, @completed = *cols
+      @logo = Images::URI[@acronym] # replace URL with image URI that can be used in HTML <img> elements
+
+      # Convert fields from database
       doc ||= REXML::Document.new(@structure, ignore_whitespace_nodes: :all)
       @fields = {}
       doc.elements.to_a("//contexts/entry/string").each {|a| fields[a.text] = Field.new(a.text.split("_")[1..-1].join("_"))} # Context names, create field obj
