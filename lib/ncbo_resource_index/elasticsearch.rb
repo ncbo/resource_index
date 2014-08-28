@@ -1,20 +1,9 @@
-require_relative 'document'
-require_relative 'page'
+require 'ncbo_resource_index/document'
+require 'ncbo_resource_index/page'
 
 module ResourceIndex
   module Elasticsearch
-    def concept_count(hash, opts = {})
-      es_concept_count(hash, opts)
-    end
-
-    def concept_docs(hash, opts = {})
-      es_concept_docs(hash, opts).map {|doc| RI::Document.from_elasticsearch(doc, self)}
-    end
-
-    def concept_docs_page(hash, opts = {})
-      docs = es_doc(hash, opts)
-      RI::Page.new(docs, self, opts)
-    end
+    protected
 
     def es_concept_count(hash, opts = {})
       es_count(hash, opts)
@@ -24,12 +13,20 @@ module ResourceIndex
       es_doc(hash, opts)["hits"]["hits"]
     end
 
-    private
+    def es_concept_docs_multi(resources, hash, opts = {})
+      es_docs_multi(resources, hash, opts)
+    end
 
     def es_doc(hash, opts = {})
       opts[:size] ||= 10
       opts[:from] ||= 0
       (RI.es.search index: self.acronym, body: query(hash, opts))
+    end
+
+    def es_docs_multi(indices, hash, opts = {})
+      opts[:size] ||= 10
+      opts[:from] ||= 0
+      RI.es.msearch body: indices.map {|id| {index: id, search: query(hash, opts)}}
     end
 
     def es_count(hash, opts = {})

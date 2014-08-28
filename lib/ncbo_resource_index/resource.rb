@@ -1,5 +1,5 @@
 require 'rexml/document'
-require 'ncbo_resource_index/elasticsearch'
+require 'ncbo_resource_index/resource_search'
 require 'ncbo_resource_index/images'
 
 module ResourceIndex
@@ -15,7 +15,7 @@ module ResourceIndex
       end
     end
 
-    include ResourceIndex::Elasticsearch
+    include ResourceIndex::ResourceSearch
 
     attr_accessor :id, :name, :acronym, :mainField, :homepage, :lookupURL, :description, :logo, :count, :updated, :completed, :fields
     alias :logo_url :logo
