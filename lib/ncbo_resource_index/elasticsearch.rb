@@ -3,8 +3,6 @@ require 'ncbo_resource_index/page'
 
 module ResourceIndex
   module Elasticsearch
-    protected
-
     def es_concept_count(hash, opts = {})
       es_count(hash, opts)
     end
@@ -16,6 +14,8 @@ module ResourceIndex
     def es_concept_docs_multi(resources, hash, opts = {})
       es_docs_multi(resources, hash, opts)
     end
+
+    protected
 
     def es_doc(hash, opts = {})
       opts[:size] ||= 10
