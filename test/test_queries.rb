@@ -61,5 +61,11 @@ class RI::TestQueries < RI::TestCase
     docs = res.es_concept_docs(hashes, bool: :should)
     assert_equal 3, docs.length
     assert_equal ["E-GEOD-32422", "E-GEOD-40205", "E-BAIR-1"].sort, docs.map {|d| d["_id"]}.sort
+
+    ##
+    # Pass bad options to count query (should still work)
+    hashes = [1514996459, 2466199616]
+    count = res.es_concept_count(hashes, size: 50, from: 0)
+    assert_equal 1, count
   end
 end
