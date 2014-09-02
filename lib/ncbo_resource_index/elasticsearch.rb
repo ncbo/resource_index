@@ -4,6 +4,8 @@ require 'ncbo_resource_index/page'
 module ResourceIndex
   module Elasticsearch
     def es_concept_count(hash, opts = {})
+      opts.delete(:from)
+      opts.delete(:size)
       es_count(hash, opts)
     end
 
