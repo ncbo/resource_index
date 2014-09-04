@@ -69,6 +69,7 @@ class RI::Population::Document
       f = f.downcase
       next if hash[f].nil? || hash[f].empty?
       ids = hash[f].split("> ")
+      hash[f] = []
       ids.each do |id|
         ont, cls = id.split("/")
         ont = clean_ont_id(ont)
@@ -92,7 +93,7 @@ class RI::Population::Document
 
         acronym = RI::VIRT_MAP[ont.to_i].upcase
         cls = RI::Population::Class.new(acronym, cls_uri)
-        hash[f] = "#{acronym}\C-_#{cls_uri}"
+        hash[f] << "#{acronym}\C-_#{cls_uri}"
         hash[:manual_annotations] << cls
       end
     end
