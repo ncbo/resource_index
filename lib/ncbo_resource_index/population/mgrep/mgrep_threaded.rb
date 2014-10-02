@@ -20,7 +20,7 @@ module RI::Population::Mgrep
       @pool.each {|c| c.close}
     end
 
-    def annotate(text, longword, wholeword = nil)
+    def annotate(text, longword, wholeword = true)
       annotation = nil
       pooled_client do |client|
         annotation = client.annotate(text, longword, wholeword)
