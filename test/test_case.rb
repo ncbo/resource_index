@@ -6,7 +6,8 @@ require_relative '../lib/ncbo_resource_index'
 Annotator = RI::Population
 
 require_relative 'shared_data'
-require_relative 'population_setup'
+require_relative 'population_setup' unless $skip_population_setup
+require_relative 'simulate_failures'
 
 # Prevent Persisted::Hash from writing data while testing
 Persisted::Hash.prevent_persist
