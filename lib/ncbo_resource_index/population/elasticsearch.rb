@@ -27,12 +27,16 @@ module RI::Population::Elasticsearch
       # or otherwise force the enumerable to be eval'ed
       threads = documents.collect do |doc|
         Thread.new do
+          annotation_time = 0
+          ancestors_time = 0
           retry_count = 0
           begin
             annotations = {direct: Set.new, ancestors: Set.new}
             index_doc = nil
             @mutex.synchronize { index_doc = doc.indexable_hash }
+            annotation_start = Time.now
             classes = annotated_classes(doc) + index_doc.delete(:manual_annotations)
+            annotation_time += Time.now - annotation_start
             seen_classes = Set.new
             classes.each do |cls|
               next if seen_classes.include?(cls.xxhash)
@@ -42,7 +46,9 @@ module RI::Population::Elasticsearch
               RI::Population::Manager.mutex.synchronize { ancestors = ancestors_cache[cls.xxhash] }
               unless ancestors
                 submission_id = "http://data.bioontology.org/ontologies/#{cls.ont_acronym}/submissions/#{latest_submissions[cls.ont_acronym]}"
+                ancestors_start = Time.now
                 ancestors = cls.retrieve_ancestors(cls.ont_acronym, submission_id)
+                ancestors_time += Time.now - ancestors_start
                 RI::Population::Manager.mutex.synchronize { ancestors_cache[cls.xxhash] = ancestors }
               end
               annotations[:direct].add(cls.xxhash)
@@ -59,7 +65,7 @@ module RI::Population::Elasticsearch
               if @es_queue.length >= settings.bulk_index_size
                 @logger.debug "Indexing docs @ #{count}"
                 es_threads << Thread.new do
-                  store_documents
+                  store_documents(count)
                 end
               end
 
@@ -80,6 +86,9 @@ module RI::Population::Elasticsearch
             err.original_error = e unless e.is_a?(RetryError)
             raise err
           end
+
+          @logger.debug "Doc #{doc.id} annotations time: #{annotation_time.to_f.round(2)}s"
+          @logger.debug "Doc #{doc.id} ancestors time: #{ancestors_time.to_f.round(2)}s"
         end
       end
 
@@ -145,14 +154,15 @@ module RI::Population::Elasticsearch
     end
   end
 
-  def store_documents
+  def store_documents(count = nil)
     es_queue = nil
     @mutex.synchronize {
       es_queue = @es_queue.dup
       @es_queue = []
     }
     return if es_queue.empty?
-    @logger.debug "Storing #{es_queue.length} records in #{index_id}"
+    @logger.info "Storing #{es_queue.length} records in #{index_id}"
+    @logger.info "Processed documents: #{count} / #{@res.count}" if count
     bulk_items = []
     es_queue.each do |doc|
       doc[:annotations][:direct] = doc[:annotations][:direct].to_a
