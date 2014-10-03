@@ -1,11 +1,3 @@
-Minitest.after_run do
-  # File.open(Dir.pwd + "/converted.dump", 'w') {|f| f.write(Marshal.dump($test_converted)) }
-  # File.open(Dir.pwd + "/ancestors.dump", 'w') {|f| f.write(Marshal.dump($test_ancestors)) }
-  # File.open(Dir.pwd + "/annotations.dump", 'w') {|f| f.write(Marshal.dump($test_annotations)) }
-  # File.open(Dir.pwd + "/annotation_counts.dump", 'w') {|f| f.write(Marshal.dump($test_annotation_counts)) }
-  # File.open(Dir.pwd + "/annotation_counts_anc.dump", 'w') {|f| f.write(Marshal.dump($test_annotation_counts_anc)) }
-end
-
 ##
 # Test data for use in populations so we don't need redis, mgrep, 4store, etc
 def gzip_read(path)
@@ -36,7 +28,6 @@ end
 
 module MockMGREP
   def annotate(text,longword,wholeword=true)
-    text = text.force_encoding('UTF-8').upcase.gsub("\n"," ")
     $test_annotations[text]
   end
 end
