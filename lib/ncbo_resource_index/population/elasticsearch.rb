@@ -192,9 +192,9 @@ ANNOTATIONS_MAPPING = {
       type: :nested,
       include_in_all: false,
       properties: {
-          direct: {type: :long, store: false, include_in_all: false},
-          ancestors: {type: :long, store: false, include_in_all: false},
-          count: {type: :long, store: false, include_in_all: false}
+          direct: {type: :long, store: false},
+          ancestors: {type: :long, store: false},
+          count: {type: :long, store: false}
       }
   }
 }
