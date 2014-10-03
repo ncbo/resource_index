@@ -38,6 +38,7 @@ class RI::Population::Manager
     s.es_hosts = s.es_hosts.is_a?(Array) ? s.es_hosts : [s.es_hosts]
 
     @logger                = opts[:logger] || Logger.new(STDOUT)
+    @logger.level          = opts[:log_level] || Logger::INFO
     @es                    = ::Elasticsearch::Client.new(hosts: s.es_hosts, port: s.es_port, adapter: :typhoeus)
     @mgrep                 = opts[:mgrep_client] || RI::Population::Mgrep::ThreadedClient.new(s.mgrep_host, s.mgrep_port)
     @label_converter       = RI::Population::LabelConverter.new(s.annotator_redis_host, s.annotator_redis_port)
