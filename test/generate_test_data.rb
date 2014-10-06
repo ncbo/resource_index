@@ -7,6 +7,7 @@
 ##
 
 $skip_population_setup = true
+$skip_prevent_persist = true
 
 require_relative 'test_case'
 

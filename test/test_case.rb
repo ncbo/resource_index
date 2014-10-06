@@ -10,7 +10,7 @@ require_relative 'population_setup' unless $skip_population_setup
 require_relative 'simulate_failures'
 
 # Prevent Persisted::Hash from writing data while testing
-Persisted::Hash.prevent_persist
+Persisted::Hash.prevent_persist unless $skip_prevent_persist
 
 module ResourceIndex
   def self.setup_sql_client
