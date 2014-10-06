@@ -12,10 +12,12 @@ require_relative 'mgrep/mgrep'
 require_relative 'label_converter'
 require_relative 'persisted_hash'
 require_relative 'notification'
+require_relative 'indexing'
 
 class RI::Population::Manager
   include RI::Population::GooConfig
   include RI::Population::Elasticsearch
+  include RI::Population::Indexing
   include RI::Population::Notification
 
   def initialize(res, opts = {})

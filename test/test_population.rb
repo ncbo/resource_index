@@ -30,7 +30,7 @@ class RI::TestDocument < RI::TestCase
     mgrep = MockMGREPClient.new
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500)
     @index_id = populator.index_id
-    assert_raises RI::Population::Elasticsearch::RetryError do
+    assert_raises RI::Population::Indexing::RetryError do
       populator.populate()
     end
     sleep(3)
@@ -53,7 +53,7 @@ class RI::TestDocument < RI::TestCase
     mgrep = MockMGREPClient.new
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, population_threads: 2)
     @index_id = populator.index_id
-    assert_raises RI::Population::Elasticsearch::RetryError do
+    assert_raises RI::Population::Indexing::RetryError do
       populator.populate()
     end
     sleep(3)
@@ -75,7 +75,7 @@ class RI::TestDocument < RI::TestCase
     RI::Population::Document.fail_on_index(true, 1, 6)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, resume: false)
     @index_id = populator.index_id
-    assert_raises RI::Population::Elasticsearch::RetryError do
+    assert_raises RI::Population::Indexing::RetryError do
       populator.populate()
     end
     assert_equal 0, Dir.glob(Dir.pwd + "/ae_test*resume").length
@@ -87,7 +87,7 @@ class RI::TestDocument < RI::TestCase
     RI::Population::Document.fail_on_index(true)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, resume: false)
     @index_id = populator.index_id
-    assert_raises RI::Population::Elasticsearch::RetryError do
+    assert_raises RI::Population::Indexing::RetryError do
       populator.populate()
     end
     sleep(3)
@@ -108,10 +108,10 @@ class RI::TestDocument < RI::TestCase
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, resume: false)
     @index_id = populator.index_id
     retry_count = -1
-    assert_raises RI::Population::Elasticsearch::RetryError do
+    assert_raises RI::Population::Indexing::RetryError do
       begin
         populator.populate()
-      rescue RI::Population::Elasticsearch::RetryError => e
+      rescue RI::Population::Indexing::RetryError => e
         retry_count = e.retry_count
         raise e
       end
