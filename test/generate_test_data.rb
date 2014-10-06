@@ -75,6 +75,7 @@ end
 
 class RI::GenerateTestData < RI::TestCase
   def test_data
+    require 'logger'
     @res = RI::Resource.find("AE_test")
     populator = RI::Population::Manager.new(@res,
     {
@@ -83,7 +84,8 @@ class RI::GenerateTestData < RI::TestCase
       goo_host: "ncbostage-4store1",
       goo_port: 8080,
       population_threads: 1,
-      bulk_index_size: 500
+      bulk_index_size: 500,
+      log_level: Logger::DEBUG
     })
     @index_id = populator.populate()
     sleep(2) # wait for indexing to complete
