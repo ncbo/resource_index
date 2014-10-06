@@ -200,11 +200,10 @@ module RI::Population::Elasticsearch
 ANNOTATIONS_MAPPING = {
   annotations: {
       type: :nested,
-      include_in_all: false,
       properties: {
-          direct: {type: :long, store: false},
-          ancestors: {type: :long, store: false},
-          count: {type: :long, store: false}
+          direct: {type: :long},
+          ancestors: {type: :long},
+          count: {type: :long}
       }
   }
 }
