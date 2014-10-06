@@ -5,6 +5,9 @@ require_relative '../lib/ncbo_resource_index'
 # Kept for test data consistency
 Annotator = RI::Population
 
+# Less logging
+$ri_log_level = Logger::FATAL
+
 require_relative 'shared_data'
 require_relative 'population_setup' unless $skip_population_setup
 require_relative 'simulate_failures'
