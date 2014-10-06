@@ -56,11 +56,24 @@ class RI::Population::Mgrep::Client
   end
 end
 
+##
+# Get ancesotrs (this method used if caching via Persisted::Hash is disabled)
 class RI::Population::Class
   alias_method :old_retrieve_ancestors, :retrieve_ancestors
   def retrieve_ancestors(*args)
     result = old_retrieve_ancestors(*args)
     $test_ancestors[self.xxhash] = result
+    result
+  end
+end
+
+##
+# Get ancestors (this method is used if the Persisted::Hash is used for ancestors)
+class Persisted::Hash
+  alias_method :old_brackets, :[]
+  def [](*args)
+    result = old_brackets(*args)
+    $test_ancestors[args.first] = result
     result
   end
 end
@@ -93,12 +106,11 @@ class RI::GenerateTestData < RI::TestCase
   end
 
   Minitest.after_run do
-    binding.pry
-    File.open(Dir.pwd + "/converted.dump", 'w') {|f| f.write(Marshal.dump($test_converted)) }
-    File.open(Dir.pwd + "/annotations.dump", 'w') {|f| f.write(Marshal.dump($test_annotations)) }
-    File.open(Dir.pwd + "/ancestors.dump", 'w') {|f| f.write(Marshal.dump($test_ancestors)) }
-    File.open(Dir.pwd + "/annotation_counts.dump", 'w') {|f| f.write(Marshal.dump($test_annotation_counts)) }
-    File.open(Dir.pwd + "/annotation_counts_anc.dump", 'w') {|f| f.write(Marshal.dump($test_annotation_counts_anc)) }
-    File.open(Dir.pwd + "/latest_sub.dump", 'w') {|f| f.write(Marshal.dump($test_latest_sub)) }
+    File.open(Dir.pwd + "/test/data/converted.dump", 'w') {|f| f.write(Marshal.dump($test_converted)) }
+    File.open(Dir.pwd + "/test/data/annotations.dump", 'w') {|f| f.write(Marshal.dump($test_annotations)) }
+    File.open(Dir.pwd + "/test/data/ancestors.dump", 'w') {|f| f.write(Marshal.dump($test_ancestors)) }
+    File.open(Dir.pwd + "/test/data/annotation_counts.dump", 'w') {|f| f.write(Marshal.dump($test_annotation_counts)) }
+    File.open(Dir.pwd + "/test/data/annotation_counts_anc.dump", 'w') {|f| f.write(Marshal.dump($test_annotation_counts_anc)) }
+    File.open(Dir.pwd + "/test/data/latest_sub.dump", 'w') {|f| f.write(Marshal.dump($test_latest_sub)) }
   end
 end
