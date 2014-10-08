@@ -163,10 +163,4 @@ class RI::Population::Manager
     @@ancestors
   end
 
-  def annotated_classes(doc)
-    annotations = @mgrep.annotate(doc.annotatable_text, false)
-    string_ids = Set.new
-    annotations.each {|a| string_ids << a.string_id.to_i}
-    @label_converter.convert(string_ids)
-  end
 end
