@@ -36,6 +36,8 @@ class RI::Population::Manager
     s.bulk_index_size      = opts[:bulk_index_size] || 100
     s.starting_offset      = opts[:starting_offset] || 0
     s.resume               = opts[:resume].nil? ? true : opts[:resume]
+    s.write_labels         = opts[:write_labels]
+    s.write_classes        = opts[:write_classes]
 
     s.es_hosts = s.es_hosts.is_a?(Array) ? s.es_hosts : [s.es_hosts]
 
@@ -82,6 +84,25 @@ class RI::Population::Manager
     if @mgrep.is_a?(RI::Population::Mgrep::ThreadedClient)
       at_exit do
         @mgrep.close_all
+      end
+    end
+
+    # Setup files for writing co-occurance data (as needed)
+    if s.write_labels
+      labels_filename = File.join(Dir.pwd, "cooccurance_results", @res.acronym+"_labels", index_id()+".tsv")
+      FileUtils.mkdir_p(File.dirname(labels_filename))
+      @labels_file = File.new(labels_filename, "w+")
+      at_exit do
+        @labels_file.close
+      end
+    end
+
+    if s.write_classes
+      classes_filename = File.join(Dir.pwd, "cooccurance_results", @res.acronym+"_classes", index_id()+".tsv")
+      FileUtils.mkdir_p(File.dirname(classes_filename))
+      @classes_file = File.new(classes_filename, "w+")
+      at_exit do
+        @classes_file.close
       end
     end
 
