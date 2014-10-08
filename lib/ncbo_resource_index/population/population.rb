@@ -36,8 +36,8 @@ class RI::Population::Manager
     s.bulk_index_size      = opts[:bulk_index_size] || 100
     s.starting_offset      = opts[:starting_offset] || 0
     s.resume               = opts[:resume].nil? ? true : opts[:resume]
-    s.write_labels         = opts[:write_labels]
-    s.write_classes        = opts[:write_classes]
+    s.write_label_pairs    = opts[:write_label_pairs]
+    s.write_class_pairs    = opts[:write_class_pairs]
 
     s.es_hosts = s.es_hosts.is_a?(Array) ? s.es_hosts : [s.es_hosts]
 
@@ -88,7 +88,7 @@ class RI::Population::Manager
     end
 
     # Setup files for writing co-occurance data (as needed)
-    if s.write_labels
+    if s.write_label_pairs
       labels_filename = File.join(Dir.pwd, "cooccurance_results", @res.acronym+"_labels", index_id()+".tsv")
       FileUtils.mkdir_p(File.dirname(labels_filename))
       @labels_file = File.new(labels_filename, "w+")
@@ -97,7 +97,7 @@ class RI::Population::Manager
       end
     end
 
-    if s.write_classes
+    if s.write_class_pairs
       classes_filename = File.join(Dir.pwd, "cooccurance_results", @res.acronym+"_classes", index_id()+".tsv")
       FileUtils.mkdir_p(File.dirname(classes_filename))
       @classes_file = File.new(classes_filename, "w+")

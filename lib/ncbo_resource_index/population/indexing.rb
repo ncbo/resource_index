@@ -53,8 +53,8 @@ module RI::Population::Indexing
             end
 
             # Write data to files for use with co-occurance calculations
-            write_labels(labels)
-            write_classes(seen_classes)
+            write_label_pairs(labels)
+            write_class_pairs(seen_classes)
 
             # Switch the annotaions to an array
             index_doc[:annotations] = annotations
@@ -165,15 +165,15 @@ module RI::Population::Indexing
     return @label_converter.convert(string_ids), labels
   end
 
-  def write_labels(labels)
-    return unless @settings.write_labels
+  def write_label_pairs(labels)
+    return unless @settings.write_label_pairs
     labels.to_a.permutation(2).each do |label_pair|
       @labels_file.puts(label_pair.first + "\t" + label_pair.last)
     end
   end
 
-  def write_classes(classes)
-    return unless @settings.write_classes
+  def write_class_pairs(classes)
+    return unless @settings.write_class_pairs
     classes.to_a.permutation(2).each do |class_pair|
       a = class_pair.first
       b = class_pair.last

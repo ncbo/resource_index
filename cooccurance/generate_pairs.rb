@@ -104,8 +104,8 @@ module RI
         population_threads: 1,
         bulk_index_size: 500,
         log_level: Logger::DEBUG,
-        write_labels: true,
-        write_classes: true
+        write_label_pairs: true,
+        write_class_pairs: true
       })
       @ae_index_id = populator.populate()
       sleep(2) # wait for indexing to complete
