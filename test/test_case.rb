@@ -89,8 +89,8 @@ module RI
       RI.db[:obs_ontology].delete
       RI.db[:obs_concept].delete
       if @es && @index_id
-        @es.indices.delete index: @index_id
-        @es.indices.delete index: @resource_store
+        @es.indices.delete(index: @index_id)
+        @es.indices.delete(index: @resource_store) rescue nil
       end
       db_file = Dir.pwd+"/ri_test.db"
       File.delete(db_file) if File.exist?(db_file)
