@@ -25,6 +25,17 @@ module ResourceIndex
     alias :main_field :mainField
     alias :main_field= :mainField=
 
+    OLD_RI_ATTR_MAP = {
+      resource_id: :acronym,
+      main_context: :mainField,
+      url: :homepage,
+      element_url: :lookupURL,
+      dictionary_id: :dict_id,
+      total_element: :count,
+      last_update_date: :updated,
+      workflow_completed_date: :completed
+    }.freeze
+
     def self.all
       @resources ||= lazy_resources_in_es
     end
@@ -39,8 +50,15 @@ module ResourceIndex
 
     def initialize(*args)
       return args.first if args.first.is_a?(Resource)
-      cols = args.first.is_a?(Hash) ? args.first.values : args.first
-      @id, @name, @acronym, @structure, @mainField, @homepage, @lookupURL, @description, @logo, @dict_id, @count, @updated, @completed = *cols
+      binding.pry unless args.first.is_a?(Hash)
+      raise ArgumentError, "Need to pass a hash to initialize a resource" unless args.first.is_a?(Hash)
+
+      resource = args.first
+      resource.each do |attr, value|
+        attr = OLD_RI_ATTR_MAP[attr.to_sym] || attr
+        instance_variable_set("@#{attr}", value)
+      end
+
       @logo = Images::URI[@acronym] # replace URL with image URI that can be used in HTML <img> elements
 
       # Convert fields from database
@@ -98,7 +116,7 @@ module ResourceIndex
       resource_store = RI.settings[:resource_store]
       resources = RI.es.get(index: resource_store, id: "resources")["_source"] rescue nil
       if resources.nil? || old?(resources)
-        resources = RI.db[:obr_resource].all.map {|r| RI::Resource.new(r.values)}.sort {|a,b| a.name.downcase <=> b.name.downcase}
+        resources = RI.db[:obr_resource].all.map {|r| RI::Resource.new(r)}.sort {|a,b| a.name.downcase <=> b.name.downcase}
         if resources.nil? || resources.empty?
           raise StandardError, "No resources found in SQL DB"
         else
