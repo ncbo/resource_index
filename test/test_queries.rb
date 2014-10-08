@@ -12,11 +12,11 @@ class RI::TestQueries < RI::TestCase
     ##
     # Test counts
     DIRECT.each do |id|
-      assert_equal DIRECT_COUNT[id], res.concept_count(id), "#{id} is bad"
+      assert_equal DIRECT_COUNT[id], res.concept_count(id), "direct count with id #{id} is bad"
     end
 
     ANCESTOR.each do |id|
-      assert_equal ANCESTOR_COUNT[id], res.concept_count(id, expand: true)
+      assert_equal ANCESTOR_COUNT[id], res.concept_count(id, expand: true), "ancestor count with id #{id} is bad"
     end
 
     ##
@@ -28,7 +28,7 @@ class RI::TestQueries < RI::TestCase
 
     ANCESTOR.each do |id|
       docs = res.concept_docs(id, expand: true, size: 500).map {|d| d.id}.sort
-      assert_equal ANCESTOR_DOCS[id].sort, docs
+      assert_equal ANCESTOR_DOCS[id].sort, docs, "In local but not ES: #{ANCESTOR_DOCS[id].sort - docs}\nIn ES but not local: #{docs - ANCESTOR_DOCS[id].sort}"
     end
 
     ##
