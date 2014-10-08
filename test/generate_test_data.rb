@@ -30,7 +30,7 @@ class RI::Population::LabelConverter
   end
 end
 
-module RI::Population::Elasticsearch
+module RI::Population::Indexing
   alias_method :old_store_documents, :store_documents
   def store_documents
     @es_queue.each do |doc|
