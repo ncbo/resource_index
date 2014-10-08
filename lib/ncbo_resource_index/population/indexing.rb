@@ -14,7 +14,7 @@ module RI::Population::Indexing
   def index_documents(offset = 0)
     begin
       es_threads = []
-      count = offset
+      count = offset || 0
       documents = RI::Population::Document.all(@res, {offset: count}, @mutex)
 
       # We add code blocks to the lazy enumerable here
@@ -30,7 +30,8 @@ module RI::Population::Indexing
             index_doc = nil
             @mutex.synchronize { index_doc = doc.indexable_hash }
             annotation_start = Time.now
-            classes = annotated_classes(doc) + index_doc.delete(:manual_annotations)
+            classes, labels = annotated_classes(doc)
+            classes = classes + index_doc.delete(:manual_annotations)
             annotation_time += Time.now - annotation_start
             seen_classes = Set.new
             classes.each do |cls|
@@ -46,9 +47,14 @@ module RI::Population::Indexing
                 ancestors_time += Time.now - ancestors_start
                 RI::Population::Manager.mutex.synchronize { ancestors_cache[cls.xxhash] = ancestors }
               end
+
               annotations[:direct].add(cls.xxhash)
               annotations[:ancestors].merge(ancestors) if ancestors
             end
+
+            # Write data to files for use with co-occurance calculations
+            write_labels(labels)
+            write_classes(seen_classes)
 
             # Switch the annotaions to an array
             index_doc[:annotations] = annotations
@@ -157,6 +163,22 @@ module RI::Population::Indexing
       labels << a.value.downcase
     end
     return @label_converter.convert(string_ids), labels
+  end
+
+  def write_labels(labels)
+    return unless @settings.write_labels
+    labels.to_a.permutation(2).each do |label_pair|
+      @labels_file.puts(label_pair.first + "\t" + label_pair.last)
+    end
+  end
+
+  def write_classes(classes)
+    return unless @settings.write_classes
+    classes.to_a.permutation(2).each do |class_pair|
+      a = class_pair.first
+      b = class_pair.last
+      @classes_file.puts("#{a}\t#{b}")
+    end
   end
 
 end
