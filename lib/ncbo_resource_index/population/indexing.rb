@@ -168,7 +168,7 @@ module RI::Population::Indexing
   def write_label_pairs(labels)
     return unless @settings.write_label_pairs
     labels.to_a.permutation(2).each do |label_pair|
-      @labels_file.puts(label_pair.first + "\t" + label_pair.last)
+      @mutex.synchronize { @labels_file.puts(label_pair.first + "\t" + label_pair.last) }
     end
   end
 
@@ -177,7 +177,7 @@ module RI::Population::Indexing
     classes.to_a.permutation(2).each do |class_pair|
       a = class_pair.first
       b = class_pair.last
-      @classes_file.puts("#{a}\t#{b}")
+      @mutex.synchronize { @classes_file.puts("#{a}\t#{b}") }
     end
   end
 
