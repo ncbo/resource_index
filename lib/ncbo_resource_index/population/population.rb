@@ -38,6 +38,7 @@ class RI::Population::Manager
     s.resume               = opts[:resume].nil? ? true : opts[:resume]
     s.write_label_pairs    = opts[:write_label_pairs]
     s.write_class_pairs    = opts[:write_class_pairs]
+    s.skip_es_storage      = opts[:skip_es_storage]
 
     s.es_hosts = s.es_hosts.is_a?(Array) ? s.es_hosts : [s.es_hosts]
 
@@ -120,22 +121,31 @@ class RI::Population::Manager
   def populate(opts = {})
     delete_old = opts[:delete_old] || false
     begin
-      @logger.debug "Starting population"
-      @logger.debug "Creating new index"
-      create_index()
-      @logger.debug "Indexing documents"
-      index_documents(@settings.starting_offset)
-      @logger.debug "Aliasing index"
-      alias_index()
-      if delete_old
-        @logger.debug "Removing old (unaliased) indices"
-        delete_unaliased()
+      unless @settings.skip_es_storage
+        @logger.debug "Starting population"
+        @logger.debug "Creating new index"
+        create_index()
       end
-      @logger.debug "Population complete"
+
+      @logger.debug "Processing documents"
+      index_documents(@settings.starting_offset)
+
+      unless @settings.skip_es_storage
+        @logger.debug "Aliasing index"
+        alias_index()
+        if delete_old
+          @logger.debug "Removing old (unaliased) indices"
+          delete_unaliased()
+        end
+        @logger.debug "Population complete"
+      end
+
       success_email
     rescue => e
       @logger.error "Error populating resource #{@res.acronym}"
-      alias_error()
+
+      alias_error() unless @settings.skip_es_storage
+
       error_email(e)
       raise e
     end

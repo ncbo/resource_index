@@ -61,12 +61,14 @@ module RI::Population::Indexing
 
             # Add to batch index, push to ES if we hit the chunk size limit
             @mutex.synchronize {
-              @es_queue << index_doc
+              unless @settings.skip_es_storage
+                @es_queue << index_doc
 
-              if @es_queue.length >= settings.bulk_index_size
-                @logger.debug "Indexing docs @ #{count}"
-                es_threads << Thread.new do
-                  store_documents(count)
+                if @es_queue.length >= settings.bulk_index_size
+                  @logger.debug "Indexing docs @ #{count}"
+                  es_threads << Thread.new do
+                    store_documents(count)
+                  end
                 end
               end
 

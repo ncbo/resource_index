@@ -102,7 +102,7 @@ module RI
         goo_host: "ncbostage-4store1",
         goo_port: 8080,
         population_threads: 1,
-        bulk_index_size: 500,
+        skip_es_storage: true,
         log_level: Logger::DEBUG,
         write_label_pairs: true,
         write_class_pairs: true
