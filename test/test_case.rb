@@ -32,7 +32,8 @@ module RI
     def setup
       Dir.glob(Dir.pwd + "/ae_test*resume").each {|f| File.delete(f)}
       RI::Population::Document.fail_on_index(false)
-      RI.config(sqlite: true, resource_store: "test_resource_store")
+      @resource_store = "test_resource_store_#{Time.now.to_i}"
+      RI.config(sqlite: true, resource_store: @resource_store)
       RI.db.create_table :obr_resource do
         primary_key :id
         String :name
@@ -89,6 +90,7 @@ module RI
       RI.db[:obs_concept].delete
       if @es && @index_id
         @es.indices.delete index: @index_id
+        @es.indices.delete index: @resource_store
       end
       db_file = Dir.pwd+"/ri_test.db"
       File.delete(db_file) if File.exist?(db_file)
