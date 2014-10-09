@@ -8,8 +8,7 @@ Annotator = RI::Population
 # Less logging
 $ri_log_level = Logger::FATAL
 
-require_relative 'shared_data_cooccurance'
-# require_relative '../test/population_setup'
+require_relative 'cooccurance_test_data'
 
 module ResourceIndex
   def self.setup_sql_client
@@ -86,8 +85,8 @@ module RI
     end
 
     def teardown
-      RI.es.indices.delete(index: @resource_store)
-      RI.es.indices.delete(index: @ae_index_id)
+      RI.es.indices.delete(index: @resource_store) rescue nil
+      RI.es.indices.delete(index: @ae_index_id) rescue nil
       db_file = Dir.pwd+"/ri_test.db"
       File.delete(db_file) if File.exist?(db_file)
     end
