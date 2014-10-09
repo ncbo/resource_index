@@ -119,6 +119,7 @@ module ResourceIndex
       begin
         resources = RI.es.get(index: resource_store, id: "resources")["_source"]
       rescue Faraday::TimeoutError
+        es_available = false
       rescue ::Elasticsearch::Transport::Transport::Errors::NotFound
         es_available = false
       end
