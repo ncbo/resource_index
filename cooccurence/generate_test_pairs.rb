@@ -62,6 +62,12 @@ module RI
         String :pm_meshheadings
       end
       RI.db.run(DOCUMENTS_TEST_DATA_PM.force_encoding('UTF-8'))
+      RI.db.create_table :obr_witch_element do
+        Integer :id
+        String :local_element_id
+        String :witch_sentence
+      end
+      RI.db.run(DOCUMENTS_TEST_DATA_WITCH.force_encoding('UTF-8'))
       RI.db.create_table :obs_ontology do
         primary_key :id
         String :local_ontology_id
@@ -93,7 +99,7 @@ module RI
 
     def test_generate_pairs
       require 'logger'
-      @res = RI::Resource.find("AE_test")
+      @res = RI::Resource.find("WITCH")
       populator = RI::Population::Manager.new(@res,
       {
         annotator_redis_host: "ncbostage-redis1",
