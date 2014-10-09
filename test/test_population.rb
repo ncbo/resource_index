@@ -23,6 +23,19 @@ class RI::TestDocument < RI::TestCase
     manual_annotations_ok?
   end
 
+  def test_population_skip
+    @res = RI::Resource.find("AE_test")
+    mgrep = MockMGREPClient.new
+    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, skip_es_storage: true)
+    @index_id = populator.populate()
+    begin
+      index_exists = RI.es.indices.exists(index: @index_id)
+    rescue Faraday::TimeoutError
+      es_timeout = true
+    end
+    assert es_timeout || !index_exists
+  end
+
   def test_population_resume
     RI::Population::Document.fail_on_index(true)
     @es = Elasticsearch::Client.new
