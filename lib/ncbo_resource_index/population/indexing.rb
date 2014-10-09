@@ -54,7 +54,7 @@ module RI::Population::Indexing
               annotations[:ancestors].merge(ancestors) if ancestors
             end
 
-            # Write data to files for use with co-occurance calculations
+            # Write data to files for use with co-occurence calculations
             write_label_pairs(labels)
             write_class_pairs(seen_classes)
 

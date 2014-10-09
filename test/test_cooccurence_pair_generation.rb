@@ -1,6 +1,6 @@
 require_relative 'test_case'
 
-class RI::TestCooccurancePairGeneration < RI::TestCase
+class RI::TestCooccurencePairGeneration < RI::TestCase
   def test_pair_generation
     skip 'Add tests when process for generating pairs is finalized'
 

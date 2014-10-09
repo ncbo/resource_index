@@ -88,9 +88,9 @@ class RI::Population::Manager
       end
     end
 
-    # Setup files for writing co-occurance data (as needed)
+    # Setup files for writing co-occurence data (as needed)
     if s.write_label_pairs
-      labels_filename = File.join(Dir.pwd, "cooccurance_results", @res.acronym+"_labels", index_id()+".tsv")
+      labels_filename = File.join(Dir.pwd, "cooccurence_results", @res.acronym+"_labels", index_id()+".tsv")
       FileUtils.mkdir_p(File.dirname(labels_filename))
       @labels_file = File.new(labels_filename, "w+")
       at_exit do
@@ -99,7 +99,7 @@ class RI::Population::Manager
     end
 
     if s.write_class_pairs
-      classes_filename = File.join(Dir.pwd, "cooccurance_results", @res.acronym+"_classes", index_id()+".tsv")
+      classes_filename = File.join(Dir.pwd, "cooccurence_results", @res.acronym+"_classes", index_id()+".tsv")
       FileUtils.mkdir_p(File.dirname(classes_filename))
       @classes_file = File.new(classes_filename, "w+")
       at_exit do

@@ -8,7 +8,7 @@ Annotator = RI::Population
 # Less logging
 $ri_log_level = Logger::FATAL
 
-require_relative 'cooccurance_test_data'
+require_relative 'cooccurence_test_data'
 
 module ResourceIndex
   def self.setup_sql_client
@@ -21,7 +21,7 @@ module ResourceIndex
 end
 
 module RI
-  class GenerateCooccurance < Minitest::Test
+  class GenerateCooccurence < Minitest::Test
     def setup
       db_file = Dir.pwd+"/ri_test.db"
       File.delete(db_file) if File.exist?(db_file)
