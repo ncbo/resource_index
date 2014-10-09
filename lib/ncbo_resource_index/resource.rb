@@ -114,14 +114,22 @@ module ResourceIndex
     # If the resources in ES are older than a week, update them.
     def self.lazy_resources_in_es
       resource_store = RI.settings[:resource_store]
-      resources = RI.es.get(index: resource_store, id: "resources")["_source"] rescue nil
+
+      es_available = true
+      begin
+        resources = RI.es.get(index: resource_store, id: "resources")["_source"]
+      rescue Faraday::TimeoutError
+      rescue ::Elasticsearch::Transport::Transport::Errors::NotFound
+        es_available = false
+      end
+
       if resources.nil? || old?(resources)
         resources = RI.db[:obr_resource].all.map {|r| RI::Resource.new(r)}.sort {|a,b| a.name.downcase <=> b.name.downcase}
         if resources.nil? || resources.empty?
           raise StandardError, "No resources found in SQL DB"
         else
           resources = {"time" => Time.now.to_f, "resources" => resources.map {|r| r.to_hash}}
-          RI.es.index index: resource_store, type: "resources", id: "resources", body: resources
+          RI.es.index index: resource_store, type: "resources", id: "resources", body: resources if es_available
         end
       end
       raise StandardError, "No resources found" if resources["resources"].nil?

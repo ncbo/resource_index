@@ -38,6 +38,8 @@ module RI::Population::Indexing
               next if seen_classes.include?(cls.xxhash)
               seen_classes << cls.xxhash
 
+              next if @settings.skip_es_storage # skip if we don't index
+
               ancestors = nil
               RI::Population::Manager.mutex.synchronize { ancestors = ancestors_cache[cls.xxhash] }
               unless ancestors
