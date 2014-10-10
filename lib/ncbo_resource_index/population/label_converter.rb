@@ -34,7 +34,7 @@ module RI::Population
       return redis.get(REDIS_PREFIX_KEY) || REDIS_INSTANCE_VAL[0]
     end
 
-    def convert(mgrep_matches)
+    def convert(mgrep_matches, annotations)
       cur_inst = redis_current_instance()
       redis_data = {}
 
@@ -46,7 +46,8 @@ module RI::Population
       }
 
       classes = []
-      mgrep_matches.each do |string_id|
+      annotations.each do |annotation|
+        string_id = annotation.string_id.to_i
         id = get_prefixed_id(cur_inst, string_id)
         while redis_data[id].value.is_a?(Redis::FutureNotReady)
           sleep(1.0 / 150.0)
@@ -58,7 +59,7 @@ module RI::Population
           # ID comes back like this: http://data.bioontology.org/ontologies/NCIT|SYN
           # OR http://data.bioontology.org/ontologies/NCIT|PREF
           acronym = ontology_id.split("/").last.split("|").first
-          classes << RI::Population::Class.new(class_id, acronym)
+          classes << RI::Population::Class.new(class_id, acronym, annotation.value, string_id)
         end
       end
 

@@ -3,10 +3,10 @@ require 'ruby-xxhash'
 
 module RI::Population
   class Class
-    attr_accessor :id, :ont_acronym, :sub
+    attr_accessor :id, :ont_acronym, :label, :label_id
 
-    def initialize(id, ont_acronym, sub = nil)
-      @id = id; @ont_acronym = ont_acronym; @sub = sub
+    def initialize(id, ont_acronym, label = "", label_id = nil)
+      @id = id; @ont_acronym = ont_acronym; @label = label; @label_id = label_id
     end
 
     def retrieve_ancestors(acronym, submission_id)

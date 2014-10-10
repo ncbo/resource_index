@@ -159,14 +159,16 @@ module RI::Population::Indexing
     annotations = @mgrep.annotate(doc.annotatable_text, false)
     string_ids = Set.new
     labels = Set.new
+    annotations_objs = Set.new
     annotations.each do |a|
       next unless a.value.length >= 4 # Skip any annotation less than four characters long
       next if (Float(a) != nil rescue false) # Skip any integer or float value
 
       string_ids << a.string_id.to_i
       labels << a.value.downcase
+      annotations_objs << a
     end
-    return @label_converter.convert(string_ids), labels
+    return @label_converter.convert(string_ids, annotations_objs), labels
   end
 
   def write_label_pairs(labels)
