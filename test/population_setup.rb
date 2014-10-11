@@ -21,7 +21,7 @@ $test_latest_sub = gzip_read(File.expand_path("../data/latest_sub.dump.gz", __FI
 ##
 # Monkeypatched mock methods for use in populations so we don't need redis, mgrep, 4store, etc
 class RI::Population::LabelConverter
-  def convert(mgrep_matches)
+  def convert(mgrep_matches, annotations)
     $test_converted[mgrep_matches]
   end
 end
