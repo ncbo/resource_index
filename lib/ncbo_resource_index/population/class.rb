@@ -20,6 +20,16 @@ module RI::Population
     def xxhash
       @xxhash ||= XXhash.xxh32(self.ont_acronym + self.id, RI::HASH_SEED)
     end
+    alias_method :hash, :xxhash
+
+    def eql?(comp)
+      raise ArgumentError, "Must compare two #{self.class.name}" unless comp.is_a?(self.class)
+      self.xxhash == comp.xxhash
+    end
+
+    def ==(comp)
+      eql?(comp)
+    end
 
     private
 
