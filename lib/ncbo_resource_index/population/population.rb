@@ -76,7 +76,7 @@ class RI::Population::Manager
       resumed = Marshal.load(File.read(resume_path))
       s.starting_offset = resumed[:count]
       @time = resumed[:time]
-      remove_error_alias()
+      remove_error_alias() unless s.skip_es_storage
       @logger.warn "Resuming process for #{@res.acronym} at record #{s.starting_offset}"
       File.delete(resume_path)
     end
