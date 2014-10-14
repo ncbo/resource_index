@@ -49,8 +49,8 @@ module ResourceIndex
     end
 
     def initialize(*args)
+      return if args.empty? # allow instantiation of new resources without data
       return args.first if args.first.is_a?(Resource)
-      binding.pry unless args.first.is_a?(Hash)
       raise ArgumentError, "Need to pass a hash to initialize a resource" unless args.first.is_a?(Hash)
 
       resource = args.first

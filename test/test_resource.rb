@@ -23,6 +23,16 @@ class RI::TestResouce < RI::TestCase
     assert res.fields.values.all? {|f| f.is_a?(RI::Resource::Field)}
   end
 
+  def test_new_resource
+    a = RI::Resource.new
+    assert_equal RI::Resource, a.class
+    b = RI::Resource.new({name: "Test Resource", acronym: "TR"})
+    assert_equal "Test Resource", b.name
+    assert_equal "TR", b.acronym
+    c = RI::Resource.new(b)
+    assert_equal c.object_id, c.object_id
+  end
+
   def test_resources
     res = RI::Resource.all
     assert_equal 10, res.length
