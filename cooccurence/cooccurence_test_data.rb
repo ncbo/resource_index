@@ -110,6 +110,7 @@ INSERT INTO `obr_witch_element`
   SELECT 1 AS 'id', '1' AS 'local_element_id', 'wicked witch of the west' AS 'WITCH_sentence'
   UNION SELECT 2, '2', 'wicked witch of the east'
   UNION SELECT 3, '3', 'wicked witch sorcerer of the west'
+  UNION SELECT 4, '4', 'wicked sorcerer of the west'
 EOS
 
 DOCUMENTS_TEST_DATA_PM = <<-EOS
