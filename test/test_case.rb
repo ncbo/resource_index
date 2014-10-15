@@ -50,16 +50,6 @@ module RI
         Time :workflow_completed_date
       end
       RI.db.run(RESOURCES_TEST_DATA)
-      RI.db.create_table :obr_ae_test_element do
-        primary_key :id
-        String :local_element_id
-        Integer :dictionary_id
-        String :ae_name
-        String :ae_description
-        String :ae_species
-        String :ae_experiment_type
-      end
-      RI.db.run(DOCUMENTS_TEST_DATA.force_encoding('UTF-8'))
       RI.db.create_table :obr_witch_element do
         Integer :id
         String :local_element_id
