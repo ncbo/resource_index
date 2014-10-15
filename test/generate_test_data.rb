@@ -88,7 +88,7 @@ class RI::Population::Manager
 end
 
 class RI::GenerateTestData < RI::TestCase
-  def test_data
+  def test_data_ae
     require 'logger'
     @res = RI::Resource.find("AE_test")
     populator = RI::Population::Manager.new(@res,
@@ -100,6 +100,24 @@ class RI::GenerateTestData < RI::TestCase
       population_threads: 1,
       bulk_index_size: 500,
       log_level: Logger::DEBUG
+    })
+    @index_id = populator.populate()
+    sleep(2) # wait for indexing to complete
+  end
+
+  def test_data_witch
+    @res = RI::Resource.find("WITCH")
+    populator = RI::Population::Manager.new(@res,
+    {
+      annotator_redis_host: "ncbostage-redis1",
+      mgrep_host: "ncbostage-mgrep3",
+      goo_host: "ncbostage-4store1",
+      goo_port: 8080,
+      population_threads: 1,
+      bulk_index_size: 500,
+      log_level: Logger::DEBUG,
+      write_label_pairs: true,
+      write_class_pairs: true
     })
     @index_id = populator.populate()
     sleep(2) # wait for indexing to complete

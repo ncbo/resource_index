@@ -35,8 +35,8 @@ class RI::TestResouce < RI::TestCase
 
   def test_resources
     res = RI::Resource.all
-    assert_equal 10, res.length
-    known_resource_ids = ["AE_test", "CT", "GM", "OMIM", "CDD", "PGDI", "PGDR", "PGGE", "REAC", "UPKB"].sort
+    assert_equal 11, res.length
+    known_resource_ids = ["AE_test", "CT", "GM", "OMIM", "CDD", "PGDI", "PGDR", "PGGE", "REAC", "UPKB", "WITCH"].sort
     known_names = [
       "ArrayExpress",
       "ClinicalTrials.gov",
@@ -47,7 +47,8 @@ class RI::TestResouce < RI::TestCase
       "PharmGKB [Drug]",
       "PharmGKB [Gene]",
       "Reactome",
-      "UniProt KB"
+      "UniProt KB",
+      "Wicked Witch"
     ].sort
     resource_ids = res.map {|r| r.acronym}.sort
     names = res.map {|r| r.name}.sort
