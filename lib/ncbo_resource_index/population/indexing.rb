@@ -35,8 +35,8 @@ module RI::Population::Indexing
             annotation_time += Time.now - annotation_start
             seen_classes = Set.new
             classes.each do |cls|
-              next if seen_classes.include?(cls.xxhash)
-              seen_classes << cls.xxhash
+              next if seen_classes.include?(cls)
+              seen_classes << cls
 
               next if @settings.skip_es_storage # skip if we don't index
 
@@ -173,17 +173,23 @@ module RI::Population::Indexing
 
   def write_label_pairs(labels)
     return unless @settings.write_label_pairs
-    labels.to_a.permutation(2).each do |label_pair|
-      @mutex.synchronize { @labels_file.puts(label_pair.first + "\t" + label_pair.last) }
+    sorted_labels = labels.sort
+    size = sorted_labels.size
+    for i in 0...size
+      for j in 0...i
+        @mutex.synchronize { @labels_file.puts(sorted_labels[i] + "\t" + sorted_labels[j]) }
+      end
     end
   end
 
   def write_class_pairs(classes)
     return unless @settings.write_class_pairs
-    classes.to_a.permutation(2).each do |class_pair|
-      a = class_pair.first
-      b = class_pair.last
-      @mutex.synchronize { @classes_file.puts("#{a}\t#{b}") }
+    sorted_classes = classes.to_a.sort { |a,b| a.xxhash <=> b.xxhash }
+    size = sorted_classes.size
+    for i in 0...size do
+      for j in 0...i do
+        @mutex.synchronize { @classes_file.puts("#{sorted_classes[i].xxhash}" + "\t" + "#{sorted_classes[j].xxhash}") }
+      end
     end
   end
 
