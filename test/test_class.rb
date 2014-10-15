@@ -46,7 +46,7 @@ class RI::TestClass < RI::TestCase
   end
 
   def test_class_queries
-    res = RI::Resource.find("AE_test")
+    res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     populator = RI::Population::Manager.new(res, mgrep_client: mgrep, bulk_index_size: 500)
     @es = RI.es # triggers delete on teardown
@@ -55,9 +55,9 @@ class RI::TestClass < RI::TestCase
 
     CLASSES.each do |hash, ids|
       cls = class_from_ids(ids)
-      count = cls.ri_counts("AE_test")
-      docs = cls.ri_docs("AE_test", size: 500)
-      assert_equal DIRECT_COUNT[cls.xxhash], count["AE_test"]
+      count = cls.ri_counts("WITCH")
+      docs = cls.ri_docs("WITCH", size: 500)
+      assert_equal DIRECT_COUNT[cls.xxhash], count["WITCH"]
       assert_equal DIRECT_DOCS[cls.xxhash].sort, docs.map {|d| d.id}.sort, "Docs don't match for #{ids.join(' | ')} | #{hash}"
     end
   end

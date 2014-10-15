@@ -4,7 +4,7 @@ class RI::TestCooccurencePairGeneration < RI::TestCase
   def test_pair_generation
     skip 'Add tests when process for generating pairs is finalized'
 
-    res = RI::Resource.find("AE_test")
+    res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     populator = RI::Population::Manager.new(res, mgrep_client: mgrep, bulk_index_size: 500, write_label_pairs: true, write_class_pairs: true)
     @es = RI.es # triggers delete on teardown

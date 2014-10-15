@@ -2,7 +2,7 @@ require_relative 'test_case'
 
 class RI::TestQueries < RI::TestCase
   def test_query
-    res = RI::Resource.find("AE_test")
+    res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     populator = RI::Population::Manager.new(res, mgrep_client: mgrep, bulk_index_size: 500)
     @es = RI.es # triggers delete on teardown

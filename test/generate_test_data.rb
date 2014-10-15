@@ -90,7 +90,7 @@ end
 class RI::GenerateTestData < RI::TestCase
   def test_data_ae
     require 'logger'
-    @res = RI::Resource.find("AE_test")
+    @res = RI::Resource.find("WITCH")
     populator = RI::Population::Manager.new(@res,
     {
       annotator_redis_host: "ncbostage-redis1",

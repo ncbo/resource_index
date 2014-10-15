@@ -3,7 +3,7 @@ require_relative 'test_case'
 class RI::TestDocument < RI::TestCase
   def test_documents
     assert_raises(ArgumentError) {RI::Population::Document.all}
-    res = RI::Resource.find("AE_test")
+    res = RI::Resource.find("WITCH")
     docs = res.documents(chunk_size: 10)
     assert_equal Enumerator::Lazy, docs.class
     assert_equal 464, docs.to_a.length
@@ -16,7 +16,7 @@ class RI::TestDocument < RI::TestCase
   end
 
   def test_document_indexable
-    res = RI::Resource.find("AE_test")
+    res = RI::Resource.find("WITCH")
     doc = res.documents.to_a.first
     hash = doc.indexable_hash
     keys = [:ae_name, :ae_description, :ae_species, :ae_experiment_type, :id, :manual_annotations]

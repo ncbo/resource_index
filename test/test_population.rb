@@ -2,7 +2,7 @@ require_relative 'test_case'
 
 class RI::TestDocument < RI::TestCase
   def test_population
-    @res = RI::Resource.find("AE_test")
+    @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500)
     @index_id = populator.populate()
@@ -13,7 +13,7 @@ class RI::TestDocument < RI::TestCase
   end
 
   def test_population_threaded
-    @res = RI::Resource.find("AE_test")
+    @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, population_threads: 2)
     @index_id = populator.populate()
@@ -24,7 +24,7 @@ class RI::TestDocument < RI::TestCase
   end
 
   def test_population_skip
-    @res = RI::Resource.find("AE_test")
+    @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, skip_es_storage: true)
     @index_id = populator.populate()
@@ -39,7 +39,7 @@ class RI::TestDocument < RI::TestCase
   def test_population_resume
     RI::Population::Document.fail_on_index(true)
     @es = Elasticsearch::Client.new
-    @res = RI::Resource.find("AE_test")
+    @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500)
     @index_id = populator.index_id
@@ -62,7 +62,7 @@ class RI::TestDocument < RI::TestCase
   def test_population_resume_threaded
     RI::Population::Document.fail_on_index(true)
     @es = Elasticsearch::Client.new
-    @res = RI::Resource.find("AE_test")
+    @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, population_threads: 2)
     @index_id = populator.index_id
@@ -83,7 +83,7 @@ class RI::TestDocument < RI::TestCase
   end
 
   def test_population_no_resume
-    @res = RI::Resource.find("AE_test")
+    @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     RI::Population::Document.fail_on_index(true, 1, 6)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, resume: false)
@@ -95,7 +95,7 @@ class RI::TestDocument < RI::TestCase
   end
 
   def test_population_manual_resume
-    @res = RI::Resource.find("AE_test")
+    @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     RI::Population::Document.fail_on_index(true)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, resume: false)
@@ -115,7 +115,7 @@ class RI::TestDocument < RI::TestCase
 
   def test_population_recover
     @es = Elasticsearch::Client.new
-    @res = RI::Resource.find("AE_test")
+    @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     RI::Population::Document.fail_on_index(true, 5, 7)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, resume: false)
@@ -168,7 +168,7 @@ class RI::TestDocument < RI::TestCase
     assert_equal TOTAL_ES_RECORDS, stats["_all"]["primaries"]["docs"]["count"]
     count = @es.count index: @index_id
     assert_equal 464, count["count"]
-    aliased_id = @es.indices.get_alias(name: "AE_test").keys.first
+    aliased_id = @es.indices.get_alias(name: "WITCH").keys.first
     assert_equal @index_id, aliased_id
     # We shuffle to get random counts here, doing all takes 100 seconds
     $test_annotation_counts.keys.shuffle[0..100].each do |direct|
