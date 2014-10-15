@@ -55,7 +55,7 @@ module RI
         String :local_element_id
         String :witch_sentence
       end
-      RI.db.run(DOCUMENTS_TEST_DATA_WITCH.force_encoding('UTF-8'))      
+      RI.db.run(DOCUMENTS_TEST_DATA_WITCH.force_encoding('UTF-8'))
       RI.db.create_table :obs_ontology do
         primary_key :id
         String :local_ontology_id
@@ -81,7 +81,7 @@ module RI
     def teardown
       RI::Population::Document.fail_on_index(false)
       RI.db[:obr_resource].delete
-      RI.db[:obr_ae_test_element].delete
+      RI.db[:obr_witch_element].delete
       RI.db[:obs_ontology].delete
       RI.db[:obs_concept].delete
       if @es && @index_id
