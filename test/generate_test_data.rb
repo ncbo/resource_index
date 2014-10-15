@@ -115,9 +115,7 @@ class RI::GenerateTestData < RI::TestCase
       goo_port: 8080,
       population_threads: 1,
       bulk_index_size: 500,
-      log_level: Logger::DEBUG,
-      write_label_pairs: true,
-      write_class_pairs: true
+      log_level: Logger::DEBUG
     })
     @index_id = populator.populate()
     sleep(2) # wait for indexing to complete
