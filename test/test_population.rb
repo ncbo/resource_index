@@ -4,7 +4,7 @@ class RI::TestDocument < RI::TestCase
   def test_population
     @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
-    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500)
+    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep)
     @index_id = populator.populate()
     sleep(2) # wait for indexing to complete
     docs_ok?
@@ -15,7 +15,7 @@ class RI::TestDocument < RI::TestCase
   def test_population_threaded
     @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
-    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, population_threads: 2)
+    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, population_threads: 2)
     @index_id = populator.populate()
     sleep(2) # wait for indexing to complete
     docs_ok?
@@ -41,22 +41,22 @@ class RI::TestDocument < RI::TestCase
     @es = Elasticsearch::Client.new
     @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
-    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500)
+    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep)
     @index_id = populator.index_id
     assert_raises RI::Population::Indexing::RetryError do
       populator.populate()
     end
     sleep(3)
-    assert Dir.glob(Dir.pwd + "/ae_test*resume").length > 0
+    assert File.exist?(populator.resume_path)
     RI::Population::Document.fail_on_index(false)
-    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500)
+    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep)
     assert_equal ({}), @es.indices.get_alias(index: populator.index_id, name: "error")
     @index_id = populator.populate()
     sleep(3) # wait for indexing to complete
     docs_ok?
     population_ok?
     manual_annotations_ok?
-    assert Dir.glob(Dir.pwd + "/#{@index_id}*resume").empty?
+    assert !File.exist?(populator.resume_path)
   end
 
   def test_population_resume_threaded
@@ -64,48 +64,48 @@ class RI::TestDocument < RI::TestCase
     @es = Elasticsearch::Client.new
     @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
-    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, population_threads: 2)
+    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, population_threads: 2)
     @index_id = populator.index_id
     assert_raises RI::Population::Indexing::RetryError do
       populator.populate()
     end
     sleep(3)
-    assert Dir.glob(Dir.pwd + "/ae_test*resume").length > 0
+    assert File.exist?(populator.resume_path)
     RI::Population::Document.fail_on_index(false)
-    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, population_threads: 2)
+    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, population_threads: 2)
     assert_equal ({}), @es.indices.get_alias(index: populator.index_id, name: "error")
     @index_id = populator.populate()
     sleep(3) # wait for indexing to complete
     docs_ok?
     population_ok?
     manual_annotations_ok?
-    assert Dir.glob(Dir.pwd + "/#{@index_id}*resume").empty?
+    assert !File.exist?(populator.resume_path)
   end
 
   def test_population_no_resume
     @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     RI::Population::Document.fail_on_index(true, 1, 6)
-    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, resume: false)
+    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, resume: false)
     @index_id = populator.index_id
     assert_raises RI::Population::Indexing::RetryError do
       populator.populate()
     end
-    assert_equal 0, Dir.glob(Dir.pwd + "/ae_test*resume").length
+    assert_equal 0, Dir.glob(Dir.pwd + "/witch*resume").length
   end
 
   def test_population_manual_resume
     @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     RI::Population::Document.fail_on_index(true)
-    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, resume: false)
+    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, resume: false)
     @index_id = populator.index_id
     assert_raises RI::Population::Indexing::RetryError do
       populator.populate()
     end
     sleep(3)
     RI::Population::Document.fail_on_index(false)
-    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, starting_offset: 300, time_int: @index_id.split("_").last.to_i)
+    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, starting_offset: 3, time_int: @index_id.split("_").last.to_i)
     @index_id = populator.populate()
     sleep(3) # wait for indexing to complete
     docs_ok?
@@ -118,7 +118,7 @@ class RI::TestDocument < RI::TestCase
     @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     RI::Population::Document.fail_on_index(true, 5, 7)
-    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500, resume: false)
+    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, resume: false)
     @index_id = populator.index_id
     retry_count = -1
     assert_raises RI::Population::Indexing::RetryError do
@@ -133,7 +133,7 @@ class RI::TestDocument < RI::TestCase
     sleep(3)
     @es.indices.delete index: @index_id
     RI::Population::Document.fail_on_index(true, 5, 2)
-    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, bulk_index_size: 500)
+    populator = RI::Population::Manager.new(@res, mgrep_client: mgrep)
     @index_id = populator.populate()
     RI::Population::Document.fail_on_index(false)
     sleep(3) # wait for indexing to complete

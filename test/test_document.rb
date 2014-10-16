@@ -46,8 +46,8 @@ class RI::TestDocument < RI::TestCase
   def test_document_find
     res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
-    offset = RI.db[:obr_ae_test_element].count - 1 # only need one record, just need alias to work
-    doc_id = RI.db[:obr_ae_test_element][id: (offset + 1)][:local_element_id]
+    offset = RI.db[:obr_witch_element].count - 1 # only need one record, just need alias to work
+    doc_id = RI.db[:obr_witch_element][id: (offset + 1)][:local_element_id]
     populator = RI::Population::Manager.new(res, mgrep_client: mgrep, starting_offset: offset)
     @es = RI.es # triggers delete on teardown
     @index_id = populator.populate()

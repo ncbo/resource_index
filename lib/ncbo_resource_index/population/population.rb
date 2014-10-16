@@ -152,6 +152,10 @@ class RI::Population::Manager
     index_id()
   end
 
+  def resume_path
+    Dir.pwd + "/#{@res.acronym.downcase}_index_resume"
+  end
+
   private
 
   def save_for_resume(count, time = nil)
@@ -160,10 +164,6 @@ class RI::Population::Manager
       f.write Marshal.dump(count: count, time: time)
       f.close
     end
-  end
-
-  def resume_path
-    Dir.pwd + "/#{@res.acronym.downcase}_index_resume"
   end
 
   def latest_submissions

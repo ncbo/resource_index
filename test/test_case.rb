@@ -30,7 +30,7 @@ module RI
     TOTAL_ES_RECORDS = 8
 
     def setup
-      Dir.glob(Dir.pwd + "/ae_test*resume").each {|f| File.delete(f)}
+      Dir.glob(Dir.pwd + "/witch*resume").each {|f| File.delete(f)}
       RI::Population::Document.fail_on_index(false)
       @resource_store = "test_resource_store_#{Time.now.to_i}"
       RI.config(sqlite: true, resource_store: @resource_store)
