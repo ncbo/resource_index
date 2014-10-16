@@ -7,8 +7,8 @@ class RI::TestDocument < RI::TestCase
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep)
     @index_id = populator.populate()
     sleep(2) # wait for indexing to complete
-    docs_ok?
     population_ok?
+    docs_ok?
     manual_annotations_ok?
   end
 
@@ -18,8 +18,8 @@ class RI::TestDocument < RI::TestCase
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, population_threads: 2)
     @index_id = populator.populate()
     sleep(2) # wait for indexing to complete
-    docs_ok?
     population_ok?
+    docs_ok?
     manual_annotations_ok?
   end
 
@@ -53,8 +53,8 @@ class RI::TestDocument < RI::TestCase
     assert_equal ({}), @es.indices.get_alias(index: populator.index_id, name: "error")
     @index_id = populator.populate()
     sleep(3) # wait for indexing to complete
-    docs_ok?
     population_ok?
+    docs_ok?
     manual_annotations_ok?
     assert !File.exist?(populator.resume_path)
   end
@@ -76,8 +76,8 @@ class RI::TestDocument < RI::TestCase
     assert_equal ({}), @es.indices.get_alias(index: populator.index_id, name: "error")
     @index_id = populator.populate()
     sleep(3) # wait for indexing to complete
-    docs_ok?
     population_ok?
+    docs_ok?
     manual_annotations_ok?
     assert !File.exist?(populator.resume_path)
   end
@@ -108,8 +108,8 @@ class RI::TestDocument < RI::TestCase
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, starting_offset: 3, time_int: @index_id.split("_").last.to_i)
     @index_id = populator.populate()
     sleep(3) # wait for indexing to complete
-    docs_ok?
     population_ok?
+    docs_ok?
     manual_annotations_ok?
   end
 
@@ -137,8 +137,8 @@ class RI::TestDocument < RI::TestCase
     @index_id = populator.populate()
     RI::Population::Document.fail_on_index(false)
     sleep(3) # wait for indexing to complete
-    docs_ok?
     population_ok?
+    docs_ok?
     manual_annotations_ok?
   end
 
