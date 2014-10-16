@@ -144,11 +144,10 @@ class RI::TestDocument < RI::TestCase
 
   def manual_annotations_ok?
     @es = Elasticsearch::Client.new
-    # TODO: Re-create manual annotation tests
-    # MANUAL_ANNOTATION_XXHASH.each do |hash|
-    #   es_count = @es.count index: @index_id, body: direct_query(hash)
-    #   assert_equal MANUAL_ANNOTATION_COUNTS[hash], es_count["count"].to_i
-    # end
+    MANUAL_ANNOTATION_XXHASH.each do |hash|
+      es_count = @es.count index: @index_id, body: direct_query(hash)
+      assert_equal 1, es_count["count"].to_i
+    end
   end
 
   def docs_ok?

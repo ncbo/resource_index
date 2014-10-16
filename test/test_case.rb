@@ -54,6 +54,7 @@ module RI
         Integer :id
         String :local_element_id
         String :witch_sentence
+        String :witch_class
       end
       RI.db.run(DOCUMENTS_TEST_DATA_WITCH.force_encoding('UTF-8'))
       RI.db.create_table :obs_ontology do
