@@ -97,7 +97,7 @@ class RI::TestDocument < RI::TestCase
   def test_population_manual_resume
     @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
-    RI::Population::Document.fail_on_index(true)
+    RI::Population::Document.fail_on_index(true, 3)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, resume: false)
     @index_id = populator.index_id
     assert_raises RI::Population::Indexing::RetryError do
