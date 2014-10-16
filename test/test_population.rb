@@ -46,13 +46,13 @@ class RI::TestDocument < RI::TestCase
     assert_raises RI::Population::Indexing::RetryError do
       populator.populate()
     end
-    sleep(3)
+    sleep(1)
     assert File.exist?(populator.resume_path)
     RI::Population::Document.fail_on_index(false)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep)
     assert_equal ({}), @es.indices.get_alias(index: populator.index_id, name: "error")
     @index_id = populator.populate()
-    sleep(3) # wait for indexing to complete
+    sleep(1) # wait for indexing to complete
     population_ok?
     docs_ok?
     manual_annotations_ok?
@@ -69,13 +69,13 @@ class RI::TestDocument < RI::TestCase
     assert_raises RI::Population::Indexing::RetryError do
       populator.populate()
     end
-    sleep(3)
+    sleep(1)
     assert File.exist?(populator.resume_path)
     RI::Population::Document.fail_on_index(false)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, population_threads: 2)
     assert_equal ({}), @es.indices.get_alias(index: populator.index_id, name: "error")
     @index_id = populator.populate()
-    sleep(3) # wait for indexing to complete
+    sleep(1) # wait for indexing to complete
     population_ok?
     docs_ok?
     manual_annotations_ok?
@@ -103,11 +103,11 @@ class RI::TestDocument < RI::TestCase
     assert_raises RI::Population::Indexing::RetryError do
       populator.populate()
     end
-    sleep(3)
+    sleep(1)
     RI::Population::Document.fail_on_index(false)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, starting_offset: 3, time_int: @index_id.split("_").last.to_i)
     @index_id = populator.populate()
-    sleep(3) # wait for indexing to complete
+    sleep(1) # wait for indexing to complete
     population_ok?
     docs_ok?
     manual_annotations_ok?
@@ -130,13 +130,13 @@ class RI::TestDocument < RI::TestCase
       end
     end
     assert_equal 5, retry_count
-    sleep(3)
+    sleep(1)
     @es.indices.delete index: @index_id
     RI::Population::Document.fail_on_index(true, 5, 2)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep)
     @index_id = populator.populate()
     RI::Population::Document.fail_on_index(false)
-    sleep(3) # wait for indexing to complete
+    sleep(1) # wait for indexing to complete
     population_ok?
     docs_ok?
     manual_annotations_ok?
