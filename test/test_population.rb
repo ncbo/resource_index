@@ -144,11 +144,11 @@ class RI::TestDocument < RI::TestCase
 
   def manual_annotations_ok?
     @es = Elasticsearch::Client.new
-    require 'pp'
-    MANUAL_ANNOTATION_XXHASH.each do |hash|
-      es_count = @es.count index: @index_id, body: direct_query(hash)
-      assert_equal MANUAL_ANNOTATION_COUNTS[hash], es_count["count"].to_i
-    end
+    # TODO: Re-create manual annotation tests
+    # MANUAL_ANNOTATION_XXHASH.each do |hash|
+    #   es_count = @es.count index: @index_id, body: direct_query(hash)
+    #   assert_equal MANUAL_ANNOTATION_COUNTS[hash], es_count["count"].to_i
+    # end
   end
 
   def docs_ok?
@@ -167,19 +167,19 @@ class RI::TestDocument < RI::TestCase
     stats = @es.indices.stats index: @index_id
     assert_equal TOTAL_ES_RECORDS, stats["_all"]["primaries"]["docs"]["count"]
     count = @es.count index: @index_id
-    assert_equal 464, count["count"]
+    assert_equal 4, count["count"]
     aliased_id = @es.indices.get_alias(name: "WITCH").keys.first
     assert_equal @index_id, aliased_id
     # We shuffle to get random counts here, doing all takes 100 seconds
-    $test_annotation_counts.keys.shuffle[0..100].each do |direct|
-      ann_count = $test_annotation_counts[direct]
+    CLASS_XXHASH.each do |direct|
+      ann_count = DIRECT_ANNOTATION_COUNTS[direct]
       es_count = @es.count index: @index_id, body: direct_query(direct)
-      assert_equal ann_count, es_count["count"]
+      assert_equal ann_count, es_count["count"], "Bad direct counts for #{direct}"
     end
-    $test_annotation_counts_anc.keys.shuffle[0..100].each do |anc|
-      ann_count = $test_annotation_counts_anc[anc]
+    XXHASH_TO_ANCESTOR_XXHASH.values.flatten.uniq.each do |anc|
+      ann_count = ANCESTOR_ANNOTATION_COUNTS[anc]
       es_count = @es.count index: @index_id, body: ancestor_query(anc)
-      assert_equal ann_count, es_count["count"]
+      assert_equal ann_count, es_count["count"], "Bad ancestor counts for #{anc}"
     end
   end
 
