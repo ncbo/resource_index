@@ -117,7 +117,7 @@ class RI::TestDocument < RI::TestCase
     @es = Elasticsearch::Client.new
     @res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
-    RI::Population::Document.fail_on_index(true, 5, 7)
+    RI::Population::Document.fail_on_index(true, 1, 7)
     populator = RI::Population::Manager.new(@res, mgrep_client: mgrep, resume: false)
     @index_id = populator.index_id
     retry_count = -1
