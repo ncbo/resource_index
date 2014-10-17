@@ -9,7 +9,7 @@ Annotator = RI::Population
 $ri_log_level = Logger::FATAL
 
 require_relative 'shared_data'
-require_relative 'population_setup' unless $skip_population_setup
+require_relative 'mocks'
 require_relative 'simulate_failures'
 
 # Prevent Persisted::Hash from writing data while testing
