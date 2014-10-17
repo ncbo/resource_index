@@ -54,3 +54,9 @@ class RI::Population::Class
     XXHASH_TO_ANCESTOR_XXHASH[self.xxhash]
   end
 end
+
+class RI::Population::Manager
+  def latest_submissions
+    {}
+  end
+end
