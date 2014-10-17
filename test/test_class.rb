@@ -1,3 +1,4 @@
+require 'set'
 require_relative 'test_case'
 
 class MockLinkedDataClass
@@ -39,9 +40,9 @@ CLASSES = {
 
 class RI::TestClass < RI::TestCase
   def test_class_xxhash
-    CLASSES.each do |hash, ids|
-      cls = class_from_ids(ids)
-      assert_equal hash, cls.xxhash
+    hashes = CLASS_XXHASH.dup
+    hashes.each do |hash|
+      assert classes().any? {|c| c.xxhash == hash}, "Can't find hash #{hash}"
     end
   end
 
@@ -53,16 +54,24 @@ class RI::TestClass < RI::TestCase
     @index_id = populator.populate()
     sleep(2) # wait for indexing to complete
 
-    CLASSES.each do |hash, ids|
-      cls = class_from_ids(ids)
+    classes().each do |cls|
       count = cls.ri_counts("WITCH")
       docs = cls.ri_docs("WITCH", size: 500)
-      assert_equal DIRECT_COUNT[cls.xxhash], count["WITCH"]
-      assert_equal DIRECT_DOCS[cls.xxhash].sort, docs.map {|d| d.id}.sort, "Docs don't match for #{ids.join(' | ')} | #{hash}"
+      assert_equal XXHASH_TO_DOCS[cls.xxhash].length, count["WITCH"]
+      assert_equal XXHASH_TO_DOCS[cls.xxhash].sort, docs.map {|d| d.id}.sort, "Docs don't match for #{cls}"
     end
   end
 
   private
+
+  def classes
+    return @classes if @classes
+    @classes = Set.new
+    LABEL_ID_TO_CLASS_MAP.values.flatten(1).each do |ids|
+      @classes << class_from_ids(ids)
+    end
+    @classes
+  end
 
   def class_from_ids(ids)
     acronym, cls_id = ids
