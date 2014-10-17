@@ -1,7 +1,10 @@
 ##
 # Test data for use in populations so we don't need redis, mgrep, 4store, etc
+
+# This is the dictionary used to mock MGREP responses (label => string_id)
 DICTIONARY = {"WITCH" => 1659609209, "WEST" => 4234099798, "EAST" => 21367710, "SORCERER" => 2571402480}
 
+# This is a hash used to mock the annotator cache (string id => array of ontology acronym/class id pairs)
 LABEL_ID_TO_CLASS_MAP = {
   1659609209 => [
     ["NCBITAXON", "http://purl.obolibrary.org/obo/NCBITaxon_34819"],
@@ -20,8 +23,11 @@ LABEL_ID_TO_CLASS_MAP = {
   ]
 }
 
+# A list of all of the XXHASH ids produced by the classes from above
+# For the purposes of the tests, these classes and their ancestors are the only classes in BioPortal
 CLASS_XXHASH = [2135716011, 2957120221, 921784164, 3305416963, 560039333, 1829708204]
 
+# The ancestors for the above classes
 XXHASH_TO_ANCESTOR_XXHASH = {
   2135716011 =>
     [232061624, 1230672067, 1163287331, 3859148251, 4203259731,
