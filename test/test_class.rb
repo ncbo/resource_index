@@ -23,21 +23,6 @@ class MockLinkedDataOntology
   end
 end
 
-CLASSES = {
-  4259096489 => ["ACGT-MO", "http://www.ifomis.org/acgt/1.0#Normal"],
-  2974317510 => ["RadLex_OWL", "http://bioontology.org/projects/ontologies/radlex/radlexOwl#RID1543"],
-  3116223171 => ["SEP", "http://purl.obolibrary.org/obo/sep_00060"],
-  30093454   => ["I2B2-LOINC", "http://www.regenstrief.org/loinc#LP28442-9"],
-  2631822857 => ["SNOMEDCT", "http://purl.bioontology.org/ontology/SNOMEDCT/17223004"],
-  1256174170 => ["EHDA", "http://purl.obolibrary.org/obo/EHDA_3667"],
-  3152067627 => ["NCIT", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C15227"],
-  2588657372 => ["PEDTERM", "http://www.owl-ontologies.com/Ontology1358660052.owl#Fetus"],
-  2466199616 => ["NCIT", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C28152"],
-  516089123  => ["FMA-SUBSET", "http://purl.obolibrary.org/obo/FMA_74540"],
-  1514996459 => ["SNMI", "http://purl.bioontology.org/ontology/SNMI/F-60320"],
-  2936938335 => ["NDDF", "http://purl.bioontology.org/ontology/NDDF/010069"],
-}
-
 class RI::TestClass < RI::TestCase
   def test_class_xxhash
     hashes = CLASS_XXHASH.dup
