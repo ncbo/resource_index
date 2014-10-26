@@ -144,9 +144,10 @@ class RI::TestDocument < RI::TestCase
 
   def manual_annotations_ok?
     @es = Elasticsearch::Client.new
-    MANUAL_ANNOTATION_XXHASH.each do |hash|
-      es_count = @es.count index: @index_id, body: direct_query(hash)
-      assert_equal 1, es_count["count"].to_i
+    MANUAL_ANNOTATION_CLASSES.each do |acr_id|
+      cls = RI::Population::Class.new(acr_id[1], acr_id[0])
+      es_count = @es.count index: @index_id, body: direct_query(cls.hash)
+      assert_equal 1, es_count["count"].to_i, "Manual annotation failed for #{cls.hash}"
     end
   end
 
@@ -156,7 +157,7 @@ class RI::TestDocument < RI::TestCase
     docs.each do |doc|
       es_doc = @es.get(index: @index_id, id: doc.document_id)
       es_doc["_source"].each do |field, value|
-        assert_equal value, doc.indexable_hash[field.to_sym]
+        assert_equal value, doc.indexable_hash[field.to_sym], "Doc retrieval failed for #{doc}"
       end
     end
   end

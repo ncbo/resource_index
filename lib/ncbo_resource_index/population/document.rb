@@ -92,7 +92,7 @@ class RI::Population::Document
         end
 
         acronym = RI::VIRT_MAP[ont.to_i].upcase
-        cls = RI::Population::Class.new(acronym, cls_uri)
+        cls = RI::Population::Class.new(cls_uri, acronym)
         hash[f] << "#{acronym}\C-_#{cls_uri}"
         hash[:manual_annotations] << cls
       end
