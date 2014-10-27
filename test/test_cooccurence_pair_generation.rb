@@ -73,6 +73,7 @@ class RI::TestCooccurencePairGeneration < RI::TestCase
 
     class_pairs_path = File.expand_path(File.join("cooccurence_results", "WITCH_classes", "#{index_id}" + ".tsv"))
     assert File.file?(class_pairs_path)
+    assert_equal(known_class_pairs.size, File.foreach(class_pairs_path).count)
   end
 
   def teardown
