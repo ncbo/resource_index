@@ -15,13 +15,7 @@ class RI::TestCooccurencePairGeneration < RI::TestCase
       ["witch", "west"]
     ]
 
-    res = RI::Resource.find("WITCH")
-    mgrep = MockMGREPClient.new
-    populator = RI::Population::Manager.new(res, mgrep_client: mgrep, bulk_index_size: 500, write_label_pairs: true)
-    RI.es # triggers delete on teardown
-    index_id = populator.populate()
-    sleep(2) # wait for indexing to complete
-
+    index_id = populate(write_label_pairs: true)
     label_pairs_path = File.expand_path(File.join(COOCCURENCE_RESULTS_DIR, "WITCH_labels", "#{index_id}" + ".tsv"))
     assert File.file?(label_pairs_path)
     assert_equal(known_label_pairs.size, File.foreach(label_pairs_path).count)
@@ -66,13 +60,7 @@ class RI::TestCooccurencePairGeneration < RI::TestCase
       ["921784164", "560039333"]   
     ]
 
-    res = RI::Resource.find("WITCH")
-    mgrep = MockMGREPClient.new
-    populator = RI::Population::Manager.new(res, mgrep_client: mgrep, bulk_index_size: 500, write_class_pairs: true)
-    RI.es # triggers delete on teardown
-    index_id = populator.populate()
-    sleep(2) # wait for indexing to complete
-
+    index_id = populate(write_class_pairs: true)
     class_pairs_path = File.expand_path(File.join(COOCCURENCE_RESULTS_DIR, "WITCH_classes", "#{index_id}" + ".tsv"))
     assert File.file?(class_pairs_path)
     assert_equal(known_class_pairs.size, File.foreach(class_pairs_path).count)
@@ -83,5 +71,26 @@ class RI::TestCooccurencePairGeneration < RI::TestCase
 
   def teardown
     FileUtils.rm_rf(COOCCURENCE_RESULTS_DIR)
+  end
+
+  private
+
+  def populate(options = {})
+    write_class_pairs = options[:write_class_pairs] == true ? true : false
+    write_label_pairs = options[:write_label_pairs] == true ? true : false
+
+    res = RI::Resource.find("WITCH")
+    mgrep = MockMGREPClient.new
+    populator = RI::Population::Manager.new(res, {
+      mgrep_client: mgrep, 
+      bulk_index_size: 500, 
+      write_class_pairs: write_class_pairs,
+      write_label_pairs: write_label_pairs
+    })
+    RI.es # triggers delete on teardown
+    index_id = populator.populate()
+    sleep(2) # wait for indexing to complete
+
+    return index_id
   end
 end
