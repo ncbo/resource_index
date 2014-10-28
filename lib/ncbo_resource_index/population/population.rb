@@ -93,18 +93,12 @@ class RI::Population::Manager
       labels_filename = File.join(Dir.pwd, "cooccurence_results", @res.acronym+"_labels", index_id()+".tsv")
       FileUtils.mkdir_p(File.dirname(labels_filename))
       @labels_file = File.new(labels_filename, "w+")
-      at_exit do
-        @labels_file.close
-      end
     end
 
     if s.write_class_pairs
       classes_filename = File.join(Dir.pwd, "cooccurence_results", @res.acronym+"_classes", index_id()+".tsv")
       FileUtils.mkdir_p(File.dirname(classes_filename))
       @classes_file = File.new(classes_filename, "w+")
-      at_exit do
-        @classes_file.close
-      end
     end
 
     nil
@@ -129,6 +123,14 @@ class RI::Population::Manager
 
       @logger.debug "Processing documents"
       index_documents(@settings.starting_offset)
+
+      if @settings.write_class_pairs
+        @classes_file.close
+      end
+
+      if @settings.write_label_pairs
+        @labels_file.close
+      end
 
       unless @settings.skip_es_storage
         @logger.debug "Aliasing index"
