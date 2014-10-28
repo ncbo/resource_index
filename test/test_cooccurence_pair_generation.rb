@@ -3,6 +3,8 @@ require 'csv'
 
 class RI::TestCooccurencePairGeneration < RI::TestCase
 
+  COOCCURENCE_RESULTS_DIR = 'cooccurence_results'
+
   def test_label_pair_generation
     known_label_pairs = [
       ["west", "sorcerer"],
@@ -20,7 +22,7 @@ class RI::TestCooccurencePairGeneration < RI::TestCase
     index_id = populator.populate()
     sleep(2) # wait for indexing to complete
 
-    label_pairs_path = File.expand_path(File.join("cooccurence_results", "WITCH_labels", "#{index_id}" + ".tsv"))
+    label_pairs_path = File.expand_path(File.join(COOCCURENCE_RESULTS_DIR, "WITCH_labels", "#{index_id}" + ".tsv"))
     assert File.file?(label_pairs_path)
     assert_equal(known_label_pairs.size, File.foreach(label_pairs_path).count)
 
@@ -71,13 +73,12 @@ class RI::TestCooccurencePairGeneration < RI::TestCase
     index_id = populator.populate()
     sleep(2) # wait for indexing to complete
 
-    class_pairs_path = File.expand_path(File.join("cooccurence_results", "WITCH_classes", "#{index_id}" + ".tsv"))
+    class_pairs_path = File.expand_path(File.join(COOCCURENCE_RESULTS_DIR, "WITCH_classes", "#{index_id}" + ".tsv"))
     assert File.file?(class_pairs_path)
     assert_equal(known_class_pairs.size, File.foreach(class_pairs_path).count)
   end
 
   def teardown
-    # TODO: Delete label and class pairs files (@index_id is used to generate file names).
-    # TODO: Delete entire 'cooccurence_results' directory?
+    FileUtils.rm_rf(COOCCURENCE_RESULTS_DIR)
   end
 end
