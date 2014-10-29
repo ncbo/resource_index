@@ -39,6 +39,7 @@ class RI::Population::Manager
     s.write_label_pairs    = opts[:write_label_pairs]
     s.write_class_pairs    = opts[:write_class_pairs]
     s.skip_es_storage      = opts[:skip_es_storage]
+    s.cooccurrence_output  = opts[:cooccurrence_output] || File.join(Dir.pwd, 'cooccurence_results')
 
     s.es_hosts = s.es_hosts.is_a?(Array) ? s.es_hosts : [s.es_hosts]
 
@@ -88,17 +89,17 @@ class RI::Population::Manager
       end
     end
 
-    # Setup files for writing co-occurence data (as needed)
+    # Setup files for writing cooccurrence data (as needed)
     if s.write_label_pairs
-      labels_filename = File.join(Dir.pwd, "cooccurence_results", @res.acronym+"_labels", index_id()+".tsv")
-      FileUtils.mkdir_p(File.dirname(labels_filename))
-      @labels_file = File.new(labels_filename, "w+")
+      path = label_pairs_path
+      FileUtils.mkdir_p(File.dirname(path))
+      @labels_file = File.new(path, "w+")
     end
 
     if s.write_class_pairs
-      classes_filename = File.join(Dir.pwd, "cooccurence_results", @res.acronym+"_classes", index_id()+".tsv")
-      FileUtils.mkdir_p(File.dirname(classes_filename))
-      @classes_file = File.new(classes_filename, "w+")
+      path = class_pairs_path
+      FileUtils.mkdir_p(File.dirname(path))
+      @classes_file = File.new(path, "w+")
     end
 
     nil
@@ -156,6 +157,14 @@ class RI::Population::Manager
 
   def resume_path
     Dir.pwd + "/#{@res.acronym.downcase}_index_resume"
+  end
+
+  def label_pairs_path
+    File.join(@settings.cooccurrence_output, @res.acronym + '_labels', index_id() + '.tsv')
+  end
+
+  def class_pairs_path
+    File.join(@settings.cooccurrence_output, @res.acronym + '_classes', index_id() + '.tsv')
   end
 
   private
