@@ -21,7 +21,7 @@ class RI::TestCooccurencePairGeneration < RI::TestCase
     assert_equal(known_label_pairs.size, File.foreach(label_pairs_path).count)
 
     label_pairs = CSV.read(label_pairs_path, col_sep: "\t")
-    assert_equal(known_label_pairs, label_pairs.sort!)
+    assert_equal(known_label_pairs.sort, label_pairs.sort)
   end
 
   def test_class_pair_generation
@@ -66,7 +66,7 @@ class RI::TestCooccurencePairGeneration < RI::TestCase
     assert_equal(known_class_pairs.size, File.foreach(class_pairs_path).count)
 
     class_pairs = CSV.read(class_pairs_path, col_sep: "\t")
-    assert_equal(known_class_pairs, class_pairs.sort!)
+    assert_equal(known_class_pairs.sort, class_pairs.sort)
   end
 
   def teardown
@@ -83,7 +83,6 @@ class RI::TestCooccurencePairGeneration < RI::TestCase
     mgrep = MockMGREPClient.new
     populator = RI::Population::Manager.new(res, {
       mgrep_client: mgrep, 
-      bulk_index_size: 500, 
       write_class_pairs: write_class_pairs,
       write_label_pairs: write_label_pairs
     })
