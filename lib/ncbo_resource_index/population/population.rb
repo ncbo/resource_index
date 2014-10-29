@@ -39,7 +39,7 @@ class RI::Population::Manager
     s.write_label_pairs    = opts[:write_label_pairs]
     s.write_class_pairs    = opts[:write_class_pairs]
     s.skip_es_storage      = opts[:skip_es_storage]
-    s.cooccurrence_output  = opts[:cooccurrence_output] || File.join(Dir.pwd, 'cooccurence_results')
+    s.cooccurrence_output  = opts[:cooccurrence_output] || File.join(Dir.pwd, 'cooccurrence_results')
 
     s.es_hosts = s.es_hosts.is_a?(Array) ? s.es_hosts : [s.es_hosts]
 
