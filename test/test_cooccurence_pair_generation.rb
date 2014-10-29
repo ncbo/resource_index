@@ -82,7 +82,8 @@ class RI::TestCooccurencePairGeneration < RI::TestCase
     res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     populator = RI::Population::Manager.new(res, {
-      mgrep_client: mgrep, 
+      mgrep_client: mgrep,
+      skip_es_storage: true,
       write_class_pairs: write_class_pairs,
       write_label_pairs: write_label_pairs
     })
