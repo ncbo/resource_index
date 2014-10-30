@@ -1,7 +1,7 @@
 require_relative 'test_case'
 require 'csv'
 
-class RI::TestCooccurencePairGeneration < RI::TestCase
+class RI::TestCooccurrencePairGeneration < RI::TestCase
 
   def test_label_pair_generation
     known_label_pairs = [
