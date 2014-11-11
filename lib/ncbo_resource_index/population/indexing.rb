@@ -38,6 +38,10 @@ module RI::Population::Indexing
               next if seen_classes.include?(cls)
               seen_classes << cls
 
+              if @settings.write_class_pairs
+                RI::Population::Manager.mutex.synchronize { visited_classes_cache[cls.xxhash] = ["#{cls.xxhash}", "#{cls.ont_acronym}", "#{cls.id}"]  }
+              end
+
               next if @settings.skip_es_storage # skip if we don't index
 
               ancestors = nil

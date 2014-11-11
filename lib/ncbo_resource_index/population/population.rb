@@ -3,6 +3,7 @@ require 'ostruct'
 require 'json'
 require 'zlib'
 require 'typhoeus/adapters/faraday'
+require 'csv'
 
 module RI::Population; end
 
@@ -56,6 +57,7 @@ class RI::Population::Manager
 
     @@mutex.synchronize {
       @@ancestors ||= Persisted::Hash.new("ri_pop_anc", dir: s.dumps_dir, gzip: true)
+      @@visited_classes ||= Persisted::Hash.new("ri_pop_vcls", dir: s.dumps_dir, gzip: false)
     }
 
     # Mail notification settings
@@ -100,6 +102,10 @@ class RI::Population::Manager
       path = class_pairs_path
       FileUtils.mkdir_p(File.dirname(path))
       @classes_file = File.new(path, "w+")
+
+      d_path = decryption_path
+      FileUtils.mkdir_p(File.dirname(d_path))
+      @decryption_file = File.new(d_path, "w+")
     end
 
     nil
@@ -127,6 +133,7 @@ class RI::Population::Manager
 
       if @settings.write_class_pairs
         @classes_file.close
+        write_decryption
       end
 
       if @settings.write_label_pairs
@@ -163,8 +170,16 @@ class RI::Population::Manager
     File.join(@settings.cooccurrence_output, @res.acronym + '_labels', index_id() + '.tsv')
   end
 
+  def class_pairs_dir
+    File.join(@settings.cooccurrence_output, @res.acronym + '_classes')
+  end
+
   def class_pairs_path
-    File.join(@settings.cooccurrence_output, @res.acronym + '_classes', index_id() + '.tsv')
+    File.join(class_pairs_dir(), index_id() + '.tsv')
+  end
+
+  def decryption_path
+    File.join(class_pairs_dir(), index_id() + '_decryption.tsv')
   end
 
   private
@@ -203,6 +218,21 @@ class RI::Population::Manager
 
   def ancestors_cache
     @@ancestors
+  end
+
+  def visited_classes_cache
+    @@visited_classes
+  end
+
+  def write_decryption
+    visited_classes = visited_classes_cache.data.values
+    CSV.open(@decryption_file, 'w+', 
+      write_headers: true, 
+      headers: ['Hash', 'Ontology Acronym', 'Class ID']) do |csv|
+      visited_classes.each do |row|
+        csv << row
+      end
+    end
   end
 
 end
