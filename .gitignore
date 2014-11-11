@@ -21,3 +21,4 @@ test.rb
 ri_test.db
 ri_test.db-journal
 cooccurrence_results/**/*
+.DS_Store
