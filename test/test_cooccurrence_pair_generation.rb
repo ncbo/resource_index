@@ -58,9 +58,15 @@ class RI::TestCooccurrencePairGeneration < RI::TestCase
     ]
 
     mgr = populate(write_class_pairs: true)
+    
+    # Ensure proper files are generated.
     class_pairs_path = mgr.class_pairs_path
     assert File.file?(class_pairs_path)
+    decryption_path = mgr.decryption_path
+    assert File.file?(decryption_path)
+    
     assert_equal(known_class_pairs.size, File.foreach(class_pairs_path).count)
+    
     class_pairs = CSV.read(class_pairs_path, col_sep: "\t")
     assert_equal(known_class_pairs.sort, class_pairs.sort)
   end
