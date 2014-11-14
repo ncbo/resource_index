@@ -94,17 +94,17 @@ class RI::Population::Manager
     if s.write_label_pairs
       path = label_pairs_path
       FileUtils.mkdir_p(File.dirname(path))
-      @labels_file = File.new(path, "w+")
+      @labels_file = File.new(path, "a")
     end
 
     if s.write_class_pairs
       path = class_pairs_path
       FileUtils.mkdir_p(File.dirname(path))
-      @classes_file = File.new(path, "w+")
+      @classes_file = File.new(path, "a")
 
       d_path = decryption_path
       FileUtils.mkdir_p(File.dirname(d_path))
-      @decryption_file = CSV.new(File.new(d_path, "w+"))
+      @decryption_file = CSV.new(File.new(d_path, "a"))
     end
 
     nil
