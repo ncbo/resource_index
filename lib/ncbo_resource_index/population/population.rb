@@ -57,7 +57,6 @@ class RI::Population::Manager
 
     @@mutex.synchronize {
       @@ancestors ||= Persisted::Hash.new("ri_pop_anc", dir: s.dumps_dir, gzip: true)
-      @@visited_classes ||= Persisted::Hash.new("ri_pop_vcls", dir: s.dumps_dir, gzip: false)
     }
 
     # Mail notification settings
@@ -105,7 +104,7 @@ class RI::Population::Manager
 
       d_path = decryption_path
       FileUtils.mkdir_p(File.dirname(d_path))
-      @decryption_file = File.new(d_path, "w+")
+      @decryption_file = CSV.new(File.new(d_path, "w+"))
     end
 
     nil
@@ -133,7 +132,7 @@ class RI::Population::Manager
 
       if @settings.write_class_pairs
         @classes_file.close
-        write_decryption
+        @decryption_file.close
       end
 
       if @settings.write_label_pairs
@@ -179,7 +178,7 @@ class RI::Population::Manager
   end
 
   def decryption_path
-    File.join(class_pairs_dir(), index_id() + '_decryption.tsv')
+    File.join(class_pairs_dir(), index_id() + '_decryption.csv')
   end
 
   private
@@ -218,21 +217,6 @@ class RI::Population::Manager
 
   def ancestors_cache
     @@ancestors
-  end
-
-  def visited_classes_cache
-    @@visited_classes
-  end
-
-  def write_decryption
-    visited_classes = visited_classes_cache.data.values
-    CSV.open(@decryption_file, 'w+', 
-      write_headers: true, 
-      headers: ['Hash', 'Ontology Acronym', 'Class ID']) do |csv|
-      visited_classes.each do |row|
-        csv << row
-      end
-    end
   end
 
 end
