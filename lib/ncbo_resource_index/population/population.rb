@@ -104,7 +104,7 @@ class RI::Population::Manager
 
       d_path = decryption_path
       FileUtils.mkdir_p(File.dirname(d_path))
-      @decryption_file = CSV.new(File.new(d_path, "a"))
+      @decryption_file = CSV.new(File.new(d_path, "a"), col_sep: "\t")
     end
 
     nil
@@ -178,7 +178,7 @@ class RI::Population::Manager
   end
 
   def decryption_path
-    File.join(class_pairs_dir(), index_id() + '_decryption.csv')
+    File.join(class_pairs_dir(), index_id() + '_decryption.tsv')
   end
 
   private
