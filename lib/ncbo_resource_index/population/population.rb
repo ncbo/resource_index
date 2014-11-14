@@ -3,6 +3,7 @@ require 'ostruct'
 require 'json'
 require 'zlib'
 require 'typhoeus/adapters/faraday'
+require 'csv'
 
 module RI::Population; end
 
@@ -100,6 +101,10 @@ class RI::Population::Manager
       path = class_pairs_path
       FileUtils.mkdir_p(File.dirname(path))
       @classes_file = File.new(path, "w+")
+
+      d_path = decryption_path
+      FileUtils.mkdir_p(File.dirname(d_path))
+      @decryption_file = CSV.new(File.new(d_path, "w+"))
     end
 
     nil
@@ -127,6 +132,7 @@ class RI::Population::Manager
 
       if @settings.write_class_pairs
         @classes_file.close
+        @decryption_file.close
       end
 
       if @settings.write_label_pairs
@@ -163,8 +169,16 @@ class RI::Population::Manager
     File.join(@settings.cooccurrence_output, @res.acronym + '_labels', index_id() + '.tsv')
   end
 
+  def class_pairs_dir
+    File.join(@settings.cooccurrence_output, @res.acronym + '_classes')
+  end
+
   def class_pairs_path
-    File.join(@settings.cooccurrence_output, @res.acronym + '_classes', index_id() + '.tsv')
+    File.join(class_pairs_dir(), index_id() + '.tsv')
+  end
+
+  def decryption_path
+    File.join(class_pairs_dir(), index_id() + '_decryption.csv')
   end
 
   private

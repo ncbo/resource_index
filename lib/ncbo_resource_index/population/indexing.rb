@@ -57,6 +57,7 @@ module RI::Population::Indexing
             # Write data to files for use with co-occurence calculations
             write_label_pairs(labels)
             write_class_pairs(seen_classes)
+            write_decryption(seen_classes)
 
             # Switch the annotaions to an array
             index_doc[:annotations] = annotations
@@ -190,6 +191,14 @@ module RI::Population::Indexing
       for j in 0...i do
         @mutex.synchronize { @classes_file.puts("#{sorted_classes[i].xxhash}" + "\t" + "#{sorted_classes[j].xxhash}") }
       end
+    end
+  end
+
+  def write_decryption(classes)
+    return unless @settings.write_class_pairs
+    decrypted_classes = classes.to_a.map { |cls| ["#{cls.xxhash}", "#{cls.ont_acronym}", "#{cls.id}"] }
+    decrypted_classes.each do |cls|
+      @mutex.synchronize { @decryption_file << cls }
     end
   end
 
