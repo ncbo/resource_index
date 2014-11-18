@@ -104,7 +104,7 @@ class RI::Population::Manager
 
       d_path = decryption_path
       FileUtils.mkdir_p(File.dirname(d_path))
-      @decryption_file = CSV.new(File.new(d_path, "a"), col_sep: "\t")
+      @decryption_file = CSV.new(File.new(d_path, "a+"), col_sep: "\t")
     end
 
     nil

@@ -198,7 +198,13 @@ module RI::Population::Indexing
     return unless @settings.write_class_pairs
     decrypted_classes = classes.to_a.map { |cls| ["#{cls.xxhash}", "#{cls.ont_acronym}", "#{cls.id}"] }
     decrypted_classes.each do |cls|
-      @mutex.synchronize { @decryption_file << cls }
+      @mutex.synchronize {
+        classes = @decryption_file.each.rewind
+        if classes.find { |row| row[0] == cls.first }.nil?
+          @decryption_file << cls
+          @decryption_file.fsync
+        end
+      }
     end
   end
 
