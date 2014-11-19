@@ -38,7 +38,6 @@ class RI::Population::Manager
     s.starting_offset      = opts[:starting_offset] || 0
     s.resume               = opts[:resume].nil? ? true : opts[:resume]
     s.write_label_pairs    = opts[:write_label_pairs]
-    s.write_class_pairs    = opts[:write_class_pairs]
     s.skip_es_storage      = opts[:skip_es_storage]
     s.cooccurrence_output  = opts[:cooccurrence_output] || File.join(Dir.pwd, 'cooccurrence_results')
 
@@ -90,21 +89,11 @@ class RI::Population::Manager
       end
     end
 
-    # Setup files for writing cooccurrence data (as needed)
+    # Setup file for writing cooccurrence data (as needed)
     if s.write_label_pairs
       path = label_pairs_path
       FileUtils.mkdir_p(File.dirname(path))
       @labels_file = File.new(path, "a")
-    end
-
-    if s.write_class_pairs
-      path = class_pairs_path
-      FileUtils.mkdir_p(File.dirname(path))
-      @classes_file = File.new(path, "a")
-
-      d_path = decryption_path
-      FileUtils.mkdir_p(File.dirname(d_path))
-      @decryption_file = CSV.new(File.new(d_path, "a+"), col_sep: "\t")
     end
 
     nil
@@ -129,11 +118,6 @@ class RI::Population::Manager
 
       @logger.debug "Processing documents"
       index_documents(@settings.starting_offset)
-
-      if @settings.write_class_pairs
-        @classes_file.close
-        @decryption_file.close
-      end
 
       if @settings.write_label_pairs
         @labels_file.close
@@ -167,18 +151,6 @@ class RI::Population::Manager
 
   def label_pairs_path
     File.join(@settings.cooccurrence_output, @res.acronym + '_labels', index_id() + '.tsv')
-  end
-
-  def class_pairs_dir
-    File.join(@settings.cooccurrence_output, @res.acronym + '_classes')
-  end
-
-  def class_pairs_path
-    File.join(class_pairs_dir(), index_id() + '.tsv')
-  end
-
-  def decryption_path
-    File.join(class_pairs_dir(), index_id() + '_decryption.tsv')
   end
 
   private

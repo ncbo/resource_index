@@ -54,10 +54,8 @@ module RI::Population::Indexing
               annotations[:ancestors].merge(ancestors) if ancestors
             end
 
-            # Write data to files for use with co-occurence calculations
+            # Write data to file for co-occurence calculation
             write_label_pairs(labels)
-            write_class_pairs(seen_classes)
-            write_decryption(seen_classes)
 
             # Switch the annotaions to an array
             index_doc[:annotations] = annotations
@@ -180,31 +178,6 @@ module RI::Population::Indexing
       for j in 0...i
         @mutex.synchronize { @labels_file.puts(sorted_labels[i] + "\t" + sorted_labels[j]) }
       end
-    end
-  end
-
-  def write_class_pairs(classes)
-    return unless @settings.write_class_pairs
-    sorted_classes = classes.to_a.sort { |a,b| a.xxhash <=> b.xxhash }
-    size = sorted_classes.size
-    for i in 0...size do
-      for j in 0...i do
-        @mutex.synchronize { @classes_file.puts("#{sorted_classes[i].xxhash}" + "\t" + "#{sorted_classes[j].xxhash}") }
-      end
-    end
-  end
-
-  def write_decryption(classes)
-    return unless @settings.write_class_pairs
-    decrypted_classes = classes.to_a.map { |cls| ["#{cls.xxhash}", "#{cls.ont_acronym}", "#{cls.id}"] }
-    decrypted_classes.each do |cls|
-      @mutex.synchronize {
-        classes = @decryption_file.each.rewind
-        if classes.find { |row| row[0] == cls.first }.nil?
-          @decryption_file << cls
-          @decryption_file.fsync
-        end
-      }
     end
   end
 
