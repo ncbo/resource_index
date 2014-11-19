@@ -176,7 +176,7 @@ module RI::Population::Indexing
     size = sorted_labels.size
     for i in 0...size
       for j in 0...i
-        @mutex.synchronize { @labels_file.puts(sorted_labels[i] + "\t" + sorted_labels[j]) }
+        @mutex_label_pairs.synchronize { @labels_file.puts(sorted_labels[i] + "\t" + sorted_labels[j]) }
       end
     end
   end

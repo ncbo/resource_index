@@ -49,6 +49,7 @@ class RI::Population::Manager
     @mgrep                 = opts[:mgrep_client] || RI::Population::Mgrep::ThreadedClient.new(s.mgrep_host, s.mgrep_port)
     @label_converter       = RI::Population::LabelConverter.new(s.annotator_redis_host, s.annotator_redis_port)
     @mutex                 = Mutex.new
+    @mutex_label_pairs     = Mutex.new
     @es_queue              = []
     @time                  = Time.at(opts[:time_int] || Time.now)
 
