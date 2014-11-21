@@ -3,7 +3,7 @@ require 'ostruct'
 require 'json'
 require 'zlib'
 require 'typhoeus/adapters/faraday'
-require 'csv'
+require 'open3'
 
 module RI::Population; end
 
@@ -90,11 +90,15 @@ class RI::Population::Manager
       end
     end
 
-    # Setup file for writing cooccurrence data (as needed)
+    # Setup files for writing cooccurrence data (as needed)
     if s.write_label_pairs
       path = label_pairs_path
       FileUtils.mkdir_p(File.dirname(path))
       @labels_file = File.new(path, "a")
+
+      counts_path = cooccurrence_counts_path
+      FileUtils.mkdir_p(File.dirname(counts_path))
+      @cooccurrence_counts_file = File.new(counts_path, "w")
     end
 
     nil
@@ -122,6 +126,8 @@ class RI::Population::Manager
 
       if @settings.write_label_pairs
         @labels_file.close
+        write_cooccurrence_counts()
+        @cooccurrence_counts_file.close
       end
 
       unless @settings.skip_es_storage
@@ -150,8 +156,26 @@ class RI::Population::Manager
     Dir.pwd + "/#{@res.acronym.downcase}_index_resume"
   end
 
+  def label_pairs_dir
+    File.join(@settings.cooccurrence_output, @res.acronym + '_labels')
+  end
+
   def label_pairs_path
-    File.join(@settings.cooccurrence_output, @res.acronym + '_labels', index_id() + '.tsv')
+    File.join(label_pairs_dir(), index_id() + '.tsv')
+  end
+
+  def cooccurrence_counts_path
+    File.join(label_pairs_dir(), index_id() + '_cooccurrence_counts.tsv')
+  end
+
+  def write_cooccurrence_counts
+    options_hash = { in: "#{label_pairs_path()}", out: "#{cooccurrence_counts_path()}" }
+    status_list = Open3.pipeline("sort", "uniq -c", options_hash)
+    status_list.each do |status|
+      if not status.success?
+        @logger.error "Error generating cooccurrence counts file for #{@res.acronym}: #{status.to_s}"
+      end
+    end
   end
 
   private
