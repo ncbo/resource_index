@@ -37,9 +37,9 @@ class RI::TestCooccurrencePairGeneration < RI::TestCase
     cooccurrence_counts = CSV.read(cooccurrence_path, col_sep: "\t")
     # Adjust data format from uniq'd file for easier comparison.
     cooccurrence_counts.each do |row|
-      string = row.first
-      row.unshift(string[3])
-      row[1] = string[5, string.size]
+      string = row.first.gsub(/\s/, "")
+      row.unshift(string[0])
+      row[1] = string[1, string.size]
     end
     assert_equal(known_counts.sort, cooccurrence_counts.sort)
   end
