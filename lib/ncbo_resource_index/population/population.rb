@@ -161,11 +161,11 @@ class RI::Population::Manager
   end
 
   def label_pairs_path
-    File.join(labels_dir(), index_id() + '.tsv')
+    File.join(labels_dir(), index_id() + '_pairs.tsv')
   end
 
   def cooccurrence_counts_path
-    File.join(labels_dir(), index_id() + '_cooccurrence_counts.tsv')
+    File.join(labels_dir(), index_id() + '_pairs_counts.tsv')
   end
 
   def write_cooccurrence_counts
