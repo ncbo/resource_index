@@ -55,7 +55,9 @@ module RI::Population::Indexing
             end
 
             # Write data to file for co-occurence calculation
-            write_label_pairs(labels)
+            if @settings.write_label_pairs
+              write_label_pairs(labels)
+            end
 
             # Switch the annotaions to an array
             index_doc[:annotations] = annotations
