@@ -170,7 +170,11 @@ class RI::Population::Manager
 
   def write_cooccurrence_counts
     options_hash = { in: "#{label_pairs_path()}", out: "#{cooccurrence_counts_path()}" }
-    status_list = Open3.pipeline("sort", "uniq -c", options_hash)
+
+    # Using this regular expression in a sed command requires GNU sed. Won't work with OS X BSD sed.
+    regex = '\'s/^([[:space:]]+[0-9]+)([[:space:]])/\1\t/\''
+
+    status_list = Open3.pipeline('sort', 'uniq -c', "sed -r #{regex}", options_hash)
     status_list.each do |status|
       if not status.success?
         @logger.error "Error generating cooccurrence counts file for #{@res.acronym}: #{status.to_s}"
