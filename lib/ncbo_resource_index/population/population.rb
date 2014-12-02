@@ -156,16 +156,16 @@ class RI::Population::Manager
     Dir.pwd + "/#{@res.acronym.downcase}_index_resume"
   end
 
-  def label_pairs_dir
+  def labels_dir
     File.join(@settings.cooccurrence_output, @res.acronym + '_labels')
   end
 
   def label_pairs_path
-    File.join(label_pairs_dir(), index_id() + '.tsv')
+    File.join(labels_dir(), index_id() + '.tsv')
   end
 
   def cooccurrence_counts_path
-    File.join(label_pairs_dir(), index_id() + '_cooccurrence_counts.tsv')
+    File.join(labels_dir(), index_id() + '_cooccurrence_counts.tsv')
   end
 
   def write_cooccurrence_counts
