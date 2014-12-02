@@ -37,6 +37,7 @@ class RI::Population::Manager
     s.bulk_index_size      = opts[:bulk_index_size] || 100
     s.starting_offset      = opts[:starting_offset] || 0
     s.resume               = opts[:resume].nil? ? true : opts[:resume]
+    s.write_label_singlets = opts[:write_label_singlets]
     s.write_label_pairs    = opts[:write_label_pairs]
     s.skip_es_storage      = opts[:skip_es_storage]
     s.cooccurrence_output  = opts[:cooccurrence_output] || File.join(Dir.pwd, 'cooccurrence_results')
@@ -90,7 +91,7 @@ class RI::Population::Manager
       end
     end
 
-    # Setup files for writing cooccurrence data (as needed)
+    # Setup files for writing pairs data (as needed)
     if s.write_label_pairs
       path = label_pairs_path
       FileUtils.mkdir_p(File.dirname(path))
@@ -99,6 +100,13 @@ class RI::Population::Manager
       counts_path = cooccurrence_counts_path
       FileUtils.mkdir_p(File.dirname(counts_path))
       @cooccurrence_counts_file = File.new(counts_path, "w")
+    end
+
+    # Setup files for writing singlets data (as needed)
+    if s.write_label_singlets
+      path = label_singlets_path()
+      FileUtils.mkdir_p(File.dirname(path))
+      @label_singlets_file = File.new(path, 'a')
     end
 
     nil
@@ -158,6 +166,10 @@ class RI::Population::Manager
 
   def labels_dir
     File.join(@settings.cooccurrence_output, @res.acronym + '_labels')
+  end
+
+  def label_singlets_path
+    File.join(labels_dir(), index_id() + '_singlets.tsv')
   end
 
   def label_pairs_path
