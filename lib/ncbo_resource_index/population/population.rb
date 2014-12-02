@@ -107,6 +107,10 @@ class RI::Population::Manager
       path = label_singlets_path()
       FileUtils.mkdir_p(File.dirname(path))
       @label_singlets_file = File.new(path, 'a')
+
+      counts_path = singlets_counts_path()
+      FileUtils.mkdir_p(File.dirname(counts_path))
+      @singlets_counts_file = File.new(counts_path, 'w')
     end
 
     nil
@@ -136,6 +140,11 @@ class RI::Population::Manager
         @labels_file.close
         write_cooccurrence_counts()
         @cooccurrence_counts_file.close
+      end
+
+      if settings.write_label_singlets
+        @label_singlets_file.close
+        @singlets_counts_file.close
       end
 
       unless @settings.skip_es_storage
@@ -170,6 +179,10 @@ class RI::Population::Manager
 
   def label_singlets_path
     File.join(labels_dir(), index_id() + '_singlets.tsv')
+  end
+
+  def singlets_counts_path
+    File.join(labels_dir(), index_id() + '_singlets_counts.tsv')
   end
 
   def label_pairs_path
