@@ -40,6 +40,18 @@ class RI::TestExtraction < RI::TestCase
     assert_equal(known_cofreqs_counts.sort, cofreqs_counts.sort)
   end
 
+  def test_singlets
+    mgr = populate(write_singlets: true)
+    path = mgr.singlets_path()
+    assert File.file?(path)
+  end
+
+  def test_singlets_counts
+    mgr = populate(write_singlets: true)
+    path = mgr.singlets_counts_path()
+    assert File.file?(path)
+  end
+
   def teardown
     mgr = RI::Population::Manager.new(RI::Resource.find("WITCH"), mgrep_client: MockMGREPClient.new)
     settings = mgr.settings
@@ -50,13 +62,15 @@ class RI::TestExtraction < RI::TestCase
 
   def populate(options = {})
     write_cofreqs = options[:write_cofreqs] == true ? true : false
+    write_singlets = options[:write_singlets] == true ? true : false
 
     res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     mgr = RI::Population::Manager.new(res, {
       mgrep_client: mgrep,
       skip_es_storage: true,
-      write_cofreqs: write_cofreqs
+      write_cofreqs: write_cofreqs,
+      write_singlets: write_singlets
     })
     RI.es # triggers delete on teardown
     mgr.populate()
