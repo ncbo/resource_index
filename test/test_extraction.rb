@@ -1,9 +1,9 @@
 require_relative 'test_case'
 require 'csv'
 
-class RI::TestCooccurrencePairGeneration < RI::TestCase
+class RI::TestExtraction < RI::TestCase
 
-  def test_cofreqs_generation
+  def test_cofreqs
     known_cofreqs = [
       ["west", "sorcerer"],
       ["west", "sorcerer"],
@@ -21,7 +21,7 @@ class RI::TestCooccurrencePairGeneration < RI::TestCase
     assert_equal(known_cofreqs.sort, cofreqs.sort)
   end
 
-  def test_cofreqs_counts_generation
+  def test_cofreqs_counts
     known_cofreqs_counts = [
       ["2", "west", "sorcerer"],
       ["1", "witch", "east"],
