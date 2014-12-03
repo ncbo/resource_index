@@ -40,7 +40,7 @@ class RI::Population::Manager
     s.write_label_singlets = opts[:write_label_singlets]
     s.write_label_pairs    = opts[:write_label_pairs]
     s.skip_es_storage      = opts[:skip_es_storage]
-    s.cooccurrence_output  = opts[:cooccurrence_output] || File.join(Dir.pwd, 'cooccurrence_results')
+    s.extraction_output    = opts[:extraction_output] || File.join(Dir.pwd, 'extraction_results')
 
     s.es_hosts = s.es_hosts.is_a?(Array) ? s.es_hosts : [s.es_hosts]
 
@@ -174,7 +174,7 @@ class RI::Population::Manager
   end
 
   def labels_dir
-    File.join(@settings.cooccurrence_output, @res.acronym + '_labels')
+    File.join(@settings.extraction_output, @res.acronym)
   end
 
   def label_singlets_path
@@ -186,11 +186,11 @@ class RI::Population::Manager
   end
 
   def label_pairs_path
-    File.join(labels_dir(), index_id() + '_pairs.tsv')
+    File.join(labels_dir(), index_id() + '_cofreqs.tsv')
   end
 
   def cooccurrence_counts_path
-    File.join(labels_dir(), index_id() + '_pairs_counts.tsv')
+    File.join(labels_dir(), index_id() + '_cofreqs_counts.tsv')
   end
 
   def write_cooccurrence_counts
