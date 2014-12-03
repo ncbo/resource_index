@@ -55,8 +55,8 @@ module RI::Population::Indexing
             end
 
             # Write data to file for co-occurence calculation
-            if @settings.write_label_pairs
-              write_label_pairs(labels)
+            if @settings.write_cofreqs
+              write_cofreqs(labels)
             end
 
             # Switch the annotaions to an array
@@ -172,13 +172,13 @@ module RI::Population::Indexing
     return @label_converter.convert(string_ids, annotations_objs), labels
   end
 
-  def write_label_pairs(labels)
-    return unless @settings.write_label_pairs
+  def write_cofreqs(labels)
+    return unless @settings.write_cofreqs
     sorted_labels = labels.sort
     size = sorted_labels.size
     for i in 0...size
       for j in 0...i
-        @mutex_label_pairs.synchronize { @labels_file.puts(sorted_labels[i] + "\t" + sorted_labels[j]) }
+        @mutex_cofreqs.synchronize { @cofreqs_file.puts(sorted_labels[i] + "\t" + sorted_labels[j]) }
       end
     end
   end

@@ -37,9 +37,9 @@ class RI::Population::Manager
     s.bulk_index_size      = opts[:bulk_index_size] || 100
     s.starting_offset      = opts[:starting_offset] || 0
     s.resume               = opts[:resume].nil? ? true : opts[:resume]
-    s.write_label_singlets = opts[:write_label_singlets]
-    s.write_label_pairs    = opts[:write_label_pairs]
     s.skip_es_storage      = opts[:skip_es_storage]
+    s.write_singlets       = opts[:write_singlets]
+    s.write_cofreqs        = opts[:write_cofreqs]
     s.extraction_output    = opts[:extraction_output] || File.join(Dir.pwd, 'extraction_results')
 
     s.es_hosts = s.es_hosts.is_a?(Array) ? s.es_hosts : [s.es_hosts]
@@ -50,7 +50,7 @@ class RI::Population::Manager
     @mgrep                 = opts[:mgrep_client] || RI::Population::Mgrep::ThreadedClient.new(s.mgrep_host, s.mgrep_port)
     @label_converter       = RI::Population::LabelConverter.new(s.annotator_redis_host, s.annotator_redis_port)
     @mutex                 = Mutex.new
-    @mutex_label_pairs     = Mutex.new
+    @mutex_cofreqs         = Mutex.new
     @es_queue              = []
     @time                  = Time.at(opts[:time_int] || Time.now)
 
@@ -91,22 +91,22 @@ class RI::Population::Manager
       end
     end
 
-    # Setup files for writing pairs data (as needed)
-    if s.write_label_pairs
-      path = label_pairs_path
+    # Setup files for writing co-frequency data (as needed)
+    if s.write_cofreqs
+      path = cofreqs_path()
       FileUtils.mkdir_p(File.dirname(path))
-      @labels_file = File.new(path, "a")
+      @cofreqs_file = File.new(path, 'a')
 
-      counts_path = cooccurrence_counts_path
+      counts_path = cofreqs_counts_path
       FileUtils.mkdir_p(File.dirname(counts_path))
-      @cooccurrence_counts_file = File.new(counts_path, "w")
+      @cofreqs_counts_file = File.new(counts_path, 'w')
     end
 
-    # Setup files for writing singlets data (as needed)
-    if s.write_label_singlets
-      path = label_singlets_path()
+    # Setup files for writing singleton data (as needed)
+    if s.write_singlets
+      path = singlets_path()
       FileUtils.mkdir_p(File.dirname(path))
-      @label_singlets_file = File.new(path, 'a')
+      @singlets_file = File.new(path, 'a')
 
       counts_path = singlets_counts_path()
       FileUtils.mkdir_p(File.dirname(counts_path))
@@ -136,14 +136,14 @@ class RI::Population::Manager
       @logger.debug "Processing documents"
       index_documents(@settings.starting_offset)
 
-      if @settings.write_label_pairs
-        @labels_file.close
-        write_cooccurrence_counts()
-        @cooccurrence_counts_file.close
+      if @settings.write_cofreqs
+        @cofreqs_file.close
+        write_cofreqs_counts()
+        @cofreqs_counts_file.close
       end
 
-      if settings.write_label_singlets
-        @label_singlets_file.close
+      if settings.write_singlets
+        @singlets_file.close
         @singlets_counts_file.close
       end
 
@@ -173,28 +173,28 @@ class RI::Population::Manager
     Dir.pwd + "/#{@res.acronym.downcase}_index_resume"
   end
 
-  def labels_dir
+  def extraction_dir
     File.join(@settings.extraction_output, @res.acronym)
   end
 
-  def label_singlets_path
-    File.join(labels_dir(), index_id() + '_singlets.tsv')
+  def singlets_path
+    File.join(extraction_dir(), index_id() + '_singlets.tsv')
   end
 
   def singlets_counts_path
-    File.join(labels_dir(), index_id() + '_singlets_counts.tsv')
+    File.join(extraction_dir(), index_id() + '_singlets_counts.tsv')
   end
 
-  def label_pairs_path
-    File.join(labels_dir(), index_id() + '_cofreqs.tsv')
+  def cofreqs_path
+    File.join(extraction_dir(), index_id() + '_cofreqs.tsv')
   end
 
-  def cooccurrence_counts_path
-    File.join(labels_dir(), index_id() + '_cofreqs_counts.tsv')
+  def cofreqs_counts_path
+    File.join(extraction_dir(), index_id() + '_cofreqs_counts.tsv')
   end
 
-  def write_cooccurrence_counts
-    options_hash = { in: "#{label_pairs_path()}", out: "#{cooccurrence_counts_path()}" }
+  def write_cofreqs_counts
+    options_hash = { in: "#{cofreqs_path()}", out: "#{cofreqs_counts_path()}" }
 
     # Using this regular expression in a sed command requires GNU sed. Won't work with OS X BSD sed.
     regex = '\'s/^([[:space:]]+[0-9]+)([[:space:]])/\1\t/\''
@@ -202,7 +202,7 @@ class RI::Population::Manager
     status_list = Open3.pipeline('sort', 'uniq -c', "sed -r #{regex}", options_hash)
     status_list.each do |status|
       if not status.success?
-        @logger.error "Error generating cooccurrence counts file for #{@res.acronym}: #{status.to_s}"
+        @logger.error "Error generating co-frequency counts file for #{@res.acronym}: #{status.to_s}"
       end
     end
   end

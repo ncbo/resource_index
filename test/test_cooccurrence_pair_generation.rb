@@ -3,8 +3,8 @@ require 'csv'
 
 class RI::TestCooccurrencePairGeneration < RI::TestCase
 
-  def test_label_pair_generation
-    known_label_pairs = [
+  def test_cofreqs_generation
+    known_cofreqs = [
       ["west", "sorcerer"],
       ["west", "sorcerer"],
       ["witch", "east"],
@@ -13,50 +13,50 @@ class RI::TestCooccurrencePairGeneration < RI::TestCase
       ["witch", "west"]
     ]
 
-    mgr = populate(write_label_pairs: true)
-    label_pairs_path = mgr.label_pairs_path
-    assert File.file?(label_pairs_path)
-    assert_equal(known_label_pairs.size, File.foreach(label_pairs_path).count)
-    label_pairs = CSV.read(label_pairs_path, col_sep: "\t")
-    assert_equal(known_label_pairs.sort, label_pairs.sort)
+    mgr = populate(write_cofreqs: true)
+    path = mgr.cofreqs_path()
+    assert File.file?(path)
+    assert_equal(known_cofreqs.size, File.foreach(path).count)
+    cofreqs = CSV.read(path, col_sep: "\t")
+    assert_equal(known_cofreqs.sort, cofreqs.sort)
   end
 
-  def test_cooccurrence_counts_generation
-    known_counts = [
+  def test_cofreqs_counts_generation
+    known_cofreqs_counts = [
       ["2", "west", "sorcerer"],
       ["1", "witch", "east"],
       ["1", "witch", "sorcerer"],
       ["2", "witch",  "west"]
     ]
 
-    mgr = populate(write_label_pairs: true)
-    cooccurrence_path = mgr.cooccurrence_counts_path
-    assert File.file?(cooccurrence_path)
-    assert_equal(known_counts.size, File.foreach(cooccurrence_path).count)
+    mgr = populate(write_cofreqs: true)
+    path = mgr.cofreqs_counts_path()
+    assert File.file?(path)
+    assert_equal(known_cofreqs_counts.size, File.foreach(path).count)
     
-    cooccurrence_counts = CSV.read(cooccurrence_path, col_sep: "\t")
+    cofreqs_counts = CSV.read(path, col_sep: "\t")
     # Adjust data format from uniq'd file for easier comparison.
-    cooccurrence_counts.map { |row| row.first.strip! }
-    assert_equal(known_counts.sort, cooccurrence_counts.sort)
+    cofreqs_counts.map { |row| row.first.strip! }
+    assert_equal(known_cofreqs_counts.sort, cofreqs_counts.sort)
   end
 
   def teardown
     mgr = RI::Population::Manager.new(RI::Resource.find("WITCH"), mgrep_client: MockMGREPClient.new)
     settings = mgr.settings
-    FileUtils.rm_rf(settings.cooccurrence_output)
+    FileUtils.rm_rf(settings.extraction_output)
   end
 
   private
 
   def populate(options = {})
-    write_label_pairs = options[:write_label_pairs] == true ? true : false
+    write_cofreqs = options[:write_cofreqs] == true ? true : false
 
     res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
     mgr = RI::Population::Manager.new(res, {
       mgrep_client: mgrep,
       skip_es_storage: true,
-      write_label_pairs: write_label_pairs
+      write_cofreqs: write_cofreqs
     })
     RI.es # triggers delete on teardown
     mgr.populate()
