@@ -41,15 +41,33 @@ class RI::TestExtraction < RI::TestCase
   end
 
   def test_singlets
+    known_singlets = ["witch", "west", "witch", "east", "witch", "west", "sorcerer", "west", "sorcerer"]
+
     mgr = populate(write_singlets: true)
     path = mgr.singlets_path()
     assert File.file?(path)
+    assert_equal(known_singlets.size, File.foreach(path).count)
+    singlets = File.foreach(path).map { |line| line.chomp }
+    assert_equal(known_singlets.sort, singlets.sort)
   end
 
   def test_singlets_counts
+    known_singlets_counts = [
+      ["1", "east"],
+      ["2", "sorcerer"],
+      ["3", "west"],
+      ["3", "witch"]
+    ]
+
     mgr = populate(write_singlets: true)
     path = mgr.singlets_counts_path()
     assert File.file?(path)
+    assert_equal(known_singlets_counts.size, File.foreach(path).count)
+
+    singlets_counts = CSV.read(path, col_sep: "\t")
+    # Adjust data format from uniq'd file for easier comparison.
+    singlets_counts.map { |row| row.first.strip! }
+    assert_equal(known_singlets_counts.sort, singlets_counts.sort)
   end
 
   def teardown

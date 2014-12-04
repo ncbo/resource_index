@@ -54,10 +54,11 @@ module RI::Population::Indexing
               annotations[:ancestors].merge(ancestors) if ancestors
             end
 
-            # Write data to file for co-occurence calculation
-            if @settings.write_cofreqs
-              write_cofreqs(labels)
-            end
+            # Write data to file for co-frequency counts calculation
+            write_cofreqs(labels)
+
+            # Write data to file for singleton counts calculation
+            write_singlets(labels)
 
             # Switch the annotaions to an array
             index_doc[:annotations] = annotations
@@ -180,6 +181,13 @@ module RI::Population::Indexing
       for j in 0...i
         @mutex_cofreqs.synchronize { @cofreqs_file.puts(sorted_labels[i] + "\t" + sorted_labels[j]) }
       end
+    end
+  end
+
+  def write_singlets(labels)
+    return unless @settings.write_singlets
+    labels.each do |label|
+      @mutex_singlets.synchronize { @singlets_file.puts(label) }
     end
   end
 

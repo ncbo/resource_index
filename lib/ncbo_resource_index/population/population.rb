@@ -51,6 +51,7 @@ class RI::Population::Manager
     @label_converter       = RI::Population::LabelConverter.new(s.annotator_redis_host, s.annotator_redis_port)
     @mutex                 = Mutex.new
     @mutex_cofreqs         = Mutex.new
+    @mutex_singlets        = Mutex.new
     @es_queue              = []
     @time                  = Time.at(opts[:time_int] || Time.now)
 
@@ -138,12 +139,13 @@ class RI::Population::Manager
 
       if @settings.write_cofreqs
         @cofreqs_file.close
-        write_cofreqs_counts()
+        write_counts(cofreqs_path(), cofreqs_counts_path())
         @cofreqs_counts_file.close
       end
 
       if settings.write_singlets
         @singlets_file.close
+        write_counts(singlets_path(), singlets_counts_path())
         @singlets_counts_file.close
       end
 
@@ -193,8 +195,8 @@ class RI::Population::Manager
     File.join(extraction_dir(), index_id() + '_cofreqs_counts.tsv')
   end
 
-  def write_cofreqs_counts
-    options_hash = { in: "#{cofreqs_path()}", out: "#{cofreqs_counts_path()}" }
+  def write_counts(input, output)
+    options_hash = { in: "#{input}", out: "#{output}" }
 
     # Using this regular expression in a sed command requires GNU sed. Won't work with OS X BSD sed.
     regex = '\'s/^([[:space:]]+[0-9]+)([[:space:]])/\1\t/\''
@@ -202,7 +204,7 @@ class RI::Population::Manager
     status_list = Open3.pipeline('sort', 'uniq -c', "sed -r #{regex}", options_hash)
     status_list.each do |status|
       if not status.success?
-        @logger.error "Error generating co-frequency counts file for #{@res.acronym}: #{status.to_s}"
+        @logger.error "Error generating #{output} for #{@res.acronym}: #{status.to_s}"
       end
     end
   end
