@@ -3,13 +3,8 @@ require_relative 'class'
 module RI::Population
   class LabelConverter
     IDPREFIX = lambda {|prefix| "#{prefix}term:"}
-    KEY_STORAGE = lambda {|prefix| "#{prefix}annotator:keys"}
-    CHUNK_SIZE = 500_000
     REDIS_PREFIX_KEY = "current_instance"
     REDIS_INSTANCE_VAL = ["c1:", "c2:"]
-    OCCURRENCE_DELIM = "|"
-    LABEL_DELIM = ","
-    DATA_TYPE_DELIM = "@@"
 
     def initialize(redis_host, redis_port)
       @redis = Redis.new(:host => redis_host,
@@ -26,12 +21,14 @@ module RI::Population
     end
 
     def redis_current_instance()
-      # TODO: this is a hack code to allow a seamless transition
-      # from a single instance of cache to a redundant (double) cache
-      # this code is to be removed in a subsequent release
-      return "" unless redis.exists(REDIS_PREFIX_KEY)
-      # END hack code
-      return redis.get(REDIS_PREFIX_KEY) || REDIS_INSTANCE_VAL[0]
+      redis = redis()
+      cur_inst = redis.get(REDIS_PREFIX_KEY)
+
+      if (cur_inst.nil?)
+        cur_inst = REDIS_INSTANCE_VAL.first
+      end
+
+      return cur_inst
     end
 
     def convert(mgrep_matches, annotations)
