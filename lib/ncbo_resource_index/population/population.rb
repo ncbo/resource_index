@@ -199,11 +199,9 @@ class RI::Population::Manager
     # Using this regular expression in a sed command requires GNU sed. Won't work with OS X BSD sed.
     regex = '\'s/^([[:space:]]+[0-9]+)([[:space:]])/\1\t/\''
 
-    status_list = Open3.pipeline("cat #{input}", 'sort', 'uniq -c', "sed -r #{regex} > #{output}")
-    status_list.each do |status|
-      if not status.success?
-        @logger.error "Error generating #{output} for #{@res.acronym}: #{status.to_s}"
-      end
+    `sort #{input} | uniq -c | sed -r #{regex} > #{output}`
+    if not $?.success?
+      @logger.error "Error generating #{output} for #{@res.acronym}: #{$?.to_s}"
     end
   end
 
