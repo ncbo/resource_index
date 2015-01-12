@@ -134,18 +134,32 @@ class RI::Population::Manager
         create_index()
       end
 
-      @logger.debug "Processing documents"
+      @logger.debug "Processing documents for #{@res.acronym}"
       index_documents(@settings.starting_offset)
 
       if @settings.write_cofreqs
+        @logger.debug "Writing co-frequency counts to disk for #{@res.acronym}"
         @cofreqs_file.close
+
+        cofreq_counts_time = 0
+        cofreq_counts_start = Time.now
         write_counts(cofreqs_path(), cofreqs_counts_path())
+        cofreq_counts_time = Time.now - cofreq_counts_start
+        @logger.debug "Co-frequency counts time: #{cofreq_counts_time.to_f.round(2)}s"
+        
         @cofreqs_counts_file.close
       end
 
       if settings.write_singlets
+        @logger.debug "Writing singleton counts to disk for #{@res.acronym}"
         @singlets_file.close
+
+        singlets_counts_time = 0
+        singlets_start_time = Time.now
         write_counts(singlets_path(), singlets_counts_path())
+        singlets_counts_time = Time.now - singlets_start_time
+        @logger.debug "Singleton counts time: #{singlets_counts_time.to_f.round(2)}s"
+
         @singlets_counts_file.close
       end
 

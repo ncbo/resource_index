@@ -175,19 +175,29 @@ module RI::Population::Indexing
 
   def write_cofreqs(labels)
     return unless @settings.write_cofreqs
+    count = 0
     sorted_labels = labels.sort
     size = sorted_labels.size
     for i in 0...size
       for j in 0...i
-        @mutex_cofreqs.synchronize { @cofreqs_file.puts(sorted_labels[i] + "\t" + sorted_labels[j]) }
+        @mutex_cofreqs.synchronize { 
+          @cofreqs_file.puts(sorted_labels[i] + "\t" + sorted_labels[j])
+          count += 1
+          @logger.debug "Co-frequency count: #{count}" if count % 500 == 0
+        }
       end
     end
   end
 
   def write_singlets(labels)
     return unless @settings.write_singlets
+    count = 0
     labels.each do |label|
-      @mutex_singlets.synchronize { @singlets_file.puts(label) }
+      @mutex_singlets.synchronize { 
+        @singlets_file.puts(label)
+        count += 1
+        @logger.debug "Singleton count: #{count}" if count % 100 == 0
+      }
     end
   end
 
