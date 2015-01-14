@@ -27,7 +27,9 @@ class RI::Population::LabelConverter
   end
 
   def convert_all
-    path = File.join(Dir.pwd, 'expansion_results', 'label_expansion.tsv')
+    dirname = File.join(Dir.pwd, 'expansion_results')
+    FileUtils.mkdir_p(dirname) unless Dir.exist?(dirname)
+    path = File.join(dirname, 'label_expansion.tsv')
     expansion_file = File.new(path, 'w')
 
     DICTIONARY.each do |k,v|
