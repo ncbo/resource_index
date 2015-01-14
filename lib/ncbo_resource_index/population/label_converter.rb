@@ -33,6 +33,11 @@ module RI::Population
       return cur_inst
     end
 
+    def get_dictionary_entries
+      cur_inst = redis_current_instance()
+      return redis.hgetall("#{cur_inst}dict")
+    end
+
     def convert(mgrep_matches, annotations)
       cur_inst = redis_current_instance()
       redis_data = {}
@@ -87,11 +92,10 @@ module RI::Population
       expansion_file = File.new(expansion_path(), 'w:UTF-8')
       expansion_file_sorted = File.new(expansion_path_sorted(), 'w:UTF-8')
 
-      # Figure out which redis
-      cur_inst = redis_current_instance()
-      
-      # Get all terms from the dictionary
-      dictionary_entries = redis.hgetall("#{cur_inst}dict")
+      # Get all terms
+      dictionary_entries = get_dictionary_entries()
+
+      binding.pry
 
       # Write classes to disk
       dictionary_entries.each do |entry|
