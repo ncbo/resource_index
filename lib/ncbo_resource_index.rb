@@ -13,6 +13,7 @@ require 'ncbo_resource_index/document'
 require 'ncbo_resource_index/multi_search'
 require 'ncbo_resource_index/population/population'
 require 'ncbo_resource_index/population/document'
+require 'ncbo_resource_index/population/annotation_counter'
 
 module ResourceIndex
   HASH_SEED = 112233
