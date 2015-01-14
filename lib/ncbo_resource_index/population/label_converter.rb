@@ -95,8 +95,6 @@ module RI::Population
       # Get all terms
       dictionary_entries = get_dictionary_entries()
 
-      binding.pry
-
       # Write classes to disk
       dictionary_entries.each do |entry|
         label = entry.last.gsub(/[\r\n\t]/, '')
