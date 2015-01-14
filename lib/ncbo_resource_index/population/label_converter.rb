@@ -1,3 +1,5 @@
+require 'logger'
+require 'open3'
 require_relative 'class'
 
 module RI::Population
@@ -61,6 +63,58 @@ module RI::Population
       end
 
       return classes
+    end
+
+    def expansion_dir
+      dirname = File.join(Dir.pwd, 'expansion_results')
+      FileUtils.mkdir_p(dirname) unless Dir.exist?(dirname)
+      return dirname
+    end
+
+    def expansion_path
+      return File.join(expansion_dir(), 'label_expansion.tsv')
+    end
+
+    def expansion_path_sorted
+      return File.join(expansion_dir(), 'label_expansion_sorted.tsv')
+    end
+
+    def convert_all
+      logger = Logger.new(STDOUT)
+      logger.level = Logger::INFO
+
+      # Create output files
+      expansion_file = File.new(expansion_path(), 'w:UTF-8')
+      expansion_file_sorted = File.new(expansion_path_sorted(), 'w:UTF-8')
+
+      # Figure out which redis
+      cur_inst = redis_current_instance()
+      
+      # Get all terms from the dictionary
+      dictionary_entries = redis.hgetall("#{cur_inst}dict")
+
+      # Write classes to disk
+      dictionary_entries.each do |entry|
+        label = entry.last.gsub(/[\r\n\t]/, '')
+        classes = redis.hgetall(entry.first)
+        classes.each do |id, ont|
+          # Possible ontology acronym formats: 
+          # "SYN,http://data.bioontology.org/ontologies/ONTOAD"
+          # "PREF,http://data.bioontology.org/ontologies/SCTSPA"
+          # "PREF,http://data.bioontology.org/ontologies/SNOMEDCT@@T047"
+          acronym = ont.split('/').last.split('@@').first
+          expansion_file.puts(label + "\t" + acronym + "\t" + id)
+        end
+      end
+
+      # Sort the output file
+      stdout, stderr, status = Open3.capture3("sort #{File.path(expansion_file)} > #{File.path(expansion_file_sorted)}")
+      if not status.success?
+        logger.error "Error generating sorted label expansion file: #{stderr}"
+      end
+
+      expansion_file.close
+      expansion_file_sorted.close
     end
   end
 end
