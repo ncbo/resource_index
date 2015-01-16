@@ -15,7 +15,7 @@ module RI::Population::Elasticsearch
   def alias_index
     previous = (@es.indices.get_alias name: @res.acronym).keys.first rescue nil # get the prior index
     @es.indices.put_alias index: previous, name: "#{@res.acronym}_previous" if previous # add RES_previous alias for easy rollback
-    old_aliases = @es.indices.get_aliases.select {|k,v| v["aliases"].key?(@res.acronym)} # list of anything else with the alias (safety check)
+    old_aliases = @es.indices.get_aliases.select {|k,v| v["aliases"] && v["aliases"].key?(@res.acronym)} # list of anything else with the alias (safety check)
     old_aliases.each {|k,v| @es.indices.delete_alias index: k, name: @res.acronym} # delete the old stuff
     @es.indices.put_alias index: index_id, name: @res.acronym # name new index
     @es.indices.delete_alias index: index_id, name: "#{@res.acronym}_populating" # remove populating
