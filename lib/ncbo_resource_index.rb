@@ -60,6 +60,19 @@ module ResourceIndex
     MultiSearch.new.concept_docs(hashes, opts)
   end
 
+  def self.counts
+    query = {
+      sort: {
+        time: {
+          order: "desc"
+        }
+      },
+      from: 0,
+      size: 1
+    }
+    @es.search(index: :counts, body: query)
+  end
+
   private
 
   def self.setup_sql_client
