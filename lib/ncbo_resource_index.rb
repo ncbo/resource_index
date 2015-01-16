@@ -70,7 +70,18 @@ module ResourceIndex
       from: 0,
       size: 1
     }
-    @es.search(index: :counts, body: query)
+    begin
+      results = @es.search(index: :counts, body: query)["hits"]["hits"][0]["_source"]
+    rescue
+      # Default data in case the query above fails or the calculation hasn't been run
+      # This data was taken from calculations run in Jan 2015
+      results = {
+        raw: {},
+        total: {direct: 74455182918, ancestors: 135753841736},
+        time: "2015-01-16T19:36:59Z"
+      }
+    end
+    results
   end
 
   private
