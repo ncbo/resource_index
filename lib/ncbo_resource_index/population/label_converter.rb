@@ -38,6 +38,25 @@ module RI::Population
       return redis.hgetall("#{cur_inst}dict")
     end
 
+    def get_acronyms(ontology_ids)
+      # Possible acronym formats from Redis: 
+      # PREF,http://data.bioontology.org/ontologies/ABA-AMB
+      # PREF,http://data.bioontology.org/ontologies/AERO|PREF,http://data.bioontology.org/ontologies/NEOMARK4
+      # PREF,http://data.bioontology.org/ontologies/AI-RHEUM@@T020
+      # PREF,http://data.bioontology.org/ontologies/AI-RHEUM@@T047,T190
+      # PREF,http://data.bioontology.org/ontologies/EFO|SYN,http://data.bioontology.org/ontologies/MP
+      # SYN,http://data.bioontology.org/ontologies/AERO
+      # SYN,http://data.bioontology.org/ontologies/AI-RHEUM@@T047
+      # SYN,http://data.bioontology.org/ontologies/GCC|SYN,http://data.bioontology.org/ontologies/SNOMEDCT@@T033
+
+      acronyms = []
+      ontologies = ontology_ids.split('|')
+      ontologies.each do |ont|
+        acronyms << ont.split('/').last.split('@@').first
+      end
+      return acronyms
+    end
+
     def convert(mgrep_matches, annotations)
       cur_inst = redis_current_instance()
       redis_data = {}
@@ -59,11 +78,10 @@ module RI::Population
         class_matches = redis_data[id].value
 
         class_matches.each do |class_id, vals|
-          ontology_id = vals.split(",")[1].split("@@").first
-          # ID comes back like this: http://data.bioontology.org/ontologies/NCIT|SYN
-          # OR http://data.bioontology.org/ontologies/NCIT|PREF
-          acronym = ontology_id.split("/").last.split("|").first
-          classes << RI::Population::Class.new(class_id, acronym, annotation.value, string_id)
+          acronyms = get_acronyms(vals)
+          acronyms.each do |acronym|
+            classes << RI::Population::Class.new(class_id, acronym, annotation.value, string_id)
+          end
         end
       end
 
@@ -96,16 +114,14 @@ module RI::Population
       dictionary_entries = get_dictionary_entries()
 
       # Write classes to disk
-      dictionary_entries.each do |entry|
-        label = entry.last.gsub(/[\r\n\t]/, '')
-        classes = redis.hgetall(entry.first)
-        classes.each do |id, ont|
-          # Possible ontology acronym formats: 
-          # "SYN,http://data.bioontology.org/ontologies/ONTOAD"
-          # "PREF,http://data.bioontology.org/ontologies/SCTSPA"
-          # "PREF,http://data.bioontology.org/ontologies/SNOMEDCT@@T047"
-          acronym = ont.split('/').last.split('@@').first
-          expansion_file.puts(label + "\t" + acronym + "\t" + id)
+      dictionary_entries.each do |key, val|
+        label = val.gsub(/[\r\n\t]/, '')
+        classes = redis.hgetall(key)
+        classes.each do |id, onts|
+          acronyms = get_acronyms(onts)
+          acronyms.each do |acronym|
+            expansion_file.puts(label + "\t" + acronym + "\t" + id)
+          end
         end
       end
 
