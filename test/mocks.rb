@@ -25,6 +25,29 @@ class RI::Population::LabelConverter
     end
     classes
   end
+
+  def convert_all
+    dirname = File.join(Dir.pwd, 'expansion_results')
+    FileUtils.mkdir_p(dirname) unless Dir.exist?(dirname)
+    path = File.join(dirname, 'label_expansion.tsv')
+    expansion_file = File.new(path, 'w')
+
+    DICTIONARY.each do |k,v|
+      label = k
+      classes = LABEL_ID_TO_CLASS_MAP[v]
+      classes.each do |cls|
+        acronym = cls.first
+        id = cls.last
+        expansion_file.puts(label + "\t" + acronym + "\t" + id)
+      end
+    end
+    expansion_file.close
+
+    sorted_path = File.join(Dir.pwd, 'expansion_results', 'label_expansion_sorted.tsv')
+    expansion_file_sorted = File.new(sorted_path, 'w')
+    Open3.capture3("sort #{path} > #{sorted_path}")
+    expansion_file_sorted.close
+  end
 end
 
 module MockMGREP
