@@ -1,26 +1,26 @@
 ##
 # Test data for use in populations so we don't need redis, mgrep, 4store, etc
 
-# This is the dictionary used to mock MGREP responses (label => string_id)
-DICTIONARY = {"WITCH" => 1659609209, "WEST" => 4234099798, "EAST" => 21367710, "SORCERER" => 2571402480}
+# This is the dictionary used to mock MGREP responses (string_id => label)
+DICTIONARY = { 1659609209 => "WITCH", 4234099798 => "WEST", 21367710 => "EAST", 2571402480 => "SORCERER" }
 
-# This is a hash used to mock the annotator cache (string id => array of ontology acronym/class id pairs)
+# This is a hash used to mock the annotator cache (string id => hash of class_id/ontology_acronym pairs)
 LABEL_ID_TO_CLASS_MAP = {
-  1659609209 => [
-    ["NCBITAXON", "http://purl.obolibrary.org/obo/NCBITaxon_34819"],
-    ["VTO", "http://purl.obolibrary.org/obo/VTO_0055684"],
-    ["ATMO", "http://purl.obolibrary.org/obo/ATM_00010"]
-  ],
-  4234099798 => [
-    ["NCIT", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C45852"]
-  ],
-  21367710 => [
-    ["CCO", "http://purl.obolibrary.org/obo/NCBIGene_46006"],
-    ["NCIT", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C45851"]
-  ],
-  2571402480 => [
-    ["ATMO", "http://purl.obolibrary.org/obo/ATM_00010"]
-  ]
+  1659609209 => { # WITCH
+    "http://purl.obolibrary.org/obo/VTO_0055684" => "SYN,http://data.bioontology.org/ontologies/VTO",
+    "http://purl.obolibrary.org/obo/ATM_00010" => "PREF,http://data.bioontology.org/ontologies/ATMO",
+    "http://purl.obolibrary.org/obo/NCBITaxon_34819" => "PREF,http://data.bioontology.org/ontologies/NCBITAXON"
+  },
+  4234099798 => { # WEST
+    "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C45852" => "PREF,http://data.bioontology.org/ontologies/NCIT"
+  },
+  21367710 => { # EAST
+    "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C45851" => "PREF,http://data.bioontology.org/ontologies/NCIT",
+    "http://purl.obolibrary.org/obo/NCBIGene_46006" => "PREF,http://data.bioontology.org/ontologies/CCO"
+  },
+  2571402480 => { # SORCERER
+    "http://purl.obolibrary.org/obo/ATM_00010" => "SYN,http://data.bioontology.org/ontologies/ATMO"
+  }
 }
 
 # A list of all of the XXHASH ids produced by the classes from above

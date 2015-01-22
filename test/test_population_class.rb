@@ -2,12 +2,12 @@ require 'set'
 require_relative 'test_case'
 
 HASHED_CLASSES = {
-  2135716011 => ["NCBITAXON", "http://purl.obolibrary.org/obo/NCBITaxon_34819"],
-  2957120221 => ["VTO", "http://purl.obolibrary.org/obo/VTO_0055684"],
-  921784164  => ["ATMO", "http://purl.obolibrary.org/obo/ATM_00010"],
-  3305416963 => ["NCIT", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C45852"],
-  560039333  => ["CCO", "http://purl.obolibrary.org/obo/NCBIGene_46006"],
-  1829708204 => ["NCIT", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C45851"]
+  2135716011 => ["http://purl.obolibrary.org/obo/NCBITaxon_34819", "PREF,http://data.bioontology.org/ontologies/NCBITAXON"],
+  2957120221 => ["http://purl.obolibrary.org/obo/VTO_0055684", "SYN,http://data.bioontology.org/ontologies/VTO"],
+  921784164  => ["http://purl.obolibrary.org/obo/ATM_00010", "SYN,http://data.bioontology.org/ontologies/ATMO"],
+  3305416963 => ["http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C45852", "PREF,http://data.bioontology.org/ontologies/NCIT"],
+  560039333  => ["http://purl.obolibrary.org/obo/NCBIGene_46006", "PREF,http://data.bioontology.org/ontologies/CCO"],
+  1829708204 => ["http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C45851", "PREF,http://data.bioontology.org/ontologies/NCIT"]
 }
 
 class RI::TestPopulationClass < RI::TestCase
@@ -22,17 +22,19 @@ class RI::TestPopulationClass < RI::TestCase
   def test_class_equivalence
     set = Set.new
     hash = Hash.new
-    LABEL_ID_TO_CLASS_MAP.values.flatten(1).each do |ids|
-      a = class_from_ids(ids)
-      b = class_from_ids(ids)
-      assert a == b
-      assert a.eql?(b)
-      assert b == a
-      assert b.eql?(a)
-      set << a
-      set << b
-      hash[a] = true
-      hash[b] = false
+    LABEL_ID_TO_CLASS_MAP.values.each do |class_hash|
+      class_hash.each do |class_data|
+        a = class_from_ids(class_data)
+        b = class_from_ids(class_data)
+        assert a == b
+        assert a.eql?(b)
+        assert b == a
+        assert b.eql?(a)
+        set << a
+        set << b
+        hash[a] = true
+        hash[b] = false
+      end
     end
     assert set.length == classes().length
     assert hash.length == classes().length
@@ -44,14 +46,17 @@ class RI::TestPopulationClass < RI::TestCase
   def classes
     return @classes if @classes
     @classes = Set.new
-    LABEL_ID_TO_CLASS_MAP.values.flatten(1).each do |ids|
-      @classes << class_from_ids(ids)
+    LABEL_ID_TO_CLASS_MAP.values.each do |classes_hash|
+      classes_hash.each do |class_data|
+        @classes << class_from_ids(class_data)
+      end
     end
     @classes
   end
 
   def class_from_ids(ids)
-    acronym, cls_id = ids
+    cls_id = ids.first
+    acronym = ids.last.split('/').last
     return RI::Population::Class.new(cls_id, acronym)
   end
 

@@ -52,14 +52,17 @@ class RI::TestClass < RI::TestCase
   def classes
     return @classes if @classes
     @classes = Set.new
-    LABEL_ID_TO_CLASS_MAP.values.flatten(1).each do |ids|
-      @classes << class_from_ids(ids)
+    LABEL_ID_TO_CLASS_MAP.values.each do |classes_hash|
+      classes_hash.each do |class_data|
+        @classes << class_from_ids(class_data)
+      end
     end
     @classes
   end
 
   def class_from_ids(ids)
-    acronym, cls_id = ids
+    cls_id = ids.first
+    acronym = ids.last.split('/').last
     ont = MockLinkedDataOntology.new(acronym)
     sub = MockLinkedDataSubmission.new(ont)
     return MockLinkedDataClass.new(cls_id, sub)
