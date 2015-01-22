@@ -38,6 +38,10 @@ module RI::Population
       return redis.hgetall("#{cur_inst}dict")
     end
 
+    def get_classes(key)
+      return redis.hgetall(key)
+    end
+
     def get_acronyms(ontology_ids)
       # Possible acronym formats from Redis: 
       # PREF,http://data.bioontology.org/ontologies/ABA-AMB
@@ -116,7 +120,7 @@ module RI::Population
       # Write classes to disk
       dictionary_entries.each do |key, val|
         label = val.gsub(/[\r\n\t]/, '')
-        classes = redis.hgetall(key)
+        classes = get_classes(key)
         classes.each do |id, onts|
           acronyms = get_acronyms(onts)
           acronyms.each do |acronym|
@@ -124,6 +128,7 @@ module RI::Population
           end
         end
       end
+      expansion_file.fsync
 
       # Sort the output file
       stdout, stderr, status = Open3.capture3("sort #{File.path(expansion_file)} > #{File.path(expansion_file_sorted)}")
