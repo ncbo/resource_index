@@ -15,14 +15,15 @@ module RI::Population::Indexing
     begin
       es_threads = []
       count = offset || 0
-      all_documents = RI::Population::Document.all(@res, {offset: count}, @mutex)
-      documents = all_documents.select { |doc| doc.id % @settings.sample_size == 0 }
+      documents = RI::Population::Document.all(@res, {offset: count}, @mutex)
 
       # We add code blocks to the lazy enumerable here
       # the code isn't evaluated until you call .to_a or .each
       # or otherwise force the enumerable to be eval'ed
       threads = documents.collect do |doc|
         Thread.new do
+          next if doc.id % @settings.sample_size != 0
+
           annotation_time = 0
           ancestors_time = 0
           retry_count = 0
