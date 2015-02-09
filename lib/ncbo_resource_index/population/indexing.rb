@@ -15,7 +15,8 @@ module RI::Population::Indexing
     begin
       es_threads = []
       count = offset || 0
-      documents = RI::Population::Document.all(@res, {offset: count}, @mutex)
+      all_documents = RI::Population::Document.all(@res, {offset: count}, @mutex)
+      documents = all_documents.select { |doc| doc.id % @settings.sample_size == 0 }
 
       # We add code blocks to the lazy enumerable here
       # the code isn't evaluated until you call .to_a or .each

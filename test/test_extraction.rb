@@ -40,6 +40,37 @@ class RI::TestExtraction < RI::TestCase
     assert_equal(known_cofreqs_counts.sort, cofreqs_counts.sort)
   end
 
+  def test_cofreqs_sampled
+    known_cofreqs = [
+      ["witch", "east"],
+      ["west", "sorcerer"]
+    ]
+
+    mgr = populate(write_cofreqs: true, sample_size: 2)
+    path = mgr.cofreqs_path()
+    assert File.file?(path)
+    assert_equal(known_cofreqs.size, File.foreach(path).count)
+    cofreqs = CSV.read(path, col_sep: "\t")
+    assert_equal(known_cofreqs.sort, cofreqs.sort)
+  end
+
+  def test_cofreqs_counts_sampled
+    known_cofreqs_counts = [
+      ["1", "west", "sorcerer"],
+      ["1", "witch", "east"],
+    ]
+
+    mgr = populate(write_cofreqs: true, sample_size: 2)
+    path = mgr.cofreqs_counts_path()
+    assert File.file?(path)
+    assert_equal(known_cofreqs_counts.size, File.foreach(path).count)
+    
+    cofreqs_counts = CSV.read(path, col_sep: "\t")
+    # Adjust data format from uniq'd file for easier comparison.
+    cofreqs_counts.map { |row| row.first.strip! }
+    assert_equal(known_cofreqs_counts.sort, cofreqs_counts.sort)
+  end
+
   def test_singlets
     known_singlets = ["witch", "west", "witch", "east", "witch", "west", "sorcerer", "west", "sorcerer"]
 
@@ -70,6 +101,36 @@ class RI::TestExtraction < RI::TestCase
     assert_equal(known_singlets_counts.sort, singlets_counts.sort)
   end
 
+  def test_singlets_sampled
+    known_singlets = ["witch", "east", "west", "sorcerer"]
+
+    mgr = populate(write_singlets: true, sample_size: 2)
+    path = mgr.singlets_path()
+    assert File.file?(path)
+    assert_equal(known_singlets.size, File.foreach(path).count)
+    singlets = File.foreach(path).map { |line| line.chomp }
+    assert_equal(known_singlets.sort, singlets.sort)
+  end
+
+  def test_singlets_counts_sampled
+    known_singlets_counts = [
+      ["1", "east"],
+      ["1", "sorcerer"],
+      ["1", "west"],
+      ["1", "witch"]
+    ]
+
+    mgr = populate(write_singlets: true, sample_size: 2)
+    path = mgr.singlets_counts_path()
+    assert File.file?(path)
+    assert_equal(known_singlets_counts.size, File.foreach(path).count)
+
+    singlets_counts = CSV.read(path, col_sep: "\t")
+    # Adjust data format from uniq'd file for easier comparison.
+    singlets_counts.map { |row| row.first.strip! }
+    assert_equal(known_singlets_counts.sort, singlets_counts.sort)
+  end
+
   def teardown
     mgr = RI::Population::Manager.new(RI::Resource.find("WITCH"), mgrep_client: MockMGREPClient.new)
     settings = mgr.settings
@@ -81,6 +142,7 @@ class RI::TestExtraction < RI::TestCase
   def populate(options = {})
     write_cofreqs = options[:write_cofreqs] == true ? true : false
     write_singlets = options[:write_singlets] == true ? true : false
+    sample_size = options[:sample_size] || 1
 
     res = RI::Resource.find("WITCH")
     mgrep = MockMGREPClient.new
@@ -88,7 +150,8 @@ class RI::TestExtraction < RI::TestCase
       mgrep_client: mgrep,
       skip_es_storage: true,
       write_cofreqs: write_cofreqs,
-      write_singlets: write_singlets
+      write_singlets: write_singlets,
+      sample_size: sample_size
     })
     RI.es # triggers delete on teardown
     mgr.populate()

@@ -41,6 +41,7 @@ class RI::Population::Manager
     s.write_singlets       = opts[:write_singlets]
     s.write_cofreqs        = opts[:write_cofreqs]
     s.extraction_output    = opts[:extraction_output] || File.join(Dir.pwd, 'extraction_results')
+    s.sample_size          = opts[:sample_size] || 1
 
     s.es_hosts = s.es_hosts.is_a?(Array) ? s.es_hosts : [s.es_hosts]
 
@@ -148,6 +149,7 @@ class RI::Population::Manager
         @logger.info "Co-frequency counts time: #{cofreq_counts_time.to_f.round(2)}s"
         
         @cofreqs_counts_file.close
+        write_sampling_info()
       end
 
       if settings.write_singlets
@@ -161,6 +163,7 @@ class RI::Population::Manager
         @logger.info "Singleton counts time: #{singlets_counts_time.to_f.round(2)}s"
 
         @singlets_counts_file.close
+        write_sampling_info()
       end
 
       unless @settings.skip_es_storage
@@ -216,6 +219,16 @@ class RI::Population::Manager
     `sort #{input} | uniq -c | sed -r #{regex} > #{output}`
     if not $?.success?
       @logger.error "Error generating #{output} for #{@res.acronym}: #{$?.to_s}"
+    end
+  end
+
+  def write_sampling_info
+    path = File.join(extraction_dir(), index_id() + '_sampling_info.txt')
+    FileUtils.mkdir_p(File.dirname(path))
+    File.open(path, 'w') do |f|
+      f.puts "Acronym: #{@res.acronym}"
+      f.puts "Total documents: #{@res.count}"
+      f.puts "Sample size: #{@settings.sample_size}"
     end
   end
 
