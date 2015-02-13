@@ -228,7 +228,7 @@ class RI::Population::Manager
     File.open(path, 'w') do |f|
       f.puts "Acronym: #{@res.acronym}"
       f.puts "Total documents: #{@res.count}"
-      f.puts "Sample size: #{@settings.sample_size}"
+      f.puts "Sampling rate: #{@settings.sample_size}"
     end
   end
 
