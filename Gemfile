@@ -3,8 +3,8 @@ source 'https://rubygems.org'
 gemspec
 
 # Goo dependencies
-gem 'goo', github: 'ncbo/goo', branch: 'staging'
-gem 'sparql-client', github: 'ncbo/sparql-client', branch: 'staging'
+gem 'goo', github: 'ncbo/goo', branch: 'master'
+gem 'sparql-client', github: 'ncbo/sparql-client', branch: 'master'
 gem 'cube-ruby'
 gem 'activesupport'
 
