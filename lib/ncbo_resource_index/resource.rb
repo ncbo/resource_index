@@ -73,7 +73,7 @@ module ResourceIndex
     # Search for the current index id, not the alias
     # If we find more than one, error (that's bad)
     def current_index_id
-      idx = ResourceIndex.es.indices.get_aliases.select {|index_id,index_meta| index_meta["aliases"] && index_meta["aliases"].key?(@acronym) rescue binding.pry}.map {|index_id,index_meta| index_id}
+      idx = ResourceIndex.es.indices.get_aliases.select {|index_id,index_meta| index_meta["aliases"] && index_meta["aliases"].key?(@acronym)}.map {|index_id,index_meta| index_id}
       raise ArgumentError, "More than one index found for #{@acronym}" if idx.length > 1
       raise ArgumentError, "No index found for #{@acronym}" if idx.length == 0
       return idx.first
