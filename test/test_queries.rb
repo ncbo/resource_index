@@ -33,21 +33,21 @@ class RI::TestQueries < RI::TestCase
 
     ##
     # Test multiple classes in a single doc (via AND)
-    hashes = [560039333, 1829708204]
+    hashes = [WITCH_NCBITAXON, WITCH_VTO]
     docs = res.es_concept_docs(hashes)
     assert_equal 1, docs.length
     assert_equal "2", docs.first["_id"]
 
     ##
     # Test multiple classes in a single doc (via OR)
-    hashes = [3305416963, 921784164]
+    hashes = [WITCH_NCBITAXON, WITCH_VTO]
     docs = res.es_concept_docs(hashes, bool: :should)
     assert_equal 4, docs.length
     assert_equal ["1", "2", "3", "4"].sort, docs.map {|d| d["_id"]}.sort
 
     ##
     # Pass bad options to count query (should still work)
-    hashes = [560039333, 1829708204]
+    hashes = [WITCH_NCBITAXON, 1829708204]
     count = res.es_concept_count(hashes, size: 50, from: 0)
     assert_equal 1, count
   end

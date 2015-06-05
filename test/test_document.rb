@@ -1,7 +1,7 @@
 require 'set'
 require_relative 'test_case'
 
-MORE_THAN_ONE_DOC = Set.new([2135716011, 2957120221, 921784164, 3305416963])
+MORE_THAN_ONE_DOC = Set.new([WITCH_VTO, WITCH_ATMO, WITCH_NCBITAXON, WEST_NCIT])
 
 class RI::TestDocument < RI::TestCase
 

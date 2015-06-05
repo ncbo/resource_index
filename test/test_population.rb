@@ -170,7 +170,6 @@ class RI::TestDocument < RI::TestCase
     assert_equal 4, count["count"]
     aliased_id = @es.indices.get_alias(name: "WITCH").keys.first
     assert_equal @index_id, aliased_id
-    # We shuffle to get random counts here, doing all takes 100 seconds
     CLASS_XXHASH.each do |direct|
       ann_count = DIRECT_ANNOTATION_COUNTS[direct]
       es_count = @es.count index: @index_id, body: direct_query(direct)
