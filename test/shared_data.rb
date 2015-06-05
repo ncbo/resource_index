@@ -1,13 +1,24 @@
 ##
 # Test data for use in populations so we don't need redis, mgrep, 4store, etc
 
+CLASSES = [
+  {label: "witch", id: "http://purl.obolibrary.org/obo/VTO_0055684", ontology: "VTO", xxhash: 3013460282521227082},
+  {label: "witch", id: "http://purl.obolibrary.org/obo/NCBITaxon_34819", ontology: "NCBITAXON", xxhash: 4568071098574572389},
+  {label: "witch", synonym: ["sorcerer"], id: "http://purl.obolibrary.org/obo/ATM_00010", ontology: "ATMO", xxhash: -1771160426063742036},
+  {label: "west", id: "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C45852", ontology: "NCIT", xxhash: 6252615676687880142},
+  {label: "east", id: "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C45851", ontology: "NCIT", xxhash: -3113225438937329629},
+  {label: "east", id: "http://purl.obolibrary.org/obo/NCBIGene_46006", ontology: "CCO", xxhash: -2356912248727987977}
+]
+
+CLASSES.each {|c| Kernel.const_set("#{c[:label]}_#{c[:ontology]}".upcase, c[:xxhash])}
+
 # This is the dictionary used to mock MGREP responses (string_id => label)
 DICTIONARY = { 1659609209 => "WITCH", 4234099798 => "WEST", 21367710 => "EAST", 2571402480 => "SORCERER" }
 
 # This is a hash used to mock the annotator cache (string id => hash of class_id/ontology_acronym pairs)
 LABEL_ID_TO_CLASS_MAP = {
   1659609209 => { # WITCH
-    "http://purl.obolibrary.org/obo/VTO_0055684" => "SYN,http://data.bioontology.org/ontologies/VTO",
+    "http://purl.obolibrary.org/obo/VTO_0055684" => "PREF,http://data.bioontology.org/ontologies/VTO",
     "http://purl.obolibrary.org/obo/ATM_00010" => "PREF,http://data.bioontology.org/ontologies/ATMO",
     "http://purl.obolibrary.org/obo/NCBITaxon_34819" => "PREF,http://data.bioontology.org/ontologies/NCBITAXON"
   },
@@ -25,11 +36,11 @@ LABEL_ID_TO_CLASS_MAP = {
 
 # A list of all of the XXHASH ids produced by the classes from above
 # For the purposes of the tests, these classes and their ancestors are the only classes in BioPortal
-CLASS_XXHASH = [2135716011, 2957120221, 921784164, 3305416963, 560039333, 1829708204]
+CLASS_XXHASH = CLASSES.map {|c| c[:xxhash]}
 
 # The ancestors for the above classes
 XXHASH_TO_ANCESTOR_XXHASH = {
-  2135716011 =>
+  WITCH_VTO =>
     [232061624, 1230672067, 1163287331, 3859148251, 4203259731,
      693853866, 2563377719, 607172277, 1669326367, 1998261360, 1373969471,
      2438883063, 3961879054, 3799322241, 1340533539, 1548750669, 1030780602,
@@ -37,21 +48,21 @@ XXHASH_TO_ANCESTOR_XXHASH = {
      1501807657, 1846285280, 3343464566, 43277846, 821166383, 675582466,
      3917043077, 1872022469, 2730638237, 784370039, 3545131324,
      1154873594, 1937902181, 3834913715],
-  2957120221 =>
+  WITCH_NCBITAXON =>
     [3236881980, 2366864211, 2343622782, 587609268, 127928309, 1188046131,
      2416684808, 988732284, 228868388, 31435392, 3768856267, 3647089701,
      3224761600, 4208738311, 1965813958, 1475106836, 1777292012, 2511237278],
-  921784164 =>
+  WITCH_ATMO =>
     [3093627464],
-  3305416963 =>
+  WEST_NCIT =>
     [2712116084, 3483783616, 3550205860, 418441167, 823727635],
-  560039333 =>
+  EAST_NCIT =>
     [734407967, 1197614048, 1777281735, 3102301245, 1090975899, 869965023],
-  1829708204 =>
+  EAST_CCO =>
     [2712116084, 3483783616, 3550205860, 418441167, 823727635]
 }
 
-DIRECT_ANNOTATION_COUNTS = {2135716011=>3, 2957120221=>3, 921784164=>4, 3305416963=>3, 560039333=>1, 1829708204=>1}
+DIRECT_ANNOTATION_COUNTS = {WITCH_VTO=>3, WITCH_ATMO=>4, WITCH_NCBITAXON=>3, WEST_NCIT=>3, EAST_NCIT=>1, EAST_CCO=>1}
 ANCESTOR_ANNOTATION_COUNTS = {232061624=>3,  1230672067=>3,  1163287331=>3,  3859148251=>3,  4203259731=>3,  693853866=>3,  2563377719=>3,  607172277=>3,  1669326367=>3,  1998261360=>3,  1373969471=>3,  2438883063=>3,  3961879054=>3,  3799322241=>3,  1340533539=>3,  1548750669=>3,  1030780602=>3,  3271036144=>3,  2927342877=>3,  2147605913=>3,  3832956476=>3,  3836248483=>3,  1366574731=>3,  1501807657=>3,  1846285280=>3,  3343464566=>3,  43277846=>3,  821166383=>3,  675582466=>3,  3917043077=>3,  1872022469=>3,  2730638237=>3,  784370039=>3,  3545131324=>3,  1154873594=>3,  1937902181=>3,  3834913715=>3,  3236881980=>3,  2366864211=>3,  2343622782=>3,  587609268=>3,  127928309=>3,  1188046131=>3,  2416684808=>3,  988732284=>3,  228868388=>3,  31435392=>3,  3768856267=>3,  3647089701=>3,  3224761600=>3,  4208738311=>3,  1965813958=>3,  1475106836=>3,  1777292012=>3,  2511237278=>3,  3093627464=>4,  2712116084=>4,  3483783616=>4,  3550205860=>4,  418441167=>4,  823727635=>4,  734407967=>1,  1197614048=>1,  1777281735=>1,  3102301245=>1,  1090975899=>1,  869965023=>1}
 
 # Class information from classes used for manual annotation (see DOCUMENTS_TEST_DATA_WITCH `WITCH_field` column)
@@ -62,12 +73,12 @@ MANUAL_ANNOTATION_CLASSES = [
 
 # A list of the class XXHASHes and the documents that contain them
 XXHASH_TO_DOCS = {
-  2135716011=>["1", "2", "3"],
-  2957120221=>["1", "2", "3"],
-  921784164=>["1", "2", "3", "4"],
-  3305416963=>["1", "3", "4"],
-  560039333=>["2"],
-  1829708204=>["2"]
+  WITCH_VTO=>["1", "2", "3"],
+  WITCH_NCBITAXON=>["1", "2", "3"],
+  WITCH_ATMO=>["1", "2", "3", "4"],
+  WEST_NCIT=>["1", "3", "4"],
+  EAST_NCIT=>["2"],
+  EAST_CCO=>["2"]
 }
 
 # A list of the ancestors for the XXHASH classes and the documents that contain them
