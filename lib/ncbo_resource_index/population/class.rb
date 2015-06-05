@@ -14,13 +14,14 @@ module RI::Population
       if ids.length == 0
         return []
       end
-      ids.lazy.select { |x| !x["owl#Thing"] }.map {|id| XXhash.xxh32(acronym + id, RI::HASH_SEED)}.force
+      ids.lazy.select { |x| !x["owl#Thing"] }.map {|id| @xxhash ||= RI::IntegerHash.signed_hash(acronym + id)}.force
     end
 
-    def xxhash
-      @xxhash ||= XXhash.xxh32(self.ont_acronym + self.id, RI::HASH_SEED)
+    def ihash
+      @xxhash ||= RI::IntegerHash.signed_hash(self.ont_acronym + self.id)
     end
-    alias_method :hash, :xxhash
+    alias_method :hash, :ihash
+    alias_method :xxhash, :ihash
 
     def eql?(comp)
       raise ArgumentError, "Must compare two #{self.class.name}" unless comp.is_a?(self.class)
