@@ -147,7 +147,7 @@ class RI::Population::Manager
         write_counts(cofreqs_path(), cofreqs_counts_path())
         cofreq_counts_time = Time.now - cofreq_counts_start
         @logger.info "Co-frequency counts time: #{cofreq_counts_time.to_f.round(2)}s"
-        
+
         @cofreqs_counts_file.close
         write_sampling_info()
       end

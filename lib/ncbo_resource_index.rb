@@ -28,6 +28,7 @@ module ResourceIndex
     opts[:port]           ||= 3306
     opts[:database]       ||= "resource_index"
     opts[:resource_store] ||= "resource_store"
+    opts[:hash_64bit]     # defaults to nil/false
 
     @opts = opts
     setup_sql_client

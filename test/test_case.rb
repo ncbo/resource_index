@@ -33,7 +33,7 @@ module RI
       Dir.glob(Dir.pwd + "/witch*resume").each {|f| File.delete(f)}
       RI::Population::Document.fail_on_index(false)
       @resource_store = "test_resource_store_#{Time.now.to_i}"
-      RI.config(sqlite: true, resource_store: @resource_store)
+      RI.config(sqlite: true, resource_store: @resource_store, hash_64bit: true)
       RI.db.create_table :obr_resource do
         primary_key :id
         String :name
