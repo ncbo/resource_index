@@ -1,19 +1,12 @@
 require 'set'
 require_relative 'test_case'
 
-HASHED_CLASSES = {
-  2135716011 => ["http://purl.obolibrary.org/obo/NCBITaxon_34819", "PREF,http://data.bioontology.org/ontologies/NCBITAXON"],
-  2957120221 => ["http://purl.obolibrary.org/obo/VTO_0055684", "SYN,http://data.bioontology.org/ontologies/VTO"],
-  921784164  => ["http://purl.obolibrary.org/obo/ATM_00010", "SYN,http://data.bioontology.org/ontologies/ATMO"],
-  3305416963 => ["http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C45852", "PREF,http://data.bioontology.org/ontologies/NCIT"],
-  560039333  => ["http://purl.obolibrary.org/obo/NCBIGene_46006", "PREF,http://data.bioontology.org/ontologies/CCO"],
-  1829708204 => ["http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C45851", "PREF,http://data.bioontology.org/ontologies/NCIT"]
-}
+HASHED_CLASSES = Hash[CLASSES.map {|c| [c[:xxhash], c]}]
 
 class RI::TestPopulationClass < RI::TestCase
   def test_class_hash
-    HASHED_CLASSES.each do |hash, ids|
-      cls = class_from_ids(ids)
+    HASHED_CLASSES.each do |hash, data|
+      cls = class_from_ids([data[:id], data[:ontology]])
       assert_equal hash, cls.xxhash
       assert_equal hash, cls.hash
     end
@@ -54,9 +47,9 @@ class RI::TestPopulationClass < RI::TestCase
     @classes
   end
 
-  def class_from_ids(ids)
-    cls_id = ids.first
-    acronym = ids.last.split('/').last
+  def class_from_ids(cls)
+    cls_id = cls[0]
+    acronym = cls[1]
     return RI::Population::Class.new(cls_id, acronym)
   end
 

@@ -3,9 +3,10 @@
 # It will provide Resource Index specific functionality
 module ResourceIndex
   module Class
-    def xxhash
-      @xxhash ||= XXhash.xxh32(self.submission.ontology.acronym + self.id.to_s, RI::HASH_SEED)
+    def ihash
+      @xxhash ||= RI::IntegerHash.signed_hash(self.submission.ontology.acronym + self.id.to_s)
     end
+    alias :xxhash :ihash
 
     ##
     # Get back counts for a class per resource
