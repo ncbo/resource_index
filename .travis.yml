@@ -4,6 +4,8 @@ rvm:
   - 2.1
 services:
   - elasticsearch
+before_install:
+  - gem update bundler  
 install:
   - bundle install
 script: bundle exec rake test
