@@ -1,5 +1,7 @@
 # NCBO Resource Index
 
+[![Build Status](https://travis-ci.org/ncbo/resource_index.svg?branch=master)](https://travis-ci.org/ncbo/resource_index)
+
 The NCBO Resource Index project process a variety of biomedical resources (IE collections of documents or data)
 and generates annotations using classes from BioPortal.
 
