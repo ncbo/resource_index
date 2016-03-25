@@ -8,4 +8,6 @@ before_install:
   - gem update bundler  
 install:
   - bundle install
+before_script:
+  - "elasticsearch -v"
 script: bundle exec rake test
