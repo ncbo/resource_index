@@ -1,13 +1,11 @@
 language: ruby
 cache: bundler
 rvm:
-  - 2.1
+  - 2.2.5
 services:
   - elasticsearch
 before_install:
   - gem update bundler  
 install:
   - bundle install
-before_script:
-  - "elasticsearch -v"
 script: bundle exec rake test
