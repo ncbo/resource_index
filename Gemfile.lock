@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/ncbo/goo.git
-  revision: c75913939427a9265e1c047a31c5faee60e2eaea
+  revision: c8cc22b62c09ab0fe415e4a3c206ef02da78dafd
   branch: master
   specs:
     goo (0.0.2)
@@ -16,12 +16,12 @@ GIT
 
 GIT
   remote: git://github.com/ncbo/sparql-client.git
-  revision: 7a2265337f71e0e312be76b08ce6d45685983146
+  revision: 07ec7b130319035bf2bff40dd4bf094a6946ec61
   branch: master
   specs:
     sparql-client (1.0.4.1)
       json_pure (>= 1.4)
-      net-http-persistent (>= 1.4)
+      net-http-persistent (= 2.9.4)
       rdf (>= 1.0)
 
 PATH
@@ -48,7 +48,6 @@ GEM
     builder (3.2.2)
     coderay (1.1.1)
     concurrent-ruby (1.0.2)
-    connection_pool (2.2.0)
     cube-ruby (0.0.3)
     domain_name (0.5.20160826)
       unf (>= 0.0.5, < 1.0.0)
@@ -81,8 +80,7 @@ GEM
     multi_json (1.12.1)
     multipart-post (2.0.0)
     mysql2 (0.4.4)
-    net-http-persistent (3.0.0)
-      connection_pool (~> 2.2)
+    net-http-persistent (2.9.4)
     netrc (0.11.0)
     pony (1.11)
       mail (>= 2.0)
