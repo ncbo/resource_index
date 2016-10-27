@@ -12,7 +12,7 @@ classes found in BioPortal ([read more](https://github.com/ncbo/resource_index/w
 - Ruby 2.x
 - Elasticsearch 1.x
 - mgrep (available on the [NCBO Virtual Appliance](http://www.bioontology.org/wiki/index.php/Category:NCBO_Virtual_Appliance))
-- MySQL (used for defining indidivual resources, their metadata, and a normalized version of their documents/data)
+- MySQL (used for defining individual resources, their metadata, and normalized versions of their documents/data)
 
 ## Installation
 
