@@ -5,8 +5,8 @@
 The NCBO Resource Index project processes a variety of biomedical resources (i.e., collections of documents or data)
 and generates annotations using classes from [BioPortal](http://bioportal.bioontology.org/).
 
-In addition to the annotations, the Resource Index project can generate a co-occurence matrix for labels and
-classes found in BioPortal.
+In addition to annotations, the Resource Index is capable of generating a co-occurence matrix for labels and
+classes found in BioPortal ([read more](wiki/Term-Occurence)).
 
 ## Dependencies
 - Ruby 2.x
