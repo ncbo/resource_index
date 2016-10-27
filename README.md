@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/ncbo/resource_index.svg?branch=master)](https://travis-ci.org/ncbo/resource_index)
 
 The NCBO Resource Index project processes a variety of biomedical resources (i.e., collections of documents or data)
-and generates annotations using classes from BioPortal.
+and generates annotations using classes from [BioPortal](http://bioportal.bioontology.org/).
 
 In addition to the annotations, the Resource Index project can generate a co-occurence matrix for labels and
 classes found in BioPortal.
