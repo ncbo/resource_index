@@ -1,7 +1,7 @@
 GIT
   remote: git://github.com/ncbo/goo.git
-  revision: f9454b16d0123c21969a5554d76e7c15ed9881d3
-  branch: master
+  revision: d4c16f964e5a798e071769e627aaeed229c5c7f0
+  branch: staging
   specs:
     goo (0.0.2)
       addressable (= 2.3.5)
@@ -39,7 +39,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (5.0.2)
+    activesupport (5.1.1)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (~> 0.7)
       minitest (~> 5.1)
@@ -61,25 +61,25 @@ GEM
       multi_json
     ethon (0.10.1)
       ffi (>= 1.3.0)
-    faraday (0.12.0.1)
+    faraday (0.12.1)
       multipart-post (>= 1.2, < 3)
     ffi (1.9.18)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
     i18n (0.8.1)
-    json_pure (2.0.4)
+    json_pure (2.1.0)
     macaddr (1.7.1)
       systemu (~> 2.6.2)
-    mail (2.6.4)
+    mail (2.6.5)
       mime-types (>= 1.16, < 4)
     method_source (0.8.2)
     mime-types (3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2016.0521)
-    minitest (5.10.1)
+    minitest (5.10.2)
     multi_json (1.12.1)
     multipart-post (2.0.0)
-    mysql2 (0.4.5)
+    mysql2 (0.4.6)
     net-http-persistent (2.9.4)
     netrc (0.11.0)
     pony (1.11)
@@ -93,14 +93,15 @@ GEM
       addressable (>= 2.2)
     redis (3.3.3)
     ref (2.0.0)
-    rest-client (2.0.1)
+    rest-client (2.0.2)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
-    rsolr (1.1.2)
+    rsolr (2.0.2)
       builder (>= 2.1.2)
+      faraday
     ruby-xxHash (0.4.0.1)
-    sequel (4.45.0)
+    sequel (4.46.0)
     slop (3.6.0)
     sqlite3 (1.3.13)
     systemu (2.6.5)
@@ -111,7 +112,7 @@ GEM
       thread_safe (~> 0.1)
     unf (0.1.4)
       unf_ext
-    unf_ext (0.0.7.3)
+    unf_ext (0.0.7.4)
     uuid (2.3.8)
       macaddr (~> 1.0)
 
