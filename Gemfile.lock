@@ -1,7 +1,7 @@
 GIT
   remote: git://github.com/ncbo/goo.git
-  revision: 377c200fa119c212cf90744385354d088179ea31
-  branch: staging
+  revision: 5e7c8f42ed2598bab36152d98a254657c6c0c311
+  branch: master
   specs:
     goo (0.0.2)
       addressable (= 2.3.5)
@@ -16,10 +16,10 @@ GIT
 
 GIT
   remote: git://github.com/ncbo/sparql-client.git
-  revision: f7b6888b923f312a1190957c6f96a2ba0ffd2e1c
-  branch: staging
+  revision: 8dbf57fb87264699eb25643c35a219e02d21f4fc
+  branch: master
   specs:
-    sparql-client (1.0.4.1)
+    sparql-client (1.0.1)
       json_pure (>= 1.4)
       net-http-persistent (= 2.9.4)
       rdf (>= 1.0)
