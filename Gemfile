@@ -10,7 +10,7 @@ gem 'activesupport'
 
 platform :ruby do
   gem 'sqlite3'
-  gem 'mysql2'
+  gem 'mysql2', '0.5.2'
 end
 
 platform :jruby do
